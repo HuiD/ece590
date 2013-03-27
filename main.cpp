@@ -8,6 +8,8 @@
 
 Hero * hero;
 Bomb * bomb;
+vector<Block * > blocks;
+
 int handle_key(SDLKey k) {
     switch(k) {
         case SDLK_ESCAPE:
@@ -33,20 +35,28 @@ void handle_keyup(SDLKey k) {
     }
 }
 
-
+void initBlock() {
+    int locationX[5] = {100, 200, 300, 400, 500};
+    int locationY[5] = {450, 350, 250, 150, 50};
+    for (int i = 0; i < 5; i++){
+        Block * tmp = new Block();
+        tmp->setCoords(locationX[i], locationY[i]);
+        blocks.push_back(tmp);
+    }
+}
 
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     hero = new Hero();
     bomb = new Bomb();
     Background * background = new Background("img/background.bmp");
-//    background->initSprite("img/background.bmp");
+    initBlock();
     background->setCoords(0,0);
     int totalScroll =0;
     
     //preprocess collision
     vector<CollisionPair * > colList;
-    CollisionPair * cp = new CollisionPair(hero, bomb);
+    CollisionPair * cp = new CollisionPair(hero, bomb, 0);
     colList.push_back(cp);
         
     while(1) {
@@ -86,6 +96,9 @@ void eventLoop(SDL_Surface * screen) {
         hero->draw(screen);
         if (bomb->getVisible())
             bomb->draw(screen);
+        for (int i = 0; i < blocks.size(); i++) {
+            blocks.at(i)->draw(screen);
+        }
         
         //check for collision
         for (int i = 0; i < colList.size(); i++){

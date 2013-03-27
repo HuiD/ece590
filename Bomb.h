@@ -24,12 +24,12 @@ public:
     }
     
     
-    void onCollison(){
-        cout<<"bomb collide!"<<endl;
-        setVisible(false);
-    }
+//    void onHBC(){
+//        cout<<"bomb collide!"<<endl;
+//        setVisible(false);
+//    }
     
     
 };
-extern Bomb * bomb;
+//extern Bomb * bomb;
 #endif

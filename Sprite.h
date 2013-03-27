@@ -110,7 +110,7 @@ public:
     bool getVisible(){
         return visible;
     }
-    virtual void onCollison() = 0;
+//    virtual void onHBC() = 0;
     
 };
 #endif

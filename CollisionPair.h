@@ -4,22 +4,30 @@
 
 class CollisionPair {
     
-private:
+protected:
     Sprite * s1;
     Sprite * s2;
 public:
-    CollisionPair(Sprite * s11, Sprite * s22){
+    int collisionType;
+    CollisionPair(Sprite * s11, Sprite * s22, int t){
         s1 = s11;
         s2 = s22;
+        collisionType = t;
     }
     
     bool isCollided(){
         return s1->isCollided(s2);
     }
     
-    void onCollision(){
-        s1->onCollison();
-        s2->onCollison();
+    void onCollision() {
+        switch (collisionType) {
+            case 0:
+                s2->setVisible(false);
+                break;
+                
+            default:
+                break;
+        }
     }
 };
 

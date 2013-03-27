@@ -132,9 +132,9 @@ public:
         move = MOVE_RIGHT;
     }
     
-    void onCollison(){
-        cout<<"hero collide!"<<endl;
-    }
+//    void onHBC(){
+//        cout<<"hero collide!"<<endl;
+//    }
     
 };
 extern Hero * hero;
