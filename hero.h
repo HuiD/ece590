@@ -16,6 +16,8 @@ static const char * hero_file_names[NUM_HERO_FILES + 1] = {
     NULL
 };
 
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 640
 
 
 enum move_state {
@@ -81,8 +83,17 @@ public:
 			}
   
         Sprite::setCoords(Sprite::getX()+speedX, Sprite::getY()+speedY);
-        if (Sprite::getY() > 450) {
-            Sprite::setCoords(Sprite::getX(), 450);
+        if (Sprite::getY() > WINDOW_HEIGHT-getH()) {
+            Sprite::setCoords(Sprite::getX(), WINDOW_HEIGHT-getH());
+        }
+        if (Sprite::getY() < 0) {
+            Sprite::setCoords(Sprite::getX(), 0);
+        }
+        if (Sprite::getX() < 0) {
+            Sprite::setCoords(0, getY());
+        }
+        if (Sprite::getX() > WINDOW_WIDTH-getW()) {
+            Sprite::setCoords(WINDOW_WIDTH-getW(), getY());
         }
         Sprite::setAnimFrame(frame);
     }

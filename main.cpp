@@ -64,7 +64,7 @@ void eventLoop(SDL_Surface * screen) {
     
     //preprocess collision
     vector<CollisionPair * > colList;
-    CollisionPair * cp = new CollisionPair(hero, bomb, 0);
+    CollisionPair * cp = new CollisionPair(hero, bomb, HeroBomb);
     colList.push_back(cp);
         
     while(1) {
@@ -98,16 +98,6 @@ void eventLoop(SDL_Surface * screen) {
         
         //        background->setCoords(-totalScroll, 0);
         
-        
-        
-        background->blit(screen);
-        hero->draw(screen);
-        if (bomb->getVisible())
-            bomb->draw(screen);
-        for (int i = 0; i < blocks.size(); i++) {
-            blocks.at(i)->draw(screen);
-        }
-        
         //check for collision
         for (int i = 0; i < colList.size(); i++){
             CollisionPair * tmp = colList.at(i);
@@ -116,6 +106,14 @@ void eventLoop(SDL_Surface * screen) {
             }
         }
         
+        background->blit(screen);
+        hero->draw(screen);
+        if (bomb->getVisible())
+            bomb->draw(screen);
+        for (int i = 0; i < blocks.size(); i++) {
+            blocks.at(i)->draw(screen);
+        }
+          
 
         /* since its double buffered, make
          the changes show up*/
@@ -139,8 +137,8 @@ int main(void) {
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
-    SDL_Surface * screen = SDL_SetVideoMode(800,
-                                            640,
+    SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
+                                            WINDOW_HEIGHT,
                                             0,
                                             SDL_HWSURFACE |
                                             SDL_DOUBLEBUF 
