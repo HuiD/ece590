@@ -118,12 +118,12 @@ int main(void) {
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
-    SDL_Surface * screen = SDL_SetVideoMode(1440,
-                                            900,
+    SDL_Surface * screen = SDL_SetVideoMode(800,
+                                            640,
                                             0,
                                             SDL_HWSURFACE |
-                                            SDL_DOUBLEBUF |
-                                            SDL_FULLSCREEN);
+                                            SDL_DOUBLEBUF 
+                                            );
     /* make it so that holding down a key repeats it*/
     SDL_EnableKeyRepeat(10,10);
     
