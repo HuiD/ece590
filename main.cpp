@@ -23,6 +23,12 @@ int handle_key(SDLKey k) {
         case SDLK_RIGHT:
             hero->moveRight();
             break;
+		case SDLK_UP:
+			hero->moveUp();
+			break;
+		case SDLK_DOWN:
+			hero->moveDown();
+			break;
     }
     return 0;
 }
@@ -30,6 +36,8 @@ void handle_keyup(SDLKey k) {
     switch (k) {
         case SDLK_LEFT:
         case SDLK_RIGHT:
+		case SDLK_UP:
+		case SDLK_DOWN:
             hero->stopMoving();
             break;
     }
