@@ -8,6 +8,7 @@ class Background : public Sprite{
 public:
     Background(const char * file){
         Sprite::initSprite(file);
+        setVisible(true);
     }
     ~Background() {
 //        delete sprite;

@@ -67,11 +67,6 @@ vector<SDL_Rect> initBlock(Hero * hero) {
         rectArray[i].y = y;
         rectArray[i].w = w;
         rectArray[i].h = h;
-//        SDL_Rect rect;
-//        rect.x = x;
-//        rect.y = y;
-//        rect.w = w;
-//        rect.h = h;
         blockMap.push_back(rectArray[i]);
     }
     
@@ -81,7 +76,7 @@ vector<SDL_Rect> initBlock(Hero * hero) {
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     hero = new Hero();
-    bomb = new Bomb();
+    bomb = new Bomb("img/blob2.bmp", 200, 450);
     Background * background = new Background("img/background.bmp");
 //    set<pair<int, int> > blockMap;
     vector<SDL_Rect> blockMap = initBlock(hero);
@@ -90,9 +85,20 @@ void eventLoop(SDL_Surface * screen) {
     int totalScroll =0;
     
     //preprocess collision
+//    vector<vector<Sprite *> > colGroups;
+    vector<Sprite *> heroGroup;
+    vector<Sprite *> bombGroup;
+    heroGroup.push_back(hero);
+    bombGroup.push_back(bomb);
+//    colGroups.push_back(heroGroup);
+//    colGroups.push_back(bombGroup);
     vector<CollisionPair * > colList;
-    CollisionPair * cp = new CollisionPair(hero, bomb, HeroBomb);
-    colList.push_back(cp);
+    for (int i = 0; i < heroGroup.size(); i++){
+        for (int j = 0; j < bombGroup.size(); j++) {
+            CollisionPair * cp = new CollisionPair(heroGroup.at(i), bombGroup.at(j), HeroBomb);
+            colList.push_back(cp);
+        }
+    }
         
     while(1) {
         /* This function returns 0 if no
@@ -114,16 +120,6 @@ void eventLoop(SDL_Surface * screen) {
         
         hero->update(blockMap);
         bomb->update();
-        int x = hero->getX();
-        int scroll = (x - 500) / 25;
-        
-        
-        
-        //        hero->scrollingBy(scroll);
-//        totalScroll += scroll;
-//        totalScroll = totalScroll & 2047;
-        
-        //        background->setCoords(-totalScroll, 0);
         
         //check for collision
         for (int i = 0; i < colList.size(); i++){
@@ -134,11 +130,14 @@ void eventLoop(SDL_Surface * screen) {
         }
         
         background->blit(screen);
-        hero->draw(screen);
-        if (bomb->getVisible())
-            bomb->draw(screen);
+        for (int i = 0; i < heroGroup.size(); i++) {
+            heroGroup.at(i)->blit(screen);
+        }
+        for (int i = 0; i < bombGroup.size(); i++) {
+            bombGroup.at(i)->blit(screen);
+        }
         for (int i = 0; i < blocks.size(); i++) {
-            blocks.at(i)->draw(screen);
+            blocks.at(i)->blit(screen);
         }
           
 

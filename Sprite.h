@@ -64,11 +64,13 @@ public:
     }
     
     void blit (SDL_Surface * screen) {
-        int x = pos.x;
-        int y = pos.y;
-        SDL_BlitSurface(anim_frames[currentFrame], NULL, screen, &pos);
-        pos.x = x;
-        pos.y = y;
+        if (visible) {
+            int x = pos.x;
+            int y = pos.y;
+            SDL_BlitSurface(anim_frames[currentFrame], NULL, screen, &pos);
+            pos.x = x;
+            pos.y = y;
+        }
     }
     
     bool isCollided(Sprite * other) {
@@ -110,7 +112,6 @@ public:
     bool getVisible(){
         return visible;
     }
-//    virtual void onHBC() = 0;
     
 };
 #endif

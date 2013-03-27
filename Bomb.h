@@ -6,10 +6,10 @@
 class Bomb : public Sprite{
 
 public:
-    Bomb(){
+    Bomb(const char * file, int x, int y){
         Sprite::setVisible(true);
-        Sprite::initSprite("img/blob2.bmp");
-        Sprite::setCoords(200,450);
+        Sprite::initSprite(file);
+        Sprite::setCoords(x, y);
     }
     ~Bomb() {
 //        delete sprite;
@@ -19,15 +19,6 @@ public:
     void update() {
         
     }
-    void draw(SDL_Surface * screen) {        
-        Sprite::blit(screen);
-    }
-    
-    
-//    void onHBC(){
-//        cout<<"bomb collide!"<<endl;
-//        setVisible(false);
-//    }
     
     
 };

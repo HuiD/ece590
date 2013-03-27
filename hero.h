@@ -108,9 +108,7 @@ public:
         }
         Sprite::setAnimFrame(frame);
     }
-    void draw(SDL_Surface * screen) {
-        Sprite::blit(screen);
-    }
+
     
     void jump() {
         if (onground) {
@@ -119,10 +117,7 @@ public:
         }
         
     }
-    
-    //    void scrollingBy(int ammount) {
-    //        x = x - ammount;
-    //    }
+
     
     void stopMoving() {
         move = DONT_MOVE;
@@ -142,9 +137,7 @@ public:
 		move = MOVE_UP;
 	}
     
-    //    void onHBC(){
-    //        cout<<"hero collide!"<<endl;
-    //    }
+
     
 };
 extern Hero * hero;
