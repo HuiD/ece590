@@ -2,6 +2,8 @@
 #define __HERO_H__
 #include "Sprite.h"
 #include <iostream>
+#include <utility>
+#include <vector>
 #define NUM_HERO_FILES 8
 using namespace std;
 static const char * hero_file_names[NUM_HERO_FILES + 1] = {
@@ -51,38 +53,47 @@ public:
         onground = true;
     }
     ~Hero() {
-//        delete sprite;
+        //        delete sprite;
     }
     
 #define MAX_SPEED  10.5
-    void update() {
+    void update(vector<SDL_Rect> blockMap) {
         frame = frame++;
         frame = frame & 3;
-            //speedY = 0;
-            switch(move) {
-                case DONT_MOVE:
-					speedX=0;
-					speedY=0;
-                    break;
-                case MOVE_RIGHT:
-                    if(speedX < MAX_SPEED) speedX = walk_accel;
-					speedY=0;
-                    break;
-                case MOVE_LEFT:
-                    if(speedX > -MAX_SPEED) speedX = -1*walk_accel;
-					speedY=0;
-                    break;
-				case MOVE_UP:
-					if(speedY > -MAX_SPEED) speedY = -1*walk_accel;
-					speedX=0;
-					break;
-				case MOVE_DOWN:
-					if(speedY < MAX_SPEED) 	speedY = walk_accel;
-					speedX=0;
-					break;            
-			}
-  
-        Sprite::setCoords(Sprite::getX()+speedX, Sprite::getY()+speedY);
+        //speedY = 0;
+        switch(move) {
+            case DONT_MOVE:
+                speedX=0;
+                speedY=0;
+                break;
+            case MOVE_RIGHT:
+                if(speedX < MAX_SPEED) speedX = walk_accel;
+                speedY=0;
+                break;
+            case MOVE_LEFT:
+                if(speedX > -MAX_SPEED) speedX = -1*walk_accel;
+                speedY=0;
+                break;
+            case MOVE_UP:
+                if(speedY > -MAX_SPEED) speedY = -1*walk_accel;
+                speedX=0;
+                break;
+            case MOVE_DOWN:
+                if(speedY < MAX_SPEED) 	speedY = walk_accel;
+                speedX=0;
+                break;
+        }
+        int oriX = getX();
+        int oriY = getY();
+        setCoords(getX()+speedX, getY()+speedY);
+        for (int i = 0; i < blockMap.size(); i++){
+            SDL_Rect pos = blockMap.at(i);
+            if (getX()>=pos.x && getX()<=pos.x+pos.w && getY()>=pos.y && getY()<=pos.y+pos.h){
+                setCoords(oriX, oriY);
+                break;
+            }
+        }
+        //limit inside boundary
         if (Sprite::getY() > WINDOW_HEIGHT-getH()) {
             Sprite::setCoords(Sprite::getX(), WINDOW_HEIGHT-getH());
         }
@@ -100,7 +111,7 @@ public:
     void draw(SDL_Surface * screen) {
         Sprite::blit(screen);
     }
-
+    
     void jump() {
         if (onground) {
             onground = false;
@@ -109,9 +120,9 @@ public:
         
     }
     
-//    void scrollingBy(int ammount) {
-//        x = x - ammount;
-//    }
+    //    void scrollingBy(int ammount) {
+    //        x = x - ammount;
+    //    }
     
     void stopMoving() {
         move = DONT_MOVE;
@@ -122,7 +133,7 @@ public:
     void moveRight() {
         move = MOVE_RIGHT;
     }
-	void moveDown() 
+	void moveDown()
 	{
 		move = MOVE_DOWN;
 	}
@@ -131,9 +142,9 @@ public:
 		move = MOVE_UP;
 	}
     
-//    void onHBC(){
-//        cout<<"hero collide!"<<endl;
-//    }
+    //    void onHBC(){
+    //        cout<<"hero collide!"<<endl;
+    //    }
     
 };
 extern Hero * hero;

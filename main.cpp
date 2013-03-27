@@ -43,7 +43,7 @@ void handle_keyup(SDLKey k) {
     }
 }
 
-void initBlock() {
+vector<SDL_Rect> initBlock(Hero * hero) {
     int locationX[5] = {100, 200, 300, 400, 500};
     int locationY[5] = {450, 350, 250, 150, 50};
     for (int i = 0; i < 5; i++){
@@ -51,6 +51,31 @@ void initBlock() {
         tmp->setCoords(locationX[i], locationY[i]);
         blocks.push_back(tmp);
     }
+    vector<SDL_Rect> blockMap;
+    SDL_Rect rectArray[5];
+    for (int i = 0; i < blocks.size(); i++){
+        Block *tmp = blocks.at(i);
+        int x = tmp->getX() - hero->getW();
+        if (x<0)    x = 0;
+        int y = tmp->getY() - hero->getH();
+        if (y<0)    y = 0;
+        int w = tmp->getW() + hero->getW();
+        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
+        int h = tmp->getH() + hero->getH();
+        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
+        rectArray[i].x = x;
+        rectArray[i].y = y;
+        rectArray[i].w = w;
+        rectArray[i].h = h;
+//        SDL_Rect rect;
+//        rect.x = x;
+//        rect.y = y;
+//        rect.w = w;
+//        rect.h = h;
+        blockMap.push_back(rectArray[i]);
+    }
+    
+    return blockMap;
 }
 
 void eventLoop(SDL_Surface * screen) {
@@ -58,7 +83,9 @@ void eventLoop(SDL_Surface * screen) {
     hero = new Hero();
     bomb = new Bomb();
     Background * background = new Background("img/background.bmp");
-    initBlock();
+//    set<pair<int, int> > blockMap;
+    vector<SDL_Rect> blockMap = initBlock(hero);
+
     background->setCoords(0,0);
     int totalScroll =0;
     
@@ -85,7 +112,7 @@ void eventLoop(SDL_Surface * screen) {
             
         }/* input event loop*/
         
-        hero->update();
+        hero->update(blockMap);
         bomb->update();
         int x = hero->getX();
         int scroll = (x - 500) / 25;
@@ -155,5 +182,15 @@ int main(void) {
     /* cleanup SDL- return to normal screen mode,
      etc */
     SDL_Quit();
+    
+//    std::pair <int,int> foo;
+//    std::pair <int,int> bar;
+//    set<pair<int,int> > ss;
+//    foo = std::make_pair (10,20);
+//    ss.insert(foo);
+//    bar = std::make_pair (10,20);
+//    if (ss.find(bar)!=ss.end())
+//        cout<<"YES";
+    
     return EXIT_SUCCESS;
 }
