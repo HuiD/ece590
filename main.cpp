@@ -43,7 +43,7 @@ void handle_keyup(SDLKey k) {
     }
 }
 
-void initBlock() {
+vector<SDL_Rect> initBlock(Hero * hero) {
     int locationX[5] = {100, 200, 300, 400, 500};
     int locationY[5] = {450, 350, 250, 150, 50};
     for (int i = 0; i < 5; i++){
@@ -51,21 +51,54 @@ void initBlock() {
         tmp->setCoords(locationX[i], locationY[i]);
         blocks.push_back(tmp);
     }
+    vector<SDL_Rect> blockMap;
+    SDL_Rect rectArray[5];
+    for (int i = 0; i < blocks.size(); i++){
+        Block *tmp = blocks.at(i);
+        int x = tmp->getX() - hero->getW();
+        if (x<0)    x = 0;
+        int y = tmp->getY() - hero->getH();
+        if (y<0)    y = 0;
+        int w = tmp->getW() + hero->getW();
+        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
+        int h = tmp->getH() + hero->getH();
+        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
+        rectArray[i].x = x;
+        rectArray[i].y = y;
+        rectArray[i].w = w;
+        rectArray[i].h = h;
+        blockMap.push_back(rectArray[i]);
+    }
+    
+    return blockMap;
 }
 
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     hero = new Hero();
-    bomb = new Bomb();
+    bomb = new Bomb("img/blob2.bmp", 200, 450);
     Background * background = new Background("img/background.bmp");
-    initBlock();
+//    set<pair<int, int> > blockMap;
+    vector<SDL_Rect> blockMap = initBlock(hero);
+
     background->setCoords(0,0);
     int totalScroll =0;
     
     //preprocess collision
+//    vector<vector<Sprite *> > colGroups;
+    vector<Sprite *> heroGroup;
+    vector<Sprite *> bombGroup;
+    heroGroup.push_back(hero);
+    bombGroup.push_back(bomb);
+//    colGroups.push_back(heroGroup);
+//    colGroups.push_back(bombGroup);
     vector<CollisionPair * > colList;
-    CollisionPair * cp = new CollisionPair(hero, bomb, 0);
-    colList.push_back(cp);
+    for (int i = 0; i < heroGroup.size(); i++){
+        for (int j = 0; j < bombGroup.size(); j++) {
+            CollisionPair * cp = new CollisionPair(heroGroup.at(i), bombGroup.at(j), HeroBomb);
+            colList.push_back(cp);
+        }
+    }
         
     while(1) {
         /* This function returns 0 if no
@@ -85,28 +118,8 @@ void eventLoop(SDL_Surface * screen) {
             
         }/* input event loop*/
         
-        hero->update();
+        hero->update(blockMap);
         bomb->update();
-        int x = hero->getX();
-        int scroll = (x - 500) / 25;
-        
-        
-        
-        //        hero->scrollingBy(scroll);
-//        totalScroll += scroll;
-//        totalScroll = totalScroll & 2047;
-        
-        //        background->setCoords(-totalScroll, 0);
-        
-        
-        
-        background->blit(screen);
-        hero->draw(screen);
-        if (bomb->getVisible())
-            bomb->draw(screen);
-        for (int i = 0; i < blocks.size(); i++) {
-            blocks.at(i)->draw(screen);
-        }
         
         //check for collision
         for (int i = 0; i < colList.size(); i++){
@@ -116,6 +129,17 @@ void eventLoop(SDL_Surface * screen) {
             }
         }
         
+        background->blit(screen);
+        for (int i = 0; i < heroGroup.size(); i++) {
+            heroGroup.at(i)->blit(screen);
+        }
+        for (int i = 0; i < bombGroup.size(); i++) {
+            bombGroup.at(i)->blit(screen);
+        }
+        for (int i = 0; i < blocks.size(); i++) {
+            blocks.at(i)->blit(screen);
+        }
+          
 
         /* since its double buffered, make
          the changes show up*/
@@ -139,8 +163,8 @@ int main(void) {
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
-    SDL_Surface * screen = SDL_SetVideoMode(800,
-                                            640,
+    SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
+                                            WINDOW_HEIGHT,
                                             0,
                                             SDL_HWSURFACE |
                                             SDL_DOUBLEBUF 
@@ -157,5 +181,15 @@ int main(void) {
     /* cleanup SDL- return to normal screen mode,
      etc */
     SDL_Quit();
+    
+//    std::pair <int,int> foo;
+//    std::pair <int,int> bar;
+//    set<pair<int,int> > ss;
+//    foo = std::make_pair (10,20);
+//    ss.insert(foo);
+//    bar = std::make_pair (10,20);
+//    if (ss.find(bar)!=ss.end())
+//        cout<<"YES";
+    
     return EXIT_SUCCESS;
 }

@@ -18,14 +18,7 @@ public:
     void update() {
         
     }
-    void draw(SDL_Surface * screen) {
-        if (Sprite::getVisible())
-            Sprite::blit(screen);
-    }
-    
-//    void onHBC(){
-//
-//    }
+
     
     
 };
