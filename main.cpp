@@ -10,6 +10,11 @@
 Hero * hero;
 Bomb * bomb;
 vector<Block * > blocks;
+bool Connected;
+CClientSocket* tcpclient;
+CIpAddress* remoteip;
+
+
 
 int handle_key(SDLKey k) {
     switch(k) {
@@ -87,7 +92,7 @@ void initBlock(Hero * hero) {
 
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
-    hero = new Hero();
+//    hero = new Hero();
     bomb = new Bomb("img/blob2.bmp", 200, 450, 4000, SDL_GetTicks());
     Background * background = new Background("img/background.bmp");
     initBlock(hero);
@@ -129,6 +134,24 @@ void eventLoop(SDL_Surface * screen) {
             }
             
         }/* input event loop*/
+
+
+		if(!Connected)
+		{
+			if(tcpclient->Connect(*remoteip))
+			{
+				if(tcpclient->Ok()){
+					Connected=true;
+					cout<<"connected to server"<<endl;
+				}
+			}
+			else{
+				if(tcpclient->Ready())
+				{
+					cout<<"ready"<<endl;
+				}
+			}
+		}
         
         //update sprites
         hero->update(blocks, colList, heroGroup, bombGroup);
@@ -201,6 +224,10 @@ int main(void) {
      see man page :)
      */
     SDL_Init(SDL_INIT_VIDEO );
+	hero=new Hero();
+	tcpclient = new CClientSocket();
+	hero->setclient(tcpclient);
+	remoteip = new CIpAddress("127.0.1.1", 1234);
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
