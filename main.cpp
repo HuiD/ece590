@@ -74,7 +74,7 @@ void handle_keyup(SDLKey k) {
 //    return blockMap;
 //}
 
-vector<SDL_Rect> initBlock(Hero * hero) {
+void initBlock(Hero * hero) {
     int locationX[5] = {100, 200, 300, 400, 500};
     int locationY[5] = {450, 350, 250, 150, 50};
     for (int i = 0; i < 5; i++){
@@ -82,26 +82,7 @@ vector<SDL_Rect> initBlock(Hero * hero) {
         tmp->setCoords(locationX[i], locationY[i]);
         blocks.push_back(tmp);
     }
-    vector<SDL_Rect> blockMap;
-    SDL_Rect rectArray[5];
-    for (int i = 0; i < blocks.size(); i++){
-        Block *tmp = blocks.at(i);
-        int x = tmp->getX();
-//        if (x<0)    x = 0;
-        int y = tmp->getY();
-//        if (y<0)    y = 0;
-        int w = tmp->getW();
-//        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
-        int h = tmp->getH();
-//        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
-        rectArray[i].x = x;
-        rectArray[i].y = y;
-        rectArray[i].w = w;
-        rectArray[i].h = h;
-        blockMap.push_back(rectArray[i]);
-    }
     
-    return blockMap;
 }
 
 void eventLoop(SDL_Surface * screen) {
@@ -109,7 +90,7 @@ void eventLoop(SDL_Surface * screen) {
     hero = new Hero();
     bomb = new Bomb("img/blob2.bmp", 200, 450, 4000, SDL_GetTicks());
     Background * background = new Background("img/background.bmp");
-    vector<SDL_Rect> blockMap = initBlock(hero);
+    initBlock(hero);
 
     background->setCoords(0,0);
     int totalScroll =0;

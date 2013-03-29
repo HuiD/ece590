@@ -3,6 +3,7 @@
 #include "Sprite.h"
 #include "Explosion.h"
 #include <climits>
+#include <algorithm>
 class Hero;
 
 class Bomb : public Sprite{
@@ -37,10 +38,11 @@ public:
             setVisible(false);
             isAwake = false;
             Explosion * explosion1 = new Explosion("img/explo1.bmp", getX(), getY(), 4000, SDL_GetTicks());
+//            explosion1->setSurface(explosion1->getW()*2/3, explosion1->getH());
             explosion1->setCoords(explosion1->getX() - explosion1->getW()/2, explosion1->getY());
             Explosion * explosion2 = new Explosion("img/explo2.bmp", getX(), getY(), 4000, SDL_GetTicks());
-            explosion2->setCoords(explosion2->getX(), explosion2->getY() - explosion2->getH()/2);
-//            vector<Sprite *> heroGroup = colGroups.at(0);
+//            explosion2->setCoords(explosion2->getX(), explosion2->getY() - explosion2->getH()/2);
+            setVertExplosionBound(explosion2, blocks);
             explosionGroup.push_back(explosion1);
             explosionGroup.push_back(explosion2);
 
@@ -52,6 +54,44 @@ public:
             }
 
         }
+    }
+    
+    void setVertExplosionBound(Explosion * exp, vector<Block *> blocks) {
+//        exp->setCoords(exp->getX(), exp->getY() - exp->getH()/2);
+//        for (int i = 0; i < blocks.size(); i++){
+//            Block * bl = blocks.at(i);            
+//            if (bl->getY()>exp->getY()+exp->getH())
+//                continue;
+//            else if (bl->getY()>exp->getY()){
+////                exp->setH(bl->getY()-exp->getY());
+//                exp->setSurface(exp->getW(), bl->getY()-exp->getY());
+//            }
+//            else if (bl->getY()+bl->getH()<exp->getY())
+//                continue;
+//            else {
+//                exp->setSurface(exp->getW(), exp->getH() - (bl->getY()+bl->getH()-exp->getY()));
+//
+////                exp->setH(exp->getH() - (bl->getY()+bl->getH()-exp->getY()));
+//                exp->setCoords(exp->getX(), bl->getY()+bl->getH());
+//            }
+//                
+//        }
+        int hi = exp->getY()-exp->getH()/2;
+        int lo = exp->getY()+exp->getH()/2;
+        for (int i = 0; i < blocks.size(); i++){
+            Block * bl = blocks.at(i);
+            if (bl->getX()>exp->getX()+exp->getW() || bl->getX()+bl->getW()<exp->getX())
+                continue;
+            if (exp->getY()>=bl->getY()+bl->getH()){
+                hi = max(bl->getY()+bl->getH(), hi);
+            }
+            else if (exp->getY()<=bl->getY()){
+                lo = min(bl->getY(), lo);
+            }
+        }
+        int ht = lo-hi+1;
+        exp->setSurface(exp->getW(), ht);
+        exp->setCoords(exp->getX(), hi);
     }
     
     bool checkTimer(int interval) {

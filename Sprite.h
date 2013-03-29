@@ -119,12 +119,27 @@ public:
         return pos.w;
     }
     
+    void setW(int wid) {
+        pos.w = wid;
+    }
+    
+    void setH(int hei) {
+        pos.h = hei;
+    }
+    
     void setVisible(bool flag){
         visible = flag;
     }
     
     bool getVisible(){
         return visible;
+    }
+    
+    void setSurface(int wid, int hei) {
+        anim_frames[currentFrame]->w = wid;
+        anim_frames[currentFrame]->h = hei;
+        pos.w = anim_frames[currentFrame]->w;
+        pos.h = anim_frames[currentFrame]->h;
     }
     
     virtual void inCollision(enum colType t) = 0;
