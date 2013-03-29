@@ -241,6 +241,7 @@ int main(void) {
     SDL_EnableKeyRepeat(10,10);
     
     if(screen == NULL) {
+        cout<<SDL_GetError()<<endl;
         fprintf(stderr, "Can't inialtize video\n");
         SDL_Quit();
         return EXIT_FAILURE;
