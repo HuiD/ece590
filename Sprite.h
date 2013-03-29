@@ -2,8 +2,12 @@
 #define __SPRITE_H__
 #include "SDL.h"
 #include <iostream>
+#include <vector>
 using namespace std;
 
+enum colType{
+    HeroBomb, HeroBlock, HeroExplosion
+};
 
 class Sprite {
 protected:
@@ -73,7 +77,17 @@ public:
         }
     }
     
-    bool isCollided(Sprite * other) {
+    void blit (SDL_Surface * screen, SDL_Rect *srcRect) {
+        if (visible) {
+            int x = pos.x;
+            int y = pos.y;
+            SDL_BlitSurface(anim_frames[currentFrame], srcRect, screen, &pos);
+            pos.x = x;
+            pos.y = y;
+        }
+    }
+    
+    virtual bool isCollided(Sprite * other) {
         int top1 = pos.y;
         int left1 = pos.x;
         int bottom1 = top1 + pos.h;
@@ -113,5 +127,7 @@ public:
         return visible;
     }
     
+    virtual void inCollision(enum colType t) = 0;
+//    virtual void update(vector<SDL_Rect> blockMap, vector<CollisionPair * > &colList, vector<vector<Sprite *> > &colGroups) = 0;
 };
 #endif

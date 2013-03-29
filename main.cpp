@@ -5,6 +5,7 @@
 #include "CollisionPair.h"
 #include "background.h"
 #include "Bomb.h"
+#include "Explosion.h"
 
 Hero * hero;
 Bomb * bomb;
@@ -14,9 +15,6 @@ int handle_key(SDLKey k) {
     switch(k) {
         case SDLK_ESCAPE:
             return 1;
-        case SDLK_SPACE:
-            hero->jump();
-            break;
         case SDLK_LEFT:
             hero->moveLeft();
             break;
@@ -40,8 +38,41 @@ void handle_keyup(SDLKey k) {
 		case SDLK_DOWN:
             hero->stopMoving();
             break;
+        case SDLK_SPACE:
+            hero->placeBomb();
+            break;
     }
 }
+
+//vector<SDL_Rect> initBlock(Hero * hero) {
+//    int locationX[5] = {100, 200, 300, 400, 500};
+//    int locationY[5] = {450, 350, 250, 150, 50};
+//    for (int i = 0; i < 5; i++){
+//        Block * tmp = new Block();
+//        tmp->setCoords(locationX[i], locationY[i]);
+//        blocks.push_back(tmp);
+//    }
+//    vector<SDL_Rect> blockMap;
+//    SDL_Rect rectArray[5];
+//    for (int i = 0; i < blocks.size(); i++){
+//        Block *tmp = blocks.at(i);
+//        int x = tmp->getX() - hero->getW();
+//        if (x<0)    x = 0;
+//        int y = tmp->getY() - hero->getH();
+//        if (y<0)    y = 0;
+//        int w = tmp->getW() + hero->getW();
+//        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
+//        int h = tmp->getH() + hero->getH();
+//        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
+//        rectArray[i].x = x;
+//        rectArray[i].y = y;
+//        rectArray[i].w = w;
+//        rectArray[i].h = h;
+//        blockMap.push_back(rectArray[i]);
+//    }
+//    
+//    return blockMap;
+//}
 
 vector<SDL_Rect> initBlock(Hero * hero) {
     int locationX[5] = {100, 200, 300, 400, 500};
@@ -55,14 +86,14 @@ vector<SDL_Rect> initBlock(Hero * hero) {
     SDL_Rect rectArray[5];
     for (int i = 0; i < blocks.size(); i++){
         Block *tmp = blocks.at(i);
-        int x = tmp->getX() - hero->getW();
-        if (x<0)    x = 0;
-        int y = tmp->getY() - hero->getH();
-        if (y<0)    y = 0;
-        int w = tmp->getW() + hero->getW();
-        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
-        int h = tmp->getH() + hero->getH();
-        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
+        int x = tmp->getX();
+//        if (x<0)    x = 0;
+        int y = tmp->getY();
+//        if (y<0)    y = 0;
+        int w = tmp->getW();
+//        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
+        int h = tmp->getH();
+//        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
         rectArray[i].x = x;
         rectArray[i].y = y;
         rectArray[i].w = w;
@@ -76,9 +107,8 @@ vector<SDL_Rect> initBlock(Hero * hero) {
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     hero = new Hero();
-    bomb = new Bomb("img/blob2.bmp", 200, 450);
+    bomb = new Bomb("img/blob2.bmp", 200, 450, 4000, SDL_GetTicks());
     Background * background = new Background("img/background.bmp");
-//    set<pair<int, int> > blockMap;
     vector<SDL_Rect> blockMap = initBlock(hero);
 
     background->setCoords(0,0);
@@ -86,8 +116,9 @@ void eventLoop(SDL_Surface * screen) {
     
     //preprocess collision
 //    vector<vector<Sprite *> > colGroups;
-    vector<Sprite *> heroGroup;
-    vector<Sprite *> bombGroup;
+    vector<Hero *> heroGroup;
+    vector<Bomb *> bombGroup;
+    vector<Explosion *> explosionGroup;
     heroGroup.push_back(hero);
     bombGroup.push_back(bomb);
 //    colGroups.push_back(heroGroup);
@@ -118,9 +149,22 @@ void eventLoop(SDL_Surface * screen) {
             
         }/* input event loop*/
         
-        hero->update(blockMap);
-        bomb->update();
-        
+        //update sprites
+        hero->update(blocks, colList, heroGroup, bombGroup);
+//        bomb->update();
+//        bombGroup = colGroups.at(1);
+        for (int i = 0; i < bombGroup.size(); i++) {
+            bombGroup.at(i)->update(blocks, colList, heroGroup, explosionGroup);
+        }
+        for (int i = 0; i < explosionGroup.size(); i++) {
+            explosionGroup.at(i)->update();
+        }
+//        for (int i = 0; i < colGroups.size(); i++) {
+//            vector<Sprite *> curGroup = colGroups.at(i);
+//            for (int j = 0; j < curGroup.size(); j++) {
+//                curGroup.at(j)->update(blockMap, colList, colGroups);
+//            }
+//        }
         //check for collision
         for (int i = 0; i < colList.size(); i++){
             CollisionPair * tmp = colList.at(i);
@@ -129,12 +173,28 @@ void eventLoop(SDL_Surface * screen) {
             }
         }
         
+        //draw sprites
         background->blit(screen);
-        for (int i = 0; i < heroGroup.size(); i++) {
-            heroGroup.at(i)->blit(screen);
+//        for (int i = 0; i < colGroups.size(); i++) {
+//            vector<Sprite *> curGroup = colGroups.at(i);
+//            for (int j = 0; j < curGroup.size(); j++) {
+//                curGroup.at(j)->blit(screen);
+//            }
+//        }
+        for (int j = 0; j < heroGroup.size(); j++) {
+            heroGroup.at(j)->blit(screen);
         }
-        for (int i = 0; i < bombGroup.size(); i++) {
-            bombGroup.at(i)->blit(screen);
+        for (int j = 0; j < bombGroup.size(); j++) {
+            bombGroup.at(j)->blit(screen);
+        }
+        for (int j = 0; j < explosionGroup.size(); j++) {
+//            Explosion * cur = explosionGroup.at(j);
+//            SDL_Rect tmp;
+//            tmp.x = cur->getW()/2;
+//            tmp.y = 0;
+//            tmp.w = 500;
+//            tmp.h = 500;
+            explosionGroup.at(j)->blit(screen);
         }
         for (int i = 0; i < blocks.size(); i++) {
             blocks.at(i)->blit(screen);
