@@ -6,6 +6,8 @@
 #include <vector>
 #include "CollisionPair.h"
 #include "Bomb.h"
+#include "CNet.h"
+#include "heromessage.h"
 
 #define NUM_HERO_FILES 8
 using namespace std;
@@ -46,6 +48,8 @@ private:
     bool isBomb;
     bool protection;
     int inExplosionTime;
+	heromessage msg;
+	CClientSocket* tcpclient;
 public:
     Hero(){
         Sprite::setVisible(true);
@@ -63,6 +67,10 @@ public:
     ~Hero() {
         //        delete sprite;
     }
+	void setClient(CClientSocket* client)
+	{
+		tcpclient=client;
+	}
     
 #define MAX_SPEED  10.5
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup) {
@@ -101,11 +109,13 @@ public:
 		int posY = getY()+speedY;
 		if(posX<0) posX=0;
 		if(posY<0) posY=0;
+		msg.LoadByte(posX, posY, 0);
+		tcpclient->Send(msg);
         setCoords(posX, posY);
 		cout<<posX<<" "<<posY<<endl;
 		
-        for (int i = 0; i < blockMap.size(); i++){
-            SDL_Rect pos = blockMap.at(i);
+        for (int i = 0; i < blocks.size(); i++){
+            SDL_Rect pos = blocks.at(i);
             if (getX()>=pos.x && getX()<=pos.x+pos.w && getY()>=pos.y && getY()<=pos.y+pos.h){
         setCoords(getX()+speedX, getY()+speedY);
         for (int i = 0; i < blocks.size(); i++){
@@ -147,9 +157,6 @@ public:
         }
     }
     
-    void update(){
-        
-    }
     void placeBomb(){
         isBomb = true;
     }

@@ -10,6 +10,11 @@
 Hero * hero;
 Bomb * bomb;
 vector<Block * > blocks;
+bool Connected;
+CClientSocket* tcpclient;
+CIpAddress* remoteip;
+
+
 
 int handle_key(SDLKey k) {
     switch(k) {
@@ -220,6 +225,8 @@ int main(void) {
      see man page :)
      */
     SDL_Init(SDL_INIT_VIDEO );
+	tcpclient = new CClientSocket();
+	remoteip = new CIpAddress("127.0.1.1", "1234");
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
