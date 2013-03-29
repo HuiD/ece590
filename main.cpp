@@ -224,18 +224,11 @@ int main(void) {
      see man page :)
      */
     SDL_Init(SDL_INIT_VIDEO );
-	hero=new Hero();
-	tcpclient = new CClientSocket();
-	hero->setclient(tcpclient);
-	remoteip = new CIpAddress("127.0.1.1", 1234);
-    /* Set the screen resolution: 1024x768, 32 bpp
-     We also want to do full screen, double-buffered,
-     and have the surface in video hardware */
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
                                             WINDOW_HEIGHT,
                                             0,
                                             SDL_HWSURFACE |
-                                            SDL_DOUBLEBUF 
+                                            SDL_DOUBLEBUF
                                             );
     /* make it so that holding down a key repeats it*/
     SDL_EnableKeyRepeat(10,10);
@@ -246,6 +239,14 @@ int main(void) {
         SDL_Quit();
         return EXIT_FAILURE;
     }
+	hero=new Hero();
+	tcpclient = new CClientSocket();
+	hero->setclient(tcpclient);
+	remoteip = new CIpAddress("127.0.1.1", 1234);
+    /* Set the screen resolution: 1024x768, 32 bpp
+     We also want to do full screen, double-buffered,
+     and have the surface in video hardware */
+    
     eventLoop(screen);
     /* cleanup SDL- return to normal screen mode,
      etc */
