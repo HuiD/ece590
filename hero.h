@@ -49,8 +49,9 @@ private:
     bool protection;
     int inExplosionTime;
 	heromessage msg;
-	CClientSocket* tcpclient;
 public:
+	CClientSocket* tcpclient;
+	int* num;
     Hero(){
         Sprite::setVisible(true);
         move = DONT_MOVE;
@@ -63,11 +64,13 @@ public:
         onground = true;
         isBomb = false;
         protection = false;
+		tcpclient=NULL;
     }
     ~Hero() {
         //        delete sprite;
     }
-	void setClient(CClientSocket* client)
+
+	void setclient(CClientSocket* client)
 	{
 		tcpclient=client;
 	}
@@ -114,10 +117,6 @@ public:
         setCoords(posX, posY);
 		cout<<posX<<" "<<posY<<endl;
 		
-        for (int i = 0; i < blocks.size(); i++){
-            SDL_Rect pos = blocks.at(i);
-            if (getX()>=pos.x && getX()<=pos.x+pos.w && getY()>=pos.y && getY()<=pos.y+pos.h){
-        setCoords(getX()+speedX, getY()+speedY);
         for (int i = 0; i < blocks.size(); i++){
 //            SDL_Rect pos = blockMap.at(i);
             Block * tmp = blocks.at(i);
