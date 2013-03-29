@@ -263,7 +263,7 @@ bool CClientSocket::Send (CNetMessage& sData) {
 	int len;
 
 //Check if the instance can send bytes, if it can, unload the number of bytes specfied by NumToLoad() virtual function
-	while ((len = sData.NumToUnload()) > 0) {
+	while ((len = sData.NumToUnLoad()) > 0) {
 		sData.UnLoadBytes (buf);
 		if (SDLNet_TCP_Send(m_Socket, (void *)buf, len) < len) {
 			std::cerr << "SDLNet_TCP_Send: " << SDLNet_GetError() << std::endl;

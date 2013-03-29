@@ -85,7 +85,13 @@ public:
         }
         int oriX = getX();
         int oriY = getY();
-        setCoords(getX()+speedX, getY()+speedY);
+		int posX = getX()+speedX;
+		int posY = getY()+speedY;
+		if(posX<0) posX=0;
+		if(posY<0) posY=0;
+        setCoords(posX, posY);
+		cout<<posX<<" "<<posY<<endl;
+		
         for (int i = 0; i < blockMap.size(); i++){
             SDL_Rect pos = blockMap.at(i);
             if (getX()>=pos.x && getX()<=pos.x+pos.w && getY()>=pos.y && getY()<=pos.y+pos.h){
