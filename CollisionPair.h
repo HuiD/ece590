@@ -1,10 +1,9 @@
 #ifndef __COLLISIONPAIR_H__
 #define __COLLISIONPAIR_H__
 #include "Sprite.h"
+class Hero;
+#include <typeinfo>
 
-enum colType{
-    HeroBomb, HeroBlock
-};
 
 class CollisionPair {
     
@@ -18,22 +17,35 @@ public:
         s2 = s22;
         collisionType = t;
     }
+    CollisionPair(Hero * s11, Sprite * s22, enum colType t){
+        s1 =(Sprite *) s11;
+        s2 = s22;
+        collisionType = t;
+    }
     
     bool isCollided(){
-        return s1->isCollided(s2);
+        if (s1->getVisible() && s2->getVisible())
+            return s2->isCollided(s1);
+        return false;
     }
     
     void onCollision() {
-        switch (collisionType) {
-            case HeroBomb:
-                s2->setVisible(false);
-                break;
-            case HeroBlock:
-                
-                break;
-            default:
-                break;
-        }
+//        switch (collisionType) {
+//            case HeroBomb:
+//                s2->setVisible(false);
+//                cout<<"collided!"<<endl;
+//                break;
+//            case HeroBlock:
+//                break;
+//            case HeroExplosion:
+////                s1->inExplosion();
+//                cout<<"hero dies!"<<endl;
+//                break;
+//            default:
+//                break;
+//        }
+        s1->inCollision(collisionType);
+        s2->inCollision(collisionType);
     }
 
 

@@ -15,11 +15,23 @@ public:
         //        delete sprite;
     }
     
-    void update() {
+//    void update(vector<SDL_Rect> blockMap, vector<CollisionPair * > &colList, vector<vector<Sprite *> > &colGroups) {
+//        
+//    }
+
+    void inCollision(enum colType t){
+//        switch (t) {
+//            case HeroBomb:
+//                cout<<"hero bombed!"<<endl;
+//                break;
+//            case HeroExplosion:
+//                cout<<"hero on fire"<<endl;
+//                break;
+//            default:
+//                break;
+//        }
         
     }
-
-    
     
 };
 //extern Bomb * bomb;

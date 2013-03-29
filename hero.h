@@ -4,6 +4,9 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include "CollisionPair.h"
+#include "Bomb.h"
+
 #define NUM_HERO_FILES 8
 using namespace std;
 static const char * hero_file_names[NUM_HERO_FILES + 1] = {
@@ -40,6 +43,9 @@ private:
     double walk_accel;
     double fall_accel;
     bool onground;
+    bool isBomb;
+    bool protection;
+    int inExplosionTime;
 public:
     Hero(){
         Sprite::setVisible(true);
@@ -51,13 +57,19 @@ public:
         speedY = 0.0;
         walk_accel = 8.00;
         onground = true;
+        isBomb = false;
+        protection = false;
     }
     ~Hero() {
         //        delete sprite;
     }
     
 #define MAX_SPEED  10.5
-    void update(vector<SDL_Rect> blockMap) {
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup) {
+//        cout<<SDL_GetTicks()<<endl;
+        if (!visible) {
+            return;
+        }
         frame = frame++;
         frame = frame & 3;
         //speedY = 0;
@@ -95,6 +107,11 @@ public:
         for (int i = 0; i < blockMap.size(); i++){
             SDL_Rect pos = blockMap.at(i);
             if (getX()>=pos.x && getX()<=pos.x+pos.w && getY()>=pos.y && getY()<=pos.y+pos.h){
+        setCoords(getX()+speedX, getY()+speedY);
+        for (int i = 0; i < blocks.size(); i++){
+//            SDL_Rect pos = blockMap.at(i);
+            Block * tmp = blocks.at(i);
+            if (getX()>=tmp->getX()-getW() && getX()<=tmp->getX()+tmp->getW() && getY()>=tmp->getY()-getH() && getY()<=tmp->getY()+tmp->getH()){
                 setCoords(oriX, oriY);
                 break;
             }
@@ -113,17 +130,29 @@ public:
             Sprite::setCoords(WINDOW_WIDTH-getW(), getY());
         }
         Sprite::setAnimFrame(frame);
-    }
-
-    
-    void jump() {
-        if (onground) {
-            onground = false;
-            speedY = -40;
+        
+        if (isBomb){
+            Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks());
+//            vector<Sprite *> heroGroup = colGroups.at(0);
+//            vector<Sprite *> bombGroup = colGroups.at(1);
+            bombGroup.push_back(newBomb);
+//            colGroups.erase(colGroups.begin()+1);
+//            colGroups.push_back(bombGroup);
+            for (int i = 0; i < heroGroup.size(); i++){
+                CollisionPair * cp = new CollisionPair(heroGroup.at(i), newBomb, HeroBomb);
+                colList.push_back(cp);
+            }
+            
+            isBomb = false;
         }
+    }
+    
+    void update(){
         
     }
-
+    void placeBomb(){
+        isBomb = true;
+    }
     
     void stopMoving() {
         move = DONT_MOVE;
@@ -143,8 +172,33 @@ public:
 		move = MOVE_UP;
 	}
     
+    void inCollision(enum colType t){
+        switch (t) {
+            case HeroBomb:
+                cout<<"hero bombed!"<<endl;
+                break;
+            case HeroExplosion:
+                if (!protection){
+                    cout<<"hero on fire1"<<endl;
+                    inExplosionTime = SDL_GetTicks();
+                    protection = true;
+                }
+                else if (protection && checkExplosionTime()){
+//                    protection = false;
+                    cout<<"hero on fire2"<<endl;
+                    inExplosionTime = SDL_GetTicks();
 
+                }
+                break;
+            default:
+                break;
+        }
+        
+    }
     
+    bool checkExplosionTime(){
+        return 1000 < SDL_GetTicks() - inExplosionTime;
+    }
 };
 extern Hero * hero;
 #endif
