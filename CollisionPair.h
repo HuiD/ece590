@@ -2,7 +2,6 @@
 #define __COLLISIONPAIR_H__
 #include "Sprite.h"
 class Hero;
-#include <typeinfo>
 
 
 class CollisionPair {
@@ -21,6 +20,11 @@ public:
         s1 =(Sprite *) s11;
         s2 = s22;
         collisionType = t;
+    }
+    ~CollisionPair() {
+        cout<<"yes"<<endl;
+//        delete s1;
+//        delete s2;
     }
     
     bool isCollided(){

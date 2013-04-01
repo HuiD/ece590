@@ -6,8 +6,12 @@
 using namespace std;
 
 enum colType{
-    HeroBomb, HeroBlock, HeroExplosion
+    HeroBomb, HeroExplosion, BombExplosion, BlockExplosion, HeroEnemy, EnemyExplosion, BombEnemy, HeroUpgrade, HeroLife
 };
+
+
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 640
 
 class Sprite {
 protected:
@@ -24,6 +28,7 @@ public:
             SDL_FreeSurface(anim_frames[i]);
         }
         delete[] anim_frames;
+        cout<<"sprite deleted!"<<endl;
     }
     void initSprite(const char * file){
         currentFrame = 0;

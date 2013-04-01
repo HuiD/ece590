@@ -8,6 +8,7 @@
 #include "Bomb.h"
 #include "CNet.h"
 #include "heromessage.h"
+#include "enemy.h"
 
 #define NUM_HERO_FILES 8
 using namespace std;
@@ -23,9 +24,6 @@ static const char * hero_file_names[NUM_HERO_FILES + 1] = {
     NULL
 };
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 640
-
 
 enum move_state {
     MOVE_LEFT,
@@ -37,6 +35,8 @@ enum move_state {
 
 
 class Hero : public Sprite{
+#define TOTAL_LIFE_NUM 5
+#define TOTAL_BOMB_LEVEL 3
 private:
     enum move_state move;
     int frame;
@@ -44,11 +44,12 @@ private:
     double speedY;
     double walk_accel;
     double fall_accel;
-    bool onground;
     bool isBomb;
     bool protection;
     int inExplosionTime;
 	heromessage msg;
+    int life;
+    int bombLevel;
 public:
 	CClientSocket* tcpclient;
 	int* num;
@@ -61,10 +62,11 @@ public:
         speedX = 0.0;
         speedY = 0.0;
         walk_accel = 8.00;
-        onground = true;
         isBomb = false;
         protection = false;
 		tcpclient=NULL;
+        life = TOTAL_LIFE_NUM;
+        bombLevel = 1;
     }
     ~Hero() {
         //        delete sprite;
@@ -76,7 +78,7 @@ public:
 	}
     
 #define MAX_SPEED  10.5
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup) {
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
 //        cout<<SDL_GetTicks()<<endl;
         if (!visible) {
             return;
@@ -115,10 +117,12 @@ public:
 		msg.LoadByte(posX, posY, 0);
 		tcpclient->Send(msg);
         setCoords(posX, posY);
-		cout<<posX<<" "<<posY<<endl;
+//		cout<<posX<<" "<<posY<<endl;
 		
         for (int i = 0; i < blocks.size(); i++){
 //            SDL_Rect pos = blockMap.at(i);
+            if (!blocks.at(i)->getVisible())
+                continue;
             Block * tmp = blocks.at(i);
             if (getX()>=tmp->getX()-getW() && getX()<=tmp->getX()+tmp->getW() && getY()>=tmp->getY()-getH() && getY()<=tmp->getY()+tmp->getH()){
                 setCoords(oriX, oriY);
@@ -141,7 +145,7 @@ public:
         Sprite::setAnimFrame(frame);
         
         if (isBomb){
-            Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks());
+            Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
 //            vector<Sprite *> heroGroup = colGroups.at(0);
 //            vector<Sprite *> bombGroup = colGroups.at(1);
             bombGroup.push_back(newBomb);
@@ -151,7 +155,14 @@ public:
                 CollisionPair * cp = new CollisionPair(heroGroup.at(i), newBomb, HeroBomb);
                 colList.push_back(cp);
             }
-            
+            for (int i = 0; i < explosionGroup.size(); i++){
+                CollisionPair * cp = new CollisionPair(newBomb, explosionGroup.at(i), BombExplosion);
+                colList.push_back(cp);
+            }
+            for (int i = 0; i < enemyGroup.size(); i++){
+                CollisionPair * cp = new CollisionPair(newBomb, enemyGroup.at(i), BombEnemy);
+                colList.push_back(cp);
+            }
             isBomb = false;
         }
     }
@@ -181,20 +192,48 @@ public:
     void inCollision(enum colType t){
         switch (t) {
             case HeroBomb:
-                cout<<"hero bombed!"<<endl;
+                life--;
+                cout<<"hero bombed! life "<<life<<endl;
                 break;
             case HeroExplosion:
                 if (!protection){
-                    cout<<"hero on fire1"<<endl;
+                    life--;
+                    cout<<"hero on fire1: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
                     protection = true;
                 }
                 else if (protection && checkExplosionTime()){
 //                    protection = false;
-                    cout<<"hero on fire2"<<endl;
+                    life--;
+                    cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
 
                 }
+                break;
+            case HeroEnemy:
+                if (!protection){
+                    life--;
+                    cout<<"enemy hero collison1! life: "<<life<<endl;
+                    inExplosionTime = SDL_GetTicks();
+                    protection = true;
+                }
+                else if (protection && checkExplosionTime()){
+                    //                    protection = false;
+                    life--;
+                    cout<<"enemy hero collison2! life: "<<life<<endl;
+                    inExplosionTime = SDL_GetTicks();
+                    
+                }
+                break;
+            case HeroUpgrade:
+                if (bombLevel < TOTAL_BOMB_LEVEL)
+                    bombLevel++;
+                cout<<"hero bomb level: "<<bombLevel<<endl;
+                break;
+            case HeroLife:
+                if (life < TOTAL_LIFE_NUM)
+                    life++;
+                cout<<"hero life: "<<life<<endl;
                 break;
             default:
                 break;

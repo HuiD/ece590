@@ -225,8 +225,7 @@ void CClientSocket::SetSocket (TCPsocket the_sdl_socket) {
 		m_RemoteIp.SetIp(*ips);
 		Uint32 hbo = m_RemoteIp.GetHost();
 		Uint16 pbo = m_RemoteIp.GetPort();
-		std::cout << "Client connected: " << SDLNet_Read32(&hbo) << ' '
-			<< SDLNet_Read16 (&pbo) << std::endl;
+		std::cout << "Client connected: " << SDLNet_Read32(&hbo) << ' '<< SDLNet_Read16 (&pbo) << std::endl;
 	}
 	else
 		std::cerr << "SDLNet_TCP_GetPeerAddress: " << SDLNet_GetError() << std::endl;

@@ -38,6 +38,15 @@ public:
             case HeroExplosion:
 //                cout<<"hero on fire"<<endl;
                 break;
+            case BombExplosion:
+                cout<<"bomb on bomb"<<endl;
+                break;
+            case EnemyExplosion:
+                cout<<"enemy explode!"<<endl;
+                break;
+            case BlockExplosion:
+                cout<<"block bombed!"<<endl;
+                break;
             default:
                 break;
         }
