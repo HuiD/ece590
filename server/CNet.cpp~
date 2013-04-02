@@ -1,4 +1,6 @@
 #include "CNet.h"
+#include<iostream>
+using namespace std;
 
 bool CNet::Init() {
 	if (SDLNet_Init() < 0) {
@@ -97,12 +99,16 @@ Uint32 CIpAddress::GetHost() const {
 Uint16 CIpAddress::GetPort() const {
 	return m_Ip.port;
 }
+void CIpAddress::setPort(Uint16 port) 
+{
+	m_Ip.port=port;
+}
 
 
 
 CTcpSocket::CTcpSocket() {
 	m_Socket = NULL;
-	set = SDLNet_AllocSocketSet(1);
+	set = SDLNet_AllocSocketSet(16);
 }
 
 CTcpSocket::~CTcpSocket() {
@@ -132,7 +138,7 @@ bool CTcpSocket::Ok() const {
 bool CTcpSocket::Ready() const {
 	bool rd = false;
 	int numready = SDLNet_CheckSockets(set, 0);
-	if (numready == -1)
+	if (numready<0)
     		std::cerr << "SDLNet_CheckSockets: " << SDLNet_GetError() << std:: endl;
   	else
     		if (numready)
@@ -150,7 +156,10 @@ CHostSocket::CHostSocket (CIpAddress& the_ip_address) {
 	if (!(m_Socket = SDLNet_TCP_Open(&iph))) {
     		SDLNet_FreeSocketSet(set);
     		std::cerr << "SDLNet_TCP_Open: " << SDLNet_GetError() << std::endl;
-	}
+	}else
+    {
+        SDLNet_TCP_AddSocket(set, m_Socket);
+    }
 }
 
 CHostSocket::CHostSocket (Uint16 port) {
@@ -164,7 +173,10 @@ CHostSocket::CHostSocket (Uint16 port) {
 		if (!(m_Socket = SDLNet_TCP_Open(&iph))) {
     		SDLNet_FreeSocketSet(set);
     		std::cerr << "SDLNet_TCP_Open: " << SDLNet_GetError() << std::endl;
-		}
+		}else
+        {
+            SDLNet_TCP_AddSocket(set, m_Socket);
+        }
 	}
 }
 
@@ -173,7 +185,15 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
 	TCPsocket cs;
 	if ((cs = SDLNet_TCP_Accept(m_Socket))) {
 		the_client_socket.SetSocket(cs);
-		return true;
+        if(SDLNet_TCP_AddSocket(set, cs)<0)
+        {
+            cout<<"maximum capacity reached"<<endl;
+            return false;
+        }
+        else
+        {
+            return true;
+        }
 	}
 	else
 		return false;
@@ -186,6 +206,10 @@ void CHostSocket::OnReady() {
 
 CClientSocket::CClientSocket() {
 	CTcpSocket();
+}
+void CClientSocket::setPort(Uint16 port)
+{
+    m_RemoteIp.setPort(port);
 }
 
 CClientSocket::CClientSocket (std::string host, Uint16 port) {
@@ -216,6 +240,8 @@ bool CClientSocket::Connect (CIpAddress& remoteip) {
 		return false;
 	}
 }
+
+
 
 void CClientSocket::SetSocket (TCPsocket the_sdl_socket) {
 	CTcpSocket::SetSocket (the_sdl_socket);
@@ -263,14 +289,21 @@ bool CClientSocket::Send (CNetMessage& sData) {
 	int len;
 
 //Check if the instance can send bytes, if it can, unload the number of bytes specfied by NumToLoad() virtual function
-	while ((len = sData.NumToUnLoad()) > 0) {
+	while ((len = sData.NumToUnload()) > 0) {
 		sData.UnLoadBytes (buf);
 		if (SDLNet_TCP_Send(m_Socket, (void *)buf, len) < len) {
 			std::cerr << "SDLNet_TCP_Send: " << SDLNet_GetError() << std::endl;
 			return false;
 		}
+        std::cerr<<"msg sent"<<endl;
 	}
 	return true;
+}
+
+void CClientSockt::setIp(std::string host, Uint16 port)
+{
+    CIpAddress tempip(host, port);
+    m_RemoteIp=tempip;
 }
 
 void CClientSocket::OnReady() {
@@ -278,3 +311,97 @@ void CClientSocket::OnReady() {
 }
 
 
+CUdpSocket::CUdpSocket(Uint16 port)
+{
+	udpsocket=NULL;
+	for(int i=0; (udpsocket==NULL)&&i<10;++i)
+	{
+		udpsocket=SDLNet_UDP_Open(port+i);
+        mport=port+i;
+		cout<<"open port:"<<mport<<endl;
+	}
+	if(udpsocket==NULL)
+	{
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+	}
+	if(!(udppacket = SDLNet_AllocPacket(256)))
+	{
+		fprintf(stderr, "SDLNet_AllocPacket Fail:%s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+	set=SDLNet_AllocSocketSet(1);
+	SDLNet_UDP_AddSocket(set, udpsocket);
+	SDLNet_CheckSockets(set, 0);
+}
+
+void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)
+{
+	UDPpacket *p;
+	if(udpsocket==NULL)
+		return;
+	charbuf buf;
+	int len;
+	while((len=msg.NumToUnload())>0)
+	{
+		if(!(p=SDLNet_AllocPacket(256)))
+		{
+			fprintf(stderr, "SDLNet_AllocPacket Fail:%s\n", SDLNet_GetError());
+			exit(EXIT_FAILURE);
+		}
+		msg.UnLoadBytes(buf);
+		memcpy(p->data, buf, p->maxlen);
+		p->len=strlen((char*)p->data)+1;
+	    p->address.host=ip.GetHost();	
+		p->address.port=ip.GetPort();
+		//p->address.port=1234;
+		Uint32 ipa=ip.GetHost();
+		Uint16 p=ip.GetPort();
+	//	cout<<"udp sent to ip addr: "<<SDLNet_Read32(&ipa)<<endl;
+	//	cout<<"udp sent to port: "<<SDLNet_Read16(&p)<<endl;
+	}
+	int sent=SDLNet_UDP_Send(udpsocket, channel, p);
+	SDLNet_FreePacket(p);
+}
+
+bool CUdpSocket::Receive(CNetMessage& msg, int & channel)
+{
+	charbuf buf;
+	while(msg.NumToLoad()>0)
+	{
+		if(SDLNet_UDP_Recv(udpsocket, udppacket))
+		{
+            channel=udppacket->channel;
+			memcpy(buf, udppacket->data, udppacket->maxlen); 	
+			msg.LoadBytes(buf, msg.NumToLoad());
+			cout<<"udp received\n";
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
+	msg.finish();
+	return true;
+}
+bool CUdpSocket:: Ready()
+{
+	bool rd=false;
+	if(set==NULL){
+		cout<<"set error"<<endl;
+		exit(EXIT_FAILURE);
+	}
+	int numready=SDLNet_CheckSockets(set, 0);
+	if(numready<0)
+	{
+		std::cerr<<"SDLNet_CheckSockets:"<<SDLNet_GetError()<<std::endl;
+	}	
+	else
+		if(numready)
+			rd=SDLNet_SocketReady(udpsocket);
+	return rd;
+}
+
+Uint16 CUdpSocket::getPort()
+{
+    return mport;
+}

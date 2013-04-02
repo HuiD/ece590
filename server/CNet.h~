@@ -19,6 +19,13 @@ class CNet{
     static void Quit(); //Exit SDL_net
 };
 
+struct pos {
+	int x;
+	int y;
+	int id;
+};
+typedef pos hero_pos;
+
 class CNetMessage {
   protected:
     charbuf buffer; //message stored in buffer, limited to 256 bytes
@@ -38,7 +45,7 @@ class CNetMessage {
     virtual int NumToLoad()=0;
 
 //Virtual member function that indicates how many bytes may be downloaded from the instance.
-    virtual int NumToUnLoad()=0;
+    virtual int NumToUnload()=0;
 
     void LoadBytes(charbuf& inputbuffer, int n); //Load a char set into the message buffer
     void UnLoadBytes(charbuf& destbuffer); //Unload a char set from the buffer
@@ -55,6 +62,7 @@ class CIpAddress {
     void SetIp (IPaddress sdl_ip); //set a CIpAddress object from an existing SDL IPaddress
     bool Ok() const; //True if the object have a port and a host associated
     IPaddress GetIpAddress() const; //return a SDL_net IPaddress structure
+	void setPort(Uint16 port);
     Uint32 GetHost() const; //return the host
     Uint16 GetPort() const; //return the port
 };
@@ -63,6 +71,7 @@ class CTcpSocket {
   protected:
     TCPsocket m_Socket; //the TCP socket structure
     SDLNet_SocketSet set; //a set of sockets. Used here only to check existing packets
+    int capcity;
   public:
     CTcpSocket();
     virtual ~CTcpSocket();
@@ -92,12 +101,30 @@ class CClientSocket : public CTcpSocket {
     CClientSocket(); //constructor
     CClientSocket (std::string host, Uint16 port); //Create the object and connect to a host, in a given port
     bool Connect (CIpAddress& remoteip); //make a connection to communicate with a remote host
+    void setPort(Uint16 port);
     bool Connect (CHostSocket& the_listener_socket); //make a connection to communicate with a client
     void SetSocket (TCPsocket  the_sdl_socket); //set a CTcpSocket object from an existing SDL_net socket
     CIpAddress getIpAddress () const; //return a CIpAddress object associated to the remote host
     virtual void OnReady(); //pure virtual
     bool Receive(CNetMessage& rData); //receive data and load it into a CNetMessage object
     bool Send (CNetMessage& sData); //send data from a CNetMessage object
+};
+
+class CUdpSocket
+{
+    protected:
+        UDPsocket udpsocket;
+		UDPpacket *udppacket;
+		SDLNet_SocketSet set;
+        Uint16 mport;
+	public:
+		CUdpSocket(Uint16 port);
+        Uint16 getPort();
+		void Send(CNetMessage& sData, CIpAddress ip, int channel);
+		bool Receive(CNetMessage& sData, int & channel);
+		bool Ready() ;
+
+        
 };
 
 //==============================================================================
