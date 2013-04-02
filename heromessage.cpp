@@ -16,24 +16,24 @@ int heromessage::NumToUnload()
 		return 0;
 }
 
-void heromessage::UnLoadByte(int& posX, int& posY, int &ID)
+void heromessage::UnLoadByte(hero_pos& heropos)
 {
     charbuf c;
     UnLoadBytes(c);
-    ID=(int)c[0];
+    heropos.id=(int)c[0];
 	char num[3];
 	int pos=1;
 	for(int i=0; i<3; i++)
 	{
 		num[i]=c[pos++];
 	}
-	posX=atoi(num);
+	heropos.x=atoi(num);
 	char num1[3];
 	for(int i=0; i<3; i++)
 	{
 		num1[i]=c[pos++];
 	}
-	posY=atoi(num1);
+	heropos.y=atoi(num1);
  
    
   
@@ -61,15 +61,17 @@ void heromessage::loadBuffer(string str, int& pos, charbuf& ch)
 	}
 		
 }
-void heromessage::LoadByte(int posX, int posY, int playerID)
+void heromessage::LoadByte(hero_pos heropos)
 {
 	charbuf ch;
-	ch[0]=(char)playerID;
+//	cout<<heropos.id<<endl;
+	ch[0]=(char)heropos.id;
+//	cout<<ch[0]<<endl;
 	stringstream ss;
-	ss<<posX;
+	ss<<heropos.x;
 	string strx = ss.str();
 	stringstream ss1;
-	ss1<<posY;
+	ss1<<heropos.y;
 	string stry = ss1.str();
 	int pos=1;
 	loadBuffer(strx, pos, ch);

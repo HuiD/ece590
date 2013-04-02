@@ -50,6 +50,8 @@ private:
 	heromessage msg;
     int life;
     int bombLevel;
+	int playerId;
+    hero_pos heropos;
 public:
 	CClientSocket* tcpclient;
 	int* num;
@@ -71,7 +73,13 @@ public:
     ~Hero() {
         //        delete sprite;
     }
-
+    void setPlayerId(int id)
+	{
+		playerId=id;
+	}
+    hero_pos getPos(){
+        return heropos;    
+    }
 	void setclient(CClientSocket* client)
 	{
 		tcpclient=client;
@@ -114,8 +122,10 @@ public:
 		int posY = getY()+speedY;
 		if(posX<0) posX=0;
 		if(posY<0) posY=0;
-		msg.LoadByte(posX, posY, 0);
-		tcpclient->Send(msg);
+
+		heropos.x=posX;
+		heropos.y=posY;
+		heropos.id=playerId;
         setCoords(posX, posY);
 //		cout<<posX<<" "<<posY<<endl;
 		

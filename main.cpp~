@@ -328,7 +328,7 @@ void eventLoop(SDL_Surface * screen) {
         
         
         //HUD
-        sprintf(textbuf, "Hero Life = %d", heroGroup[myId]->getLife());
+        sprintf(textbuf, "Hero Life = %d", hero->getLife());
         text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
         textDest.x = 10;
         textDest.y = 10;
