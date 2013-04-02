@@ -175,13 +175,13 @@ void init()
         }
        
     }
-    for (int j = 0; j < enemyGroup.size(); j++){
-        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
-            colList.push_back(cp);
-        }
-        
-    }
+//    for (int j = 0; j < enemyGroup.size(); j++){
+//        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+//            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
+//            colList.push_back(cp);
+//        }
+//        
+//    }
 }
 
 void handleNetwork()
@@ -208,6 +208,13 @@ void handleServer()
 		heroGroup[id]->setCoords(0, 0);
 		if(ch=='0')
 			myId=id;
+        for (int j = 0; j < enemyGroup.size(); j++){
+//            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
+                colList.push_back(cp);
+//            }
+            
+        }
 	}
 
 }
