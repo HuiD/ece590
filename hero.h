@@ -78,8 +78,8 @@ public:
 	}
     
 #define MAX_SPEED  10.5
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
-//        cout<<SDL_GetTicks()<<endl;
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
+        
         if (!visible) {
             return;
         }
@@ -146,13 +146,9 @@ public:
         
         if (isBomb){
             Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
-//            vector<Sprite *> heroGroup = colGroups.at(0);
-//            vector<Sprite *> bombGroup = colGroups.at(1);
             bombGroup.push_back(newBomb);
-//            colGroups.erase(colGroups.begin()+1);
-//            colGroups.push_back(bombGroup);
-            for (int i = 0; i < heroGroup.size(); i++){
-                CollisionPair * cp = new CollisionPair(heroGroup.at(i), newBomb, HeroBomb);
+            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                CollisionPair * cp = new CollisionPair(it->second, newBomb, HeroBomb);
                 colList.push_back(cp);
             }
             for (int i = 0; i < explosionGroup.size(); i++){
@@ -243,6 +239,10 @@ public:
     
     bool checkExplosionTime(){
         return 1000 < SDL_GetTicks() - inExplosionTime;
+    }
+    
+    int getLife() {
+        return life;
     }
 };
 extern Hero * hero;

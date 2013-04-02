@@ -55,7 +55,7 @@ public:
 
     
 #define SPEED  7
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
 //        cout<<SDL_GetTicks()<<endl;
         if (!visible) {
             return;

@@ -28,7 +28,7 @@ public:
 //        cout<<"Background collide!"<<endl;
     }
     
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Upgrade *> &upgradeGroup){
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Upgrade *> &upgradeGroup){
         if (SDL_GetTicks() - oriTime > PERIOD){
             int x = rand()%(WINDOW_WIDTH-UPGRADES_WIDTH);
             int y = rand()%(WINDOW_HEIGHT-UPGRADES_WIDTH);
@@ -56,8 +56,8 @@ public:
             }
             Upgrade * up = new Upgrade(x, y, t);
             upgradeGroup.push_back(up);
-            for (int i = 0; i < heroGroup.size(); i++){
-                CollisionPair * cp = new CollisionPair(heroGroup.at(i), up, up->getUpType());
+            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
                 colList.push_back(cp);
                 
             }

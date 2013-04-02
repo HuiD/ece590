@@ -15,7 +15,7 @@ class Enemy;
 
 class Upgrade : public Sprite{
    
-#define LIFETIME  3000
+#define LIFETIME  6000
     
 private:
     enum colType upType;

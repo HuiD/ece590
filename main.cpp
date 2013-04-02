@@ -11,15 +11,20 @@
 #include <algorithm>
 #include "upgrade.h"
 #include "SDL_ttf.h"
+#include <map>
 
 Hero * hero;
 Bomb * bomb;
 vector<Block * > blocks;
 vector<Enemy * > enemyGroup;
+//vector<Hero *> heroGroup;
+map<int, Hero*> heroGroup;
+vector<Bomb *> bombGroup;
+vector<Explosion *> explosionGroup;
+vector<Upgrade *> upgradeGroup;
 bool Connected;
 CClientSocket* tcpclient;
 CIpAddress* remoteip;
-
 
 
 int handle_key(SDLKey k) {
@@ -55,35 +60,6 @@ void handle_keyup(SDLKey k) {
     }
 }
 
-//vector<SDL_Rect> initBlock(Hero * hero) {
-//    int locationX[5] = {100, 200, 300, 400, 500};
-//    int locationY[5] = {450, 350, 250, 150, 50};
-//    for (int i = 0; i < 5; i++){
-//        Block * tmp = new Block();
-//        tmp->setCoords(locationX[i], locationY[i]);
-//        blocks.push_back(tmp);
-//    }
-//    vector<SDL_Rect> blockMap;
-//    SDL_Rect rectArray[5];
-//    for (int i = 0; i < blocks.size(); i++){
-//        Block *tmp = blocks.at(i);
-//        int x = tmp->getX() - hero->getW();
-//        if (x<0)    x = 0;
-//        int y = tmp->getY() - hero->getH();
-//        if (y<0)    y = 0;
-//        int w = tmp->getW() + hero->getW();
-//        if (w>WINDOW_WIDTH)    w = WINDOW_WIDTH;
-//        int h = tmp->getH() + hero->getH();
-//        if (h>WINDOW_HEIGHT)    h = WINDOW_HEIGHT;
-//        rectArray[i].x = x;
-//        rectArray[i].y = y;
-//        rectArray[i].w = w;
-//        rectArray[i].h = h;
-//        blockMap.push_back(rectArray[i]);
-//    }
-//    
-//    return blockMap;
-//}
 
 void initBlock() {
     int locationX[5] = {100, 200, 300, 400, 500};
@@ -108,8 +84,7 @@ void initEnemy() {
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     
-    TTF_Font *text_font =  TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf", 36);
-    
+    TTF_Font *text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);    
     if (text_font == NULL) {
         printf("Could not load font\n");
         exit(1);
@@ -119,27 +94,13 @@ void eventLoop(SDL_Surface * screen) {
     font_color.g = 0xff;  //very green.  If you want black, make this 0.
     font_color.b = 0;
     char textbuf[80];
-    sprintf(textbuf, "Bounces = %d", 0);
-    SDL_Surface *text_image =  TTF_RenderText_Solid(text_font,
-                                                    textbuf,
-                                                    font_color);
-    SDL_Rect dest;  // SDL_Rect is a record type for defining the location
-    // and size of a rectangle.
+    SDL_Surface *text_image;
+    SDL_Rect textDest;
+    textDest.x = 10;
+    textDest.y = 10;
+    textDest.w = text_image->w;
+    textDest.h = text_image->h;
     
-    
-    dest.x = 10;
-    dest.y = 10;
-    dest.w = text_image->w;
-    dest.h = text_image->h;
-    
-    
-    // This call writes the image to the screen surface, at the
-    // location specified by dest.  The second argument being
-    // NULL specifies that the entire image should be written.
-    
-    SDL_BlitSurface(text_image, NULL, screen, &dest);
-//    hero = new Hero();
-//    bomb = new Bomb("img/blob2.bmp", 200, 450, 4000, SDL_GetTicks());
     Background * background = new Background("img/background.bmp");
     initBlock();
     initEnemy();
@@ -148,35 +109,27 @@ void eventLoop(SDL_Surface * screen) {
     int totalScroll =0;
     
     //preprocess collision
-//    vector<vector<Sprite *> > colGroups;
-    vector<Hero *> heroGroup;
-    vector<Bomb *> bombGroup;
-    vector<Explosion *> explosionGroup;
-    vector<Upgrade *> upgradeGroup;
-    heroGroup.push_back(hero);
-//    bombGroup.push_back(bomb);
-//    colGroups.push_back(heroGroup);
-//    colGroups.push_back(bombGroup);
+
+//    heroGroup.push_back(hero);
+    heroGroup[0] = hero;
     vector<CollisionPair * > colList;
     for (int j = 0; j < bombGroup.size(); j++){
-        for (int i = 0; i < heroGroup.size(); i++) {
-            CollisionPair * cp = new CollisionPair(heroGroup.at(i), bombGroup.at(j), HeroBomb);
+//        for (int i = 0; i < heroGroup.size(); i++) {
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+            CollisionPair * cp = new CollisionPair(it->second, bombGroup.at(j), HeroBomb);
             colList.push_back(cp);
         }
        
     }
     for (int j = 0; j < enemyGroup.size(); j++){
-        for (int i = 0; i < heroGroup.size(); i++) {
-            CollisionPair * cp = new CollisionPair(heroGroup.at(i), enemyGroup.at(j), HeroEnemy);
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
             colList.push_back(cp);
         }
         
     }
         
     while(1) {
-        /* This function returns 0 if no
-         events are pending, 1 (and fills in event)
-         if one is*/
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYDOWN:
@@ -237,8 +190,7 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < enemyGroup.size(); i++) {
             enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
         }
-//        bomb->update();
-//        bombGroup = colGroups.at(1);
+
         for (int i = 0; i < bombGroup.size(); i++) {
             bombGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
         }
@@ -248,15 +200,7 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->update();
         }
-//        for (int i = 0; i < blocks.size(); i++) {
-//            blocks.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
-//        }
-//        for (int i = 0; i < colGroups.size(); i++) {
-//            vector<Sprite *> curGroup = colGroups.at(i);
-//            for (int j = 0; j < curGroup.size(); j++) {
-//                curGroup.at(j)->update(blockMap, colList, colGroups);
-//            }
-//        }
+
         //check for collision
         for (int i = 0; i < colList.size(); i++){
             CollisionPair * tmp = colList.at(i);
@@ -267,25 +211,14 @@ void eventLoop(SDL_Surface * screen) {
         
         //draw sprites
         background->blit(screen);
-//        for (int i = 0; i < colGroups.size(); i++) {
-//            vector<Sprite *> curGroup = colGroups.at(i);
-//            for (int j = 0; j < curGroup.size(); j++) {
-//                curGroup.at(j)->blit(screen);
-//            }
-//        }
-        for (int j = 0; j < heroGroup.size(); j++) {
-            heroGroup.at(j)->blit(screen);
+
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+            it->second->blit(screen);
         }
         for (int j = 0; j < bombGroup.size(); j++) {
             bombGroup.at(j)->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
-//            Explosion * cur = explosionGroup.at(j);
-//            SDL_Rect tmp;
-//            tmp.x = cur->getW()/2;
-//            tmp.y = 0;
-//            tmp.w = 500;
-//            tmp.h = 500;
             explosionGroup.at(j)->blit(screen);
         }
         for (int i = 0; i < blocks.size(); i++) {
@@ -297,6 +230,13 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->blit(screen);
         }
+        
+        
+        //HUD
+        sprintf(textbuf, "Hero Life = %d", hero->getLife());
+        text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
+        SDL_BlitSurface(text_image, NULL, screen, &textDest);
+
         /* since its double buffered, make
          the changes show up*/
         SDL_Flip(screen);
@@ -346,21 +286,6 @@ int main(void) {
      etc */
     SDL_Quit();
     TTF_Quit();
-//    std::pair <int,int> foo;
-//    std::pair <int,int> bar;
-//    set<pair<int,int> > ss;
-//    foo = std::make_pair (10,20);
-//    ss.insert(foo);
-//    bar = std::make_pair (10,20);
-//    if (ss.find(bar)!=ss.end())
-//        cout<<"YES";
-//    vector<int> ints;
-//    ints.push_back(1);
-//    ints.push_back(2);
-//    cout<<ints.size();
-//    vector<int>::iterator position = find(ints.begin(), ints.end(), 2);
-//    ints.erase(position);
-//    cout<<ints.size();
 
     
     return EXIT_SUCCESS;

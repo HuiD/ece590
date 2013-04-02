@@ -40,7 +40,7 @@ public:
         //        delete sprite;
     }
     
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
         
 
         if (checkTimer(explosionInterval)){
@@ -53,7 +53,7 @@ public:
         }
     }
     
-    void generateExplosions(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
+    void generateExplosions(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
         if (!visible) {
             return;
         }
@@ -69,10 +69,10 @@ public:
         explosionGroup.push_back(explosion2);
         
         // add HeroExplosion collison pairs
-        for (int i = 0; i < heroGroup.size(); i++){
-            CollisionPair * cp1 = new CollisionPair(heroGroup.at(i), explosion1, HeroExplosion);
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+            CollisionPair * cp1 = new CollisionPair(it->second, explosion1, HeroExplosion);
             colList.push_back(cp1);
-            CollisionPair * cp2 = new CollisionPair(heroGroup.at(i), explosion2, HeroExplosion);
+            CollisionPair * cp2 = new CollisionPair(it->second, explosion2, HeroExplosion);
             colList.push_back(cp2);
         }
         // add BombExplosion collison pairs
@@ -181,7 +181,6 @@ public:
                 explosionInterval = 0;
                 break;
             case BombExplosion:
-//                generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup);
                 cout<<"i here"<<endl;
                 explosionInterval = 0;
 //                awakeInterval = 0;
