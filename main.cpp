@@ -224,7 +224,6 @@ void handleClients()
 		{
 			heroGroup[pos.id]->setCoords(pos.x, pos.y);
 		}
-		cout<<"player: "<<pos.id<<endl;
 	}	
 }
 
