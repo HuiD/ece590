@@ -354,10 +354,8 @@ void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)
 	    p->address.host=ip.GetHost();	
 		p->address.port=ip.GetPort();
 		Uint32 ipa=ip.GetHost();
-		cout<<"udp sent to ip addr: "<<SDLNet_Read32(&ipa)<<endl;
 	}
 	int sent=SDLNet_UDP_Send(udpsocket, -1, p);
-	cout<<"sent: "<<sent<<"packets\n";
 	SDLNet_FreePacket(p);
 }
 
@@ -376,8 +374,6 @@ bool CUdpSocket::Receive(CNetMessage& msg, int & channel)
             channel=udppacket->channel;
 			memcpy(buf, p->data, p->maxlen); 	
 			msg.LoadBytes(buf, msg.NumToLoad());
-			cout<<"received: "<<buf<<endl;
-			//cout<<"udp received\n";
 		}else
 		{
 			return false;

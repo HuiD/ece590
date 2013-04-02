@@ -113,7 +113,6 @@ void sendHello()
 	Uint16 port = udpclient->getPort();
 	hello.LoadByte(port);
 	tcpclient->Send(hello);
-	cout<<"tcp send hello\n";
 }
 
 void init()
