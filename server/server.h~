@@ -3,7 +3,6 @@
 #include "heromessage.h"
 #include "hellomessage.h"
 #include "slotmessage.h"
-#include "bombmessage.h"
 #include <SDL_net.h>
 #define MAX_CLIENTS 2
 

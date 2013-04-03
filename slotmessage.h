@@ -19,6 +19,10 @@ class slotmessage:public CNetMessage
 				return 0;
 		}
 	public:
+		char getType()
+		{
+			return 's';
+		}
 		void LoadByte(int ch, int id, int a)
 		{
 			charbuf buf;

@@ -50,6 +50,8 @@ private:
 	heromessage msg;
     int life;
     int bombLevel;
+	int bombx;
+	int bomby;
 	int playerId;
     hero_pos heropos;
 public:
@@ -80,6 +82,18 @@ public:
     hero_pos getPos(){
         return heropos;    
     }
+	int getBombLevel()
+	{
+		return bombLevel;
+	}
+	int getBombx()
+	{
+		return bombx;
+	}
+	int getBomby()
+	{
+		return bomby;
+	}
 	void setclient(CClientSocket* client)
 	{
 		tcpclient=client;
@@ -155,7 +169,9 @@ public:
         Sprite::setAnimFrame(frame);
         
         if (isBomb){
-            Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
+			bombx=getX();
+			bomby=getY();
+           /* Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
             bombGroup.push_back(newBomb);
             for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
                 CollisionPair * cp = new CollisionPair(it->second, newBomb, HeroBomb);
@@ -168,7 +184,7 @@ public:
             for (int i = 0; i < enemyGroup.size(); i++){
                 CollisionPair * cp = new CollisionPair(newBomb, enemyGroup.at(i), BombEnemy);
                 colList.push_back(cp);
-            }
+            }*/
             isBomb = false;
         }
     }

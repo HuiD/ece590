@@ -28,6 +28,10 @@ class hellomessage : public CNetMessage
 			LoadBytes(buf, 2);
 			finish();
 		}
+		char getType()
+		{
+			return 'o';
+		}
 
 		void UnLoadByte(int& port, int& a, int& b)
 		{

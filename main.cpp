@@ -14,6 +14,7 @@
 #include <map>
 #include "hellomessage.h"
 #include "slotmessage.h"
+#include "bombmessage.h"
 
 Hero * hero;
 Bomb * bomb;
@@ -31,6 +32,7 @@ CUdpSocket* udpclient;
 vector<CollisionPair * > colList;
 int myId;
 bool moved=false;
+bool bombed=false;
 Background * background;
 SDL_Surface *text_image;
 char textbuf[80];
@@ -80,6 +82,7 @@ void handle_keyup(SDLKey k) {
             heroGroup[myId]->stopMoving();
             break;
         case SDLK_SPACE:
+			bombed=true;
             heroGroup[myId]->placeBomb();
             break;
     }
@@ -226,11 +229,21 @@ void handleClients()
 	int channel;
 	if(udpclient->Receive(msg, channel))
 	{
-		hero_pos pos;
-		msg->UnLoadByte(pos.x, pos.y, pos.id);
-		if(pos.id!=myId)
+		if(msg->getType()=='h')
 		{
-			heroGroup[pos.id]->setCoords(pos.x, pos.y);
+			hero_pos pos;
+			msg->UnLoadByte(pos.x, pos.y, pos.id);
+			if(pos.id!=myId)
+			{
+				heroGroup[pos.id]->setCoords(pos.x, pos.y);
+			}
+		}else if(msg->getType()=='b')
+		{
+			int bx, by, lvl;
+			msg->UnLoadByte(bx, by, lvl);
+			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
+			Bomb* newbomb=new Bomb("img/blob2.bmp", bx, by,4000,SDL_GetTicks(),lvl);
+		    bombGroup.push_back(newbomb);
 		}
 	}	
 }
@@ -284,9 +297,19 @@ void eventLoop(SDL_Surface * screen) {
 			hero_pos newPos=heroGroup[myId]->getPos();
 			heromessage msg;
 			msg.LoadByte(newPos.x, newPos.y, newPos.id);
-			cout<<"y pos:"<<newPos.y<<endl;
 			udpclient->Send(msg,tcpclient->getIpAddress() ,-1);
 			moved=false;
+		}
+		if(bombed)
+		{
+			int bombx, bomby, level;
+			bombx=heroGroup[myId]->getBombx();
+			bomby=heroGroup[myId]->getBomby();
+			level=heroGroup[myId]->getBombLevel();
+			bombmessage bmsg;
+			bmsg.LoadByte(bombx, bomby, level);
+			udpclient->Send(bmsg, tcpclient->getIpAddress(), -1);
+			bombed=false;
 		}
         for (int i = 0; i < enemyGroup.size(); i++) {
             enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);

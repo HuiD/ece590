@@ -77,7 +77,6 @@ int server::net_thread_main()
 						int y;
 					    hello.UnLoadByte(mport, x, y);
 					    Uint16 port=mport;	
-						cout<<"port is:"<<port;
 					    clients[i]->setIp("localhost", port);
 						smsg.LoadByte('0',i,0);
 						clients[i]->Send(smsg);
@@ -109,17 +108,35 @@ void server::OnLoop()
 			int channel;
 			if(servsocket->Receive(msg, channel))
 			{
-				heromessage sentmsg;
-				hero_pos pos;
-				msg->UnLoadByte(pos.x,pos.y,pos.id);
-                for(int i=0; i<MAX_CLIENTS; ++i)
-                {
-                    if(clients[i]->Ok())
+				if(msg->getType()=='h')
+				{
+                    heromessage sentmsg;
+				    hero_pos pos;
+				    msg->UnLoadByte(pos.x,pos.y,pos.id);
+                    for(int i=0; i<MAX_CLIENTS; ++i)
                     {
-                        sentmsg.LoadByte(pos.x, pos.y, pos.id);
-                        sendOutHeroMsg(sentmsg, channel, i);
+                        if(clients[i]->Ok())
+                        {
+                            sentmsg.LoadByte(pos.x, pos.y, pos.id);
+                            sendOutHeroMsg(sentmsg, channel, i);
+                        }
                     }
+				}else if(msg->getType()=='b')
+                {
+					cout<<"received bomb msg\n";
+                    bombmessage bmsg;
+                    int bx, by, lvl;
+                    msg->UnLoadByte(bx, by, lvl);
+					for(int i=0; i<MAX_CLIENTS;++i)
+					{
+                    	if(clients[i]->Ok())
+                    	{
+                        	bmsg.LoadByte(bx,by,lvl);
+                        	sendOutBombMsg(bmsg, channel, i);
+                    	}
+					}
                 }
+
 			}
 		}
 }
@@ -127,6 +144,11 @@ void server::OnLoop()
 void server::sendOutHeroMsg(heromessage msg, int channel, int i)
 {
 	servsocket->Send(msg, clients[i]->getIpAddress(), channel);
+}
+
+void server::sendOutBombMsg(bombmessage msg, int channel, int i)
+{
+    servsocket->Send(msg, clients[i]->getIpAddress(), channel);
 }
 
 void server::OnCleanup()

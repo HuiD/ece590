@@ -43,6 +43,7 @@ class CNetMessage {
 //Virtual member function that indicates how many bytes may have to load into the instance. By default, it works with strings that have a maximum
 //of 255 characters.
     virtual int NumToLoad()=0;
+	virtual char getType()=0;
 
 //Virtual member function that indicates how many bytes may be downloaded from the instance.
     virtual int NumToUnload()=0;

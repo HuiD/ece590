@@ -35,9 +35,11 @@ void heromessage::UnLoadByte(int&x, int& y, int& id)
 	}
 	y=atoi(num1);
 	cout<<"y pos :"<<y<<endl;
- 
-   
-  
+}
+
+char heromessage::getType()
+{
+	return 'h';
 }
 
 void heromessage::loadBuffer(string str, int& pos, charbuf& ch)

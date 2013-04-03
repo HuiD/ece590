@@ -51,21 +51,44 @@ class bombmessage : public CNetMessage
 		{
 			charbuf buf;
 			buf[0]='b';
+			buf[1]=level;
 			stringstream ss;
 			ss<<x;
 			string strx=ss.str();
 			stringstream ss1;
 			ss1<<y;
 			string stry=ss1.str();
-			int pos=1;
+			int pos=2;
 			loadBuffer(strx, pos, buf);
 			loadBuffer(stry, pos, buf);
 			LoadBytes(buf, 8);
 			finish();
 		}
+		virtual char getType()
+		{
+			return 'b';
+		}
 		void UnLoadByte(int&x, int&y, int& level)
 		{
 			
+			charbuf buf;
+			UnLoadBytes(buf);
+			level=buf[1];
+			char num[3];
+			int pos=2;
+			for(int i=0; i<3; i++)
+			{
+				num[i]=buf[pos++];
+			}	
+			x=atoi(num);
+			char num1[3];
+			for(int i=0; i<3; i++)
+			{
+				num1[i]=buf[pos++];
+			}
+			stringstream strv;
+			strv<<num1;
+			strv>>y;
 		}
 };
 
