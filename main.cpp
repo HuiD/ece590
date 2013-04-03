@@ -111,7 +111,7 @@ void sendHello()
 {
 	hellomessage hello;
 	Uint16 port = udpclient->getPort();
-	hello.LoadByte(port);
+	hello.LoadByte(port,0,0);
 	tcpclient->Send(hello);
 }
 
@@ -200,8 +200,9 @@ void handleServer()
 	if(tcpclient->Receive(msg))
 	{
 		int id;
-		char ch;
-		msg.UnLoadByte(ch, id);
+		int ch;
+		int x;
+		msg.UnLoadByte(ch, id, x);
 		Hero* newhero = new Hero();
 		newhero->setPlayerId(id);
 		heroGroup[id]=newhero;
@@ -221,12 +222,12 @@ void handleServer()
 
 void handleClients()
 {
-	heromessage msg;
+	CNetMessage* msg;
 	int channel;
 	if(udpclient->Receive(msg, channel))
 	{
 		hero_pos pos;
-		msg.UnLoadByte(pos);
+		msg->UnLoadByte(pos.x, pos.y, pos.id);
 		if(pos.id!=myId)
 		{
 			heroGroup[pos.id]->setCoords(pos.x, pos.y);
@@ -273,7 +274,6 @@ void eventLoop(SDL_Surface * screen) {
         handleNetwork();
 
         
-        //update sprites
 
 		std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
@@ -283,7 +283,8 @@ void eventLoop(SDL_Surface * screen) {
 		if(moved){
 			hero_pos newPos=heroGroup[myId]->getPos();
 			heromessage msg;
-			msg.LoadByte(newPos);
+			msg.LoadByte(newPos.x, newPos.y, newPos.id);
+			cout<<"y pos:"<<newPos.y<<endl;
 			udpclient->Send(msg,tcpclient->getIpAddress() ,-1);
 			moved=false;
 		}

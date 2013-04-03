@@ -1,5 +1,7 @@
 #include "CNet.h"
 #include<iostream>
+#include "heromessage.h"
+#include "bombmessage.h"
 using namespace std;
 
 bool CNet::Init() {
@@ -359,27 +361,31 @@ void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)
 	SDLNet_FreePacket(p);
 }
 
-bool CUdpSocket::Receive(CNetMessage& msg, int & channel)
+bool CUdpSocket::Receive(CNetMessage* & msg, int & channel)
 {
 	charbuf buf;
-	UDPpacket *p;
+	UDPpacket *p; 
 	if(!(p=SDLNet_AllocPacket(256)))
 	{
 		exit(EXIT_FAILURE);
 	}
-	while(msg.NumToLoad()>0)
+	if(SDLNet_UDP_Recv(udpsocket, p))
 	{
-		if(SDLNet_UDP_Recv(udpsocket, p))
-		{
-            channel=udppacket->channel;
-			memcpy(buf, p->data, p->maxlen); 	
-			msg.LoadBytes(buf, msg.NumToLoad());
-		}else
-		{
-			return false;
-		}
+         if(p->data[0]=='h')
+         {
+             msg = new heromessage();
+         }else
+         {
+             msg = new bombmessage();
+         }
+         channel=udppacket->channel;
+		 memcpy(buf, p->data, p->maxlen); 	
+		 msg->LoadBytes(buf, msg->NumToLoad());
+	}else
+	{
+		 return false;
 	}
-	msg.finish();
+	msg->finish();
 	SDLNet_FreePacket(p);
 	return true;
 }

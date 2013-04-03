@@ -72,18 +72,22 @@ int server::net_thread_main()
 					hellomessage hello;
 					if(clients[i]->Receive(hello))
 					{
-                        Uint16 port;
-					    hello.UnLoadByte(port);
+                        int mport;
+						int x;
+						int y;
+					    hello.UnLoadByte(mport, x, y);
+					    Uint16 port=mport;	
+						cout<<"port is:"<<port;
 					    clients[i]->setIp("localhost", port);
-						smsg.LoadByte('0',i);
+						smsg.LoadByte('0',i,0);
 						clients[i]->Send(smsg);
 						for(int j=0;j<MAX_CLIENTS; j++)
 						{
 							if(j!=i&&clients[j]->Ok())
 							{
-								smsg.LoadByte('1', i);
+								smsg.LoadByte('1', i, 0);
 								clients[j]->Send(smsg);
-								smsg.LoadByte('1', j);
+								smsg.LoadByte('1', j, 0);
 								clients[i]->Send(smsg);
 							}
 						}
@@ -101,18 +105,18 @@ void server::OnLoop()
 		//	continue;
 		if(servsocket->Ready())
 		{
-			heromessage msg;
+			CNetMessage* msg;
 			int channel;
 			if(servsocket->Receive(msg, channel))
 			{
 				heromessage sentmsg;
 				hero_pos pos;
-				msg.UnLoadByte(pos);
+				msg->UnLoadByte(pos.x,pos.y,pos.id);
                 for(int i=0; i<MAX_CLIENTS; ++i)
                 {
                     if(clients[i]->Ok())
                     {
-                        sentmsg.LoadByte(pos);
+                        sentmsg.LoadByte(pos.x, pos.y, pos.id);
                         sendOutHeroMsg(sentmsg, channel, i);
                     }
                 }
@@ -123,7 +127,6 @@ void server::OnLoop()
 void server::sendOutHeroMsg(heromessage msg, int channel, int i)
 {
 	servsocket->Send(msg, clients[i]->getIpAddress(), channel);
-	cout<<"send out udp to "<<endl;
 }
 
 void server::OnCleanup()
