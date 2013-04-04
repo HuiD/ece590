@@ -21,15 +21,19 @@ class hellomessage : public CNetMessage
 				return 0;
 		}
 	public:
-		void LoadByte(Uint16 port)
+		void LoadByte(int port, int a, int b)
 		{
 			charbuf buf;
 			memcpy(&buf[0], &port,2);
 			LoadBytes(buf, 2);
 			finish();
 		}
+		char getType()
+		{
+			return 'o';
+		}
 
-		void UnLoadByte(Uint16& port)
+		void UnLoadByte(int& port, int& a, int& b)
 		{
 			charbuf buf;
 			UnLoadBytes(buf);

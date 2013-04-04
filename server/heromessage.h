@@ -10,6 +10,7 @@ class heromessage : public CNetMessage
 		virtual int NumToUnload();
 		void loadBuffer(string, int&, charbuf&);
 	public:
-		void LoadByte(hero_pos);
-		void UnLoadByte(hero_pos&);
+		virtual char getType();
+		void LoadByte(int x, int y, int id);
+		void UnLoadByte(int &x, int&y, int& id);
 };

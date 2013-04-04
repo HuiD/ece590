@@ -43,10 +43,12 @@ class CNetMessage {
 //Virtual member function that indicates how many bytes may have to load into the instance. By default, it works with strings that have a maximum
 //of 255 characters.
     virtual int NumToLoad()=0;
+	virtual char getType()=0;
 
 //Virtual member function that indicates how many bytes may be downloaded from the instance.
     virtual int NumToUnload()=0;
-
+	virtual void LoadByte(int, int, int)=0;
+    virtual void UnLoadByte(int&, int&, int&)=0;
     void LoadBytes(charbuf& inputbuffer, int n); //Load a char set into the message buffer
     void UnLoadBytes(charbuf& destbuffer); //Unload a char set from the buffer
     void finish(); //set the state object to full. No more data to be loaded
@@ -122,7 +124,7 @@ class CUdpSocket
 		CUdpSocket(Uint16 port);
         Uint16 getPort();
 		void Send(CNetMessage& sData, CIpAddress ip, int channel);
-		bool Receive(CNetMessage& sData, int & channel);
+		bool Receive(CNetMessage*& sData, int & channel);
 		bool Ready() ;
 
         
