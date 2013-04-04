@@ -10,17 +10,29 @@
 #include "heromessage.h"
 #include "enemy.h"
 
-#define NUM_HERO_FILES 8
+#define NUM_HERO_FILES 12
 using namespace std;
 static const char * hero_file_names[NUM_HERO_FILES + 1] = {
-    "img/blob1.bmp",
-    "img/blob2.bmp",
-    "img/blob3.bmp",
-    "img/blob4.bmp",
-    "img/blob5.bmp",
-    "img/blob6.bmp",
-    "img/blob7.bmp",
-    "img/blob8.bmp",
+//    "img/blob1.bmp",
+//    "img/blob2.bmp",
+//    "img/blob3.bmp",
+//    "img/blob4.bmp",
+//    "img/blob5.bmp",
+//    "img/blob6.bmp",
+//    "img/blob7.bmp",
+//    "img/blob8.bmp",
+    "img/person/player_1_1.bmp",
+    "img/person/player_1_2.bmp",
+    "img/person/player_1_3.bmp",
+    "img/person/player_1_4.bmp",
+    "img/person/player_1_5.bmp",
+    "img/person/player_1_6.bmp",
+    "img/person/player_1_7.bmp",
+    "img/person/player_1_8.bmp",
+    "img/person/player_1_9.bmp",
+    "img/person/player_1_10.bmp",
+    "img/person/player_1_11.bmp",
+    "img/person/player_1_12.bmp",
     NULL
 };
 
@@ -105,8 +117,8 @@ public:
         if (!visible) {
             return;
         }
-        frame = frame++;
-        frame = frame & 3;
+//        frame = frame++;
+//        frame = frame & 3;
         //speedY = 0;
         switch(move) {
             case DONT_MOVE:
@@ -116,18 +128,34 @@ public:
             case MOVE_RIGHT:
                 if(speedX < MAX_SPEED) speedX = walk_accel;
                 speedY=0;
+                frame++;
+                if (frame>2)
+                    frame = 0;
+                setAnimFrame(frame+3);
                 break;
             case MOVE_LEFT:
                 if(speedX > -MAX_SPEED) speedX = -1*walk_accel;
                 speedY=0;
+                frame++;
+                if (frame>2)
+                    frame = 0;
+                setAnimFrame(frame+9);
                 break;
             case MOVE_UP:
                 if(speedY > -MAX_SPEED) speedY = -1*walk_accel;
                 speedX=0;
+                frame++;
+                if (frame>2)
+                    frame = 0;
+                setAnimFrame(frame);
                 break;
             case MOVE_DOWN:
                 if(speedY < MAX_SPEED) 	speedY = walk_accel;
                 speedX=0;
+                frame++;
+                if (frame>2)
+                    frame = 0;
+                setAnimFrame(frame+6);
                 break;
         }
         int oriX = getX();
@@ -144,7 +172,6 @@ public:
 //		cout<<posX<<" "<<posY<<endl;
 		
         for (int i = 0; i < blocks.size(); i++){
-//            SDL_Rect pos = blockMap.at(i);
             if (!blocks.at(i)->getVisible())
                 continue;
             Block * tmp = blocks.at(i);
@@ -166,7 +193,7 @@ public:
         if (Sprite::getX() > WINDOW_WIDTH-getW()) {
             Sprite::setCoords(WINDOW_WIDTH-getW(), getY());
         }
-        Sprite::setAnimFrame(frame);
+//        Sprite::setAnimFrame(frame);
         
         if (isBomb){
 			bombx=getX();
@@ -270,5 +297,5 @@ public:
         return life;
     }
 };
-extern Hero * hero;
+//extern Hero * hero;
 #endif

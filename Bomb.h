@@ -122,8 +122,8 @@ public:
         //            }
         //
         //        }
-        int hi = exp->getY()-exp->getH()/2;
-        int lo = exp->getY()+exp->getH()/2;
+        int hi = exp->getY()-exp->getH()/2+getH()/2-8;
+        int lo = exp->getY()+exp->getH()/2+getH()/2-8;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
             if (!bl->getSolid() || bl->getX()>exp->getX()+exp->getW() || bl->getX()+bl->getW()<exp->getX())
@@ -141,8 +141,8 @@ public:
     }
     
     void setHoriExplosionBound(Explosion * exp, vector<Block *> blocks) {
-        int le = exp->getX()-exp->getW()/2;
-        int ri = exp->getX()+exp->getW()/2;
+        int le = exp->getX()-exp->getW()/2+getW()/2;
+        int ri = exp->getX()+exp->getW()/2+getW()/2;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
             if (!bl->getSolid() || bl->getY()>exp->getY()+exp->getH() || bl->getY()+bl->getH()<exp->getY())
