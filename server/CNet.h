@@ -122,6 +122,7 @@ class CUdpSocket
         Uint16 mport;
 	public:
 		CUdpSocket(Uint16 port);
+		~CUdpSocket();
         Uint16 getPort();
 		void Send(CNetMessage& sData, CIpAddress ip, int channel);
 		bool Receive(CNetMessage*& sData, int & channel);

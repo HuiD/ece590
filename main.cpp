@@ -202,10 +202,18 @@ void handleServer()
 	slotmessage msg;
 	if(tcpclient->Receive(msg))
 	{
+
+
 		int id;
 		int ch;
 		int x;
 		msg.UnLoadByte(ch, id, x);
+		if(ch=='2')
+		{
+			delete heroGroup[id];
+			heroGroup.erase(id);
+			return;
+		}
 		Hero* newhero = new Hero();
 		newhero->setPlayerId(id);
 		heroGroup[id]=newhero;
@@ -213,10 +221,8 @@ void handleServer()
 		if(ch=='0')
 			myId=id;
         for (int j = 0; j < enemyGroup.size(); j++){
-//            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
                 CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
                 colList.push_back(cp);
-//            }
             
         }
 	}

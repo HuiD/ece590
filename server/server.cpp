@@ -20,8 +20,7 @@ int server::OnExecute()
 	}
     SDL_Thread * net_thread=SDL_CreateThread(StaticThread,this);
 	if(!net_thread)
-	{
-		printf("SDL_CreateThread: %s\n",SDL_GetError());
+	{ printf("SDL_CreateThread: %s\n",SDL_GetError());
 	}
 	while(Running)
 	{
@@ -38,8 +37,7 @@ bool server::OnInit()
 	{
 		fprintf(stderr, "couldn't initialize sdl_net: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
-	}
-	tcplistener = new CHostSocket(1234);
+	} tcplistener = new CHostSocket(1234);
 	servsocket=new CUdpSocket(1234);
 	if(!tcplistener->Ok())
 	{
@@ -52,12 +50,26 @@ bool server::OnInit()
 	return true;
 }
 
+void server::notifyClosed(int which)
+{
+	for(int i=0; i<MAX_CLIENTS; i++)
+	{
+		if(i==which)
+			continue;
+		slotmessage slot;
+		slot.LoadByte('2',which,0);
+		clients[i]->Send(slot);
+	}
+}
+
 int server::net_thread_main()
 {
     while(1)
     {
 		for(int i=0; i<MAX_CLIENTS; i++)
 		{
+			if(clients[i]==NULL)
+				clients[i]=new CClientSocket();
 			if(!clients[i]->Ok())
 			{
 				if(tcplistener->Accept(*clients[i]))
@@ -90,7 +102,13 @@ int server::net_thread_main()
 								clients[i]->Send(smsg);
 							}
 						}
-                    }
+                    }else
+					{
+						notifyClosed(i);
+						cout<<"connection:"<<i<<"lost"<<endl;
+						delete clients[i];
+						clients[i]=NULL;
+					}
             }
 		}
   
@@ -155,6 +173,7 @@ void server::OnCleanup()
 {
 	delete tcplistener;
 	delete tcpclient;
+	delete servsocket;
 	for(int i=0; i<numOfClients; i++)
 	{
 		delete clients[i];

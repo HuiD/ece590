@@ -1,5 +1,7 @@
 #include "CNet.h"
 #include<iostream>
+#include "heromessage.h"
+#include "bombmessage.h"
 using namespace std;
 
 bool CNet::Init() {
@@ -30,20 +32,6 @@ void CNetMessage::finish() {
 	if (state == READING)
 		state = FULL;
 }
-
-/*int CNetMessage::NumToLoad() {
-	if (state == EMPTY)
-		return 255;
-	else
-		return 0;
-}*/
-
-/*int CNetMessage::NumToUnLoad() {
-	if (state == FULL)
-		return strlen(buffer) + 1;
-	else
-		return 0;
-}*/
 
 void CNetMessage::LoadBytes(charbuf& inputbuffer, int n) {
 	for (int i = 0; i < n; i++)
@@ -247,7 +235,6 @@ void CClientSocket::SetSocket (TCPsocket the_sdl_socket) {
 	CTcpSocket::SetSocket (the_sdl_socket);
 	IPaddress* ips;
 	if ((ips = SDLNet_TCP_GetPeerAddress(m_Socket))) {
-	/* Print the address, converting it onto the host format */
 		m_RemoteIp.SetIp(*ips);
 		Uint32 hbo = m_RemoteIp.GetHost();
 		Uint16 pbo = m_RemoteIp.GetPort();
@@ -263,12 +250,10 @@ CIpAddress CClientSocket::getIpAddress () const {
 }
 
 bool CClientSocket::Receive(CNetMessage& rData) {
-//Firstly, check if there is a socket
 	if (m_Socket == NULL)
 		return false;
 	charbuf buf;
 
-//Check if the instance can receive bytes, if it can, load the number of bytes specfied by NumToLoad() virtual function
 	while (rData.NumToLoad() > 0) {
 		if (SDLNet_TCP_Recv(m_Socket, buf, rData.NumToLoad()) > 0) {
 			rData.LoadBytes (buf, rData.NumToLoad());
@@ -300,7 +285,7 @@ bool CClientSocket::Send (CNetMessage& sData) {
 	return true;
 }
 
-void CClientSockt::setIp(std::string host, Uint16 port)
+void CClientSocket::setIp(std::string host, Uint16 port)
 {
     CIpAddress tempip(host, port);
     m_RemoteIp=tempip;
@@ -350,37 +335,41 @@ void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)
 		}
 		msg.UnLoadBytes(buf);
 		memcpy(p->data, buf, p->maxlen);
-		p->len=strlen((char*)p->data)+1;
+		p->len=len+1;
 	    p->address.host=ip.GetHost();	
 		p->address.port=ip.GetPort();
-		//p->address.port=1234;
 		Uint32 ipa=ip.GetHost();
-		Uint16 p=ip.GetPort();
-	//	cout<<"udp sent to ip addr: "<<SDLNet_Read32(&ipa)<<endl;
-	//	cout<<"udp sent to port: "<<SDLNet_Read16(&p)<<endl;
 	}
-	int sent=SDLNet_UDP_Send(udpsocket, channel, p);
+	int sent=SDLNet_UDP_Send(udpsocket, -1, p);
 	SDLNet_FreePacket(p);
 }
 
-bool CUdpSocket::Receive(CNetMessage& msg, int & channel)
+bool CUdpSocket::Receive(CNetMessage* & msg, int & channel)
 {
 	charbuf buf;
-	while(msg.NumToLoad()>0)
+	UDPpacket *p; 
+	if(!(p=SDLNet_AllocPacket(256)))
 	{
-		if(SDLNet_UDP_Recv(udpsocket, udppacket))
-		{
-            channel=udppacket->channel;
-			memcpy(buf, udppacket->data, udppacket->maxlen); 	
-			msg.LoadBytes(buf, msg.NumToLoad());
-			cout<<"udp received\n";
-			return true;
-		}else
-		{
-			return false;
-		}
+		exit(EXIT_FAILURE);
 	}
-	msg.finish();
+	if(SDLNet_UDP_Recv(udpsocket, p))
+	{
+         if(p->data[0]=='h')
+         {
+             msg = new heromessage();
+         }else
+         {
+             msg = new bombmessage();
+         }
+         channel=udppacket->channel;
+		 memcpy(buf, p->data, p->maxlen); 	
+		 msg->LoadBytes(buf, msg->NumToLoad());
+	}else
+	{
+		 return false;
+	}
+	msg->finish();
+	SDLNet_FreePacket(p);
 	return true;
 }
 bool CUdpSocket:: Ready()

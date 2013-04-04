@@ -225,7 +225,6 @@ public:
                     protection = true;
                 }
                 else if (protection && checkExplosionTime()){
-//                    protection = false;
                     life--;
                     cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();

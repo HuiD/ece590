@@ -33,20 +33,6 @@ void CNetMessage::finish() {
 		state = FULL;
 }
 
-/*int CNetMessage::NumToLoad() {
-	if (state == EMPTY)
-		return 255;
-	else
-		return 0;
-}*/
-
-/*int CNetMessage::NumToUnLoad() {
-	if (state == FULL)
-		return strlen(buffer) + 1;
-	else
-		return 0;
-}*/
-
 void CNetMessage::LoadBytes(charbuf& inputbuffer, int n) {
 	for (int i = 0; i < n; i++)
 		buffer[i] = inputbuffer[i];
@@ -118,6 +104,7 @@ CTcpSocket::~CTcpSocket() {
   		SDLNet_TCP_DelSocket(set,m_Socket);
 		SDLNet_FreeSocketSet(set);
 		SDLNet_TCP_Close (m_Socket);
+		m_Socket=NULL;
 	}
 }
 
@@ -249,7 +236,6 @@ void CClientSocket::SetSocket (TCPsocket the_sdl_socket) {
 	CTcpSocket::SetSocket (the_sdl_socket);
 	IPaddress* ips;
 	if ((ips = SDLNet_TCP_GetPeerAddress(m_Socket))) {
-	/* Print the address, converting it onto the host format */
 		m_RemoteIp.SetIp(*ips);
 		Uint32 hbo = m_RemoteIp.GetHost();
 		Uint16 pbo = m_RemoteIp.GetPort();
@@ -265,12 +251,10 @@ CIpAddress CClientSocket::getIpAddress () const {
 }
 
 bool CClientSocket::Receive(CNetMessage& rData) {
-//Firstly, check if there is a socket
 	if (m_Socket == NULL)
 		return false;
 	charbuf buf;
 
-//Check if the instance can receive bytes, if it can, load the number of bytes specfied by NumToLoad() virtual function
 	while (rData.NumToLoad() > 0) {
 		if (SDLNet_TCP_Recv(m_Socket, buf, rData.NumToLoad()) > 0) {
 			rData.LoadBytes (buf, rData.NumToLoad());
@@ -334,6 +318,16 @@ CUdpSocket::CUdpSocket(Uint16 port)
 	set=SDLNet_AllocSocketSet(1);
 	SDLNet_UDP_AddSocket(set, udpsocket);
 	SDLNet_CheckSockets(set, 0);
+}
+
+CUdpSocket::~CUdpSocket()
+{
+	if(!(udpsocket==NULL))
+	{
+		SDLNet_UDP_DelSocket(set, udpsocket);
+		SDLNet_FreeSocketSet(set);
+		SDLNet_UDP_Close(udpsocket);
+	}
 }
 
 void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)

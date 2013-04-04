@@ -5,7 +5,7 @@
 #include "slotmessage.h"
 #include "bombmessage.h"
 #include <SDL_net.h>
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 4
 
 
 class server
@@ -22,6 +22,7 @@ class server
 		bool isReceived[MAX_CLIENTS];
 		void sendOutHeroMsg(heromessage msg, int channel, int i);
         void sendOutBombMsg(bombmessage msg, int channel, int i);
+		void notifyClosed(int i);
 
     protected:
         static int StaticThread(void *param)
