@@ -37,6 +37,7 @@ public:
         switch (t) {
             case HeroExplosion:
 //                cout<<"hero on fire"<<endl;
+                cout<<"test for level 3"<<endl;
                 break;
             case BombExplosion:
                 cout<<"bomb on bomb"<<endl;
