@@ -17,7 +17,7 @@ private:
 public:
     Block(int x, int y, bool ifSolid){
         Sprite::setVisible(true);
-        Sprite::initSprite("img/blocks/tiles_2.bmp");
+        Sprite::initSprite("img/blocks/tiles_1.bmp");
         Sprite::setCoords(x,y);
         solid = ifSolid;
         exploded = false;

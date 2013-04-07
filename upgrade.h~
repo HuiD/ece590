@@ -26,10 +26,10 @@ public:
         upType = t;
         switch (upType) {
             case HeroUpgrade:
-                Sprite::initSprite("img/blob1.bmp");
+                Sprite::initSprite("img/items/FireUpgrade.bmp");
                 break;
             case HeroLife:
-                Sprite::initSprite("img/blob2.bmp");
+                Sprite::initSprite("img/items/LifeUpgrade.bmp");
                 break;
 //            case addLife:
 //                Sprite::initSprite("img/blob3.bmp");

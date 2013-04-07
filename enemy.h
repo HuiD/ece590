@@ -10,17 +10,15 @@ class Bomb;
 
 
 
-#define NUM_ENEMY_FILES 8
+#define NUM_ENEMY_FILES 6
 using namespace std;
 static const char * enemy_file_names[NUM_ENEMY_FILES + 1] = {
-    "img/blob1.bmp",
-    "img/blob2.bmp",
-    "img/blob3.bmp",
-    "img/blob4.bmp",
-    "img/blob5.bmp",
-    "img/blob6.bmp",
-    "img/blob7.bmp",
-    "img/blob8.bmp",
+    "img/enemy/enemy_1.bmp",
+    "img/enemy/enemy_2.bmp",
+    "img/enemy/enemy_3.bmp",
+    "img/enemy/enemy_4.bmp",
+    "img/enemy/enemy_5.bmp",
+    "img/enemy/enemy_6.bmp",
     NULL
 };
 
@@ -61,7 +59,9 @@ public:
             return;
         }
         frame = frame++;
-        frame = frame & 3;
+        if (frame > 5) {
+	   frame = 0;
+	}
         //speedY = 0;
         if (SDL_GetTicks() - ori_time > 400) {
             ori_time = SDL_GetTicks();
