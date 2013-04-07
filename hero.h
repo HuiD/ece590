@@ -66,7 +66,7 @@ public:
         move = DONT_MOVE;
         Sprite::initSprite(NUM_HERO_FILES, hero_file_names);
 	setTransparent();
-        Sprite::setCoords(500,450);
+//        Sprite::setCoords(500,450);
         frame = 0;
         speedX = 0.0;
         speedY = 0.0;
@@ -80,6 +80,12 @@ public:
     }
     ~Hero() {
         //        delete sprite;
+    }
+    int getFrame(){
+        return frame;
+    }
+    void setFrame(int fr){
+        frame = fr;
     }
     void setPlayerId(int id)
 	{
@@ -105,7 +111,7 @@ public:
 		tcpclient=client;
 	}
     
-#define MAX_SPEED  10.5
+#define MAX_SPEED  10
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
         
         if (!visible) {
@@ -169,7 +175,7 @@ public:
             if (!blocks.at(i)->getVisible())
                 continue;
             Block * tmp = blocks.at(i);
-            if (getX()>=tmp->getX()-getW() && getX()<=tmp->getX()+tmp->getW() && getY()>=tmp->getY()-getH() && getY()<=tmp->getY()+tmp->getH()){
+            if (getX()>tmp->getX()-getW() && getX()<tmp->getX()+tmp->getW() && getY()>tmp->getY()-getH()+5 && getY()<tmp->getY()+tmp->getH()-5){
                 setCoords(oriX, oriY);
                 break;
             }

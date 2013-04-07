@@ -11,8 +11,8 @@ enum colType{
 };
 
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 640
+#define WINDOW_WIDTH 950
+#define WINDOW_HEIGHT 750
 
 class Sprite {
 protected:
@@ -107,10 +107,10 @@ public:
         int left2 = other->getX();
         int bottom2 = top2 + other->getH();
         int right2 = left2 + other->getW();
-        if (bottom1 < top2) return false;
-        if (top1 > bottom2) return false;
-        if (right1 < left2) return false;
-        if (left1 > right2) return false;
+        if (bottom1 <= top2) return false;
+        if (top1 >= bottom2) return false;
+        if (right1 <= left2) return false;
+        if (left1 >= right2) return false;
         return true;
     }
     
