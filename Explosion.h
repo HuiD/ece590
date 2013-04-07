@@ -2,18 +2,21 @@
 #define __EXPLOSION_H__
 #include "Sprite.h"
 
+#define NUM_EXPLO_FILES 9
 
 class Explosion : public Sprite{
 private:
     int interval;
     int oriTime;
+    int frame;
 public:
-    Explosion(const char * file, int x, int y, int intev, int cur_time){
+    Explosion(const char ** file, int x, int y, int intev, int cur_time){
         Sprite::setVisible(true);
-        Sprite::initSprite(file);
+        Sprite::initSprite(NUM_EXPLO_FILES, file);
         Sprite::setCoords(x, y);
         interval = intev;
         oriTime = cur_time;
+	frame = 0;
 	setTransparent();
     }
     ~Explosion() {
@@ -21,6 +24,10 @@ public:
     }
     
     void update() {
+	frame ++;
+	if (frame > 8)
+	    frame = 0;
+	setAnimFrame(frame);
         if (visible && checkTimer()){
 //            cout<<visible<<endl;
             setVisible(false);

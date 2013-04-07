@@ -240,8 +240,8 @@ void handleClients()
 			msg->UnLoadByte(pos.x, pos.y, pos.id);
 			if(pos.id!=myId)
 			{
-                oriX = heroGroup[pos.id]->getX();
-                oriY = heroGroup[pos.id]->getY();
+                int oriX = heroGroup[pos.id]->getX();
+                int oriY = heroGroup[pos.id]->getY();
 				heroGroup[pos.id]->setCoords(pos.x, pos.y);
 			}
 		}else if(msg->getType()=='b')
@@ -249,7 +249,7 @@ void handleClients()
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
 			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
-			Bomb* newbomb=new Bomb("img/items/bomb_3.bmp", bx, by,4000,SDL_GetTicks(),lvl);
+			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}
 	}	

@@ -9,9 +9,20 @@ class Hero;
 class Explosion;
 class Enemy;
 
-//enum upgradeType {
-//    level1, level2, addLife
-//};
+#define NUM_LIFEUP_FILES 2
+#define NUM_FIREUP_FILES 2
+
+static const char * lifeup_file_names[NUM_LIFEUP_FILES + 1] = {
+    "img/items/lifeup_1.bmp",
+    "img/items/lifeup_2.bmp",
+    NULL
+};
+
+static const char * fireup_file_names[NUM_FIREUP_FILES + 1] = {
+    "img/items/fireup_1.bmp",
+    "img/items/fireup_2.bmp",
+    NULL
+};
 
 class Upgrade : public Sprite{
    
@@ -20,16 +31,19 @@ class Upgrade : public Sprite{
 private:
     enum colType upType;
     int oriTime;
+    int frame;
 public:
     Upgrade(int x, int y, enum colType t){
         Sprite::setVisible(true);
         upType = t;
         switch (upType) {
             case HeroUpgrade:
-                Sprite::initSprite("img/items/fireup_1.bmp");
+                Sprite::initSprite(NUM_FIREUP_FILES, fireup_file_names);
+                frame = 0;
                 break;
             case HeroLife:
-                Sprite::initSprite("img/items/lifeup_1.bmp");
+                Sprite::initSprite(NUM_LIFEUP_FILES, lifeup_file_names);
+		frame = 0;
                 break;
 //            case addLife:
 //                Sprite::initSprite("img/blob3.bmp");
@@ -47,6 +61,10 @@ public:
     void update() {
         if (!visible)
             return;
+        frame++;
+        if (frame > 2)
+           frame = 0;
+        setAnimFrame(frame);
         if (SDL_GetTicks() - oriTime > LIFETIME)
             setVisible(false);
     }

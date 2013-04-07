@@ -13,14 +13,6 @@
 #define NUM_HERO_FILES 12
 using namespace std;
 static const char * hero_file_names[NUM_HERO_FILES + 1] = {
-//    "img/blob1.bmp",
-//    "img/blob2.bmp",
-//    "img/blob3.bmp",
-//    "img/blob4.bmp",
-//    "img/blob5.bmp",
-//    "img/blob6.bmp",
-//    "img/blob7.bmp",
-//    "img/blob8.bmp",
     "img/person/player_1_1.bmp",
     "img/person/player_1_2.bmp",
     "img/person/player_1_3.bmp",
@@ -149,7 +141,7 @@ public:
                 frame++;
                 if (frame>2)
                     frame = 0;
-                setAnimFrame(frame);
+                setAnimFrame(frame+6);
                 break;
             case MOVE_DOWN:
                 if(speedY < MAX_SPEED) 	speedY = walk_accel;
@@ -157,7 +149,7 @@ public:
                 frame++;
                 if (frame>2)
                     frame = 0;
-                setAnimFrame(frame+6);
+                setAnimFrame(frame);
                 break;
         }
         int oriX = getX();

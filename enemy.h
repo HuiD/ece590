@@ -59,9 +59,8 @@ public:
             return;
         }
         frame = frame++;
-        if (frame > 5) {
+        if (frame > 5)
 	   frame = 0;
-	}
         //speedY = 0;
         if (SDL_GetTicks() - ori_time > 400) {
             ori_time = SDL_GetTicks();
