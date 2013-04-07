@@ -240,8 +240,8 @@ void handleClients()
 			msg->UnLoadByte(pos.x, pos.y, pos.id);
 			if(pos.id!=myId)
 			{
-                oriX = heroGroup[pos.id]->getX();
-                oriY = heroGroup[pos.id]->getY();
+                int oriX = heroGroup[pos.id]->getX();
+                int oriY = heroGroup[pos.id]->getY();
 				heroGroup[pos.id]->setCoords(pos.x, pos.y);
 			}
 		}else if(msg->getType()=='b')
