@@ -104,6 +104,7 @@ CTcpSocket::~CTcpSocket() {
   		SDLNet_TCP_DelSocket(set,m_Socket);
 		SDLNet_FreeSocketSet(set);
 		SDLNet_TCP_Close (m_Socket);
+		m_Socket=NULL;
 	}
 }
 
@@ -285,10 +286,16 @@ bool CClientSocket::Send (CNetMessage& sData) {
 	return true;
 }
 
-void CClientSocket::setIp(std::string host, Uint16 port)
+void CClientSocket::setIp(Uint16 port)
 {
-    CIpAddress tempip(host, port);
-    m_RemoteIp=tempip;
+	CIpAddress ipa("localhost", port);
+	Uint16 temp2=ipa.GetPort();
+	IPaddress tempip;
+	tempip.port=temp2;
+	tempip.host=m_RemoteIp.GetHost();
+	cout<<"ip address is:"<<SDLNet_Read32(&tempip.host)<<endl;
+	cout<<"port is:"<<SDLNet_Read16(&tempip.port)<<endl;
+	m_RemoteIp.SetIp(tempip);
 }
 
 void CClientSocket::OnReady() {
@@ -317,6 +324,16 @@ CUdpSocket::CUdpSocket(Uint16 port)
 	set=SDLNet_AllocSocketSet(1);
 	SDLNet_UDP_AddSocket(set, udpsocket);
 	SDLNet_CheckSockets(set, 0);
+}
+
+CUdpSocket::~CUdpSocket()
+{
+	if(!(udpsocket==NULL))
+	{
+		SDLNet_UDP_DelSocket(set, udpsocket);
+		SDLNet_FreeSocketSet(set);
+		SDLNet_UDP_Close(udpsocket);
+	}
 }
 
 void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)

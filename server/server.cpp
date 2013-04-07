@@ -89,7 +89,6 @@ int server::net_thread_main()
 						int y;
 					    hello.UnLoadByte(mport, x, y);
 					    Uint16 port=mport;	
-						cout<<"port is:"<<SDLNet_Read16(&port);
 					    clients[i]->setIp(port);
 						smsg.LoadByte('0',i,0);
 						clients[i]->Send(smsg);

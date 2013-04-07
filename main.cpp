@@ -17,8 +17,7 @@
 #include "bombmessage.h"
 
 Hero * hero;
-Bomb * bomb;
-vector<Block * > blocks;
+Bomb * bomb; vector<Block * > blocks;
 vector<Enemy * > enemyGroup;
 //vector<Hero *> heroGroup;
 map<int, Hero*> heroGroup;
@@ -121,7 +120,7 @@ void sendHello()
 void init()
 {
     tcpclient = new CClientSocket();
-	remoteip = new CIpAddress("localhost", 1234);
+	remoteip = new CIpAddress("10.190.53.36", 1234);
 	Uint16 port=1234;
 	udpclient=new CUdpSocket(port);
 	if(udpclient==NULL)
