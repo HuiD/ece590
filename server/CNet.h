@@ -104,7 +104,7 @@ class CClientSocket : public CTcpSocket {
     CClientSocket (std::string host, Uint16 port); //Create the object and connect to a host, in a given port
     bool Connect (CIpAddress& remoteip); //make a connection to communicate with a remote host
     void setPort(Uint16 port);
-    void setIp(std::string host, Uint16 port);
+    void setIp(Uint16 port);
     bool Connect (CHostSocket& the_listener_socket); //make a connection to communicate with a client
     void SetSocket (TCPsocket  the_sdl_socket); //set a CTcpSocket object from an existing SDL_net socket
     CIpAddress getIpAddress () const; //return a CIpAddress object associated to the remote host
