@@ -152,7 +152,7 @@ void init()
     }
 
     font_color.r = 0;
-    font_color.g = 0xff;  //very green.  If you want black, make this 0.
+    font_color.g = 0;  //very green.  If you want black, make this 0.
     font_color.b = 0;
 
 
@@ -264,7 +264,10 @@ void eventLoop(SDL_Surface * screen) {
                 case SDL_KEYDOWN:
                     if(handle_key(event.key.keysym.sym)){
                         delete background;
-                        delete heroGroup[myId];
+//                        delete heroGroup[myId];
+                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                            delete it->second;
+                        }
                         for (int i = 0; i < blocks.size(); i++)
                             delete blocks.at(i);
                         for (int i = 0; i < explosionGroup.size(); i++)
@@ -273,9 +276,13 @@ void eventLoop(SDL_Surface * screen) {
                             delete enemyGroup.at(i);
                         for (int i = 0; i < bombGroup.size(); i++)
                             delete bombGroup.at(i);
+                        for (int i = 0; i < upgradeGroup.size(); i++)
+                            delete upgradeGroup.at(i);
                         for (int i = 0; i < colList.size(); i++) {
                             delete colList.at(i);
                         }
+                        TTF_CloseFont(text_font);
+//                        SDL_FreeSurface(text_image);
                         return;
                     }
                     break;
@@ -369,6 +376,7 @@ void eventLoop(SDL_Surface * screen) {
         textDest.w = text_image->w;
         textDest.h = text_image->h;
         SDL_BlitSurface(text_image, NULL, screen, &textDest);
+        SDL_FreeSurface(text_image);
 
         /* since its double buffered, make
          the changes show up*/
