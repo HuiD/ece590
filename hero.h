@@ -73,6 +73,7 @@ public:
         Sprite::setVisible(true);
         move = DONT_MOVE;
         Sprite::initSprite(NUM_HERO_FILES, hero_file_names);
+	setTransparent();
         Sprite::setCoords(500,450);
         frame = 0;
         speedX = 0.0;
@@ -83,6 +84,7 @@ public:
 		tcpclient=NULL;
         life = TOTAL_LIFE_NUM;
         bombLevel = 1;
+	
     }
     ~Hero() {
         //        delete sprite;

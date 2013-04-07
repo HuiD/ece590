@@ -14,6 +14,7 @@
 #include <map>
 #include "hellomessage.h"
 #include "slotmessage.h"
+#include "bombmessage.h"
 
 Hero * hero;
 Bomb * bomb;
@@ -31,6 +32,7 @@ CUdpSocket* udpclient;
 vector<CollisionPair * > colList;
 int myId;
 bool moved=false;
+bool bombed=false;
 Background * background;
 SDL_Surface *text_image;
 char textbuf[80];
@@ -80,6 +82,7 @@ void handle_keyup(SDLKey k) {
             heroGroup[myId]->stopMoving();
             break;
         case SDLK_SPACE:
+			bombed=true;
             heroGroup[myId]->placeBomb();
             break;
     }
@@ -111,9 +114,8 @@ void sendHello()
 {
 	hellomessage hello;
 	Uint16 port = udpclient->getPort();
-	hello.LoadByte(port);
+	hello.LoadByte(port,0,0);
 	tcpclient->Send(hello);
-	cout<<"tcp send hello\n";
 }
 
 void init()
@@ -151,7 +153,7 @@ void init()
     }
 
     font_color.r = 0;
-    font_color.g = 0xff;  //very green.  If you want black, make this 0.
+    font_color.g = 0;  //very green.  If you want black, make this 0.
     font_color.b = 0;
 
 
@@ -176,13 +178,13 @@ void init()
         }
        
     }
-    for (int j = 0; j < enemyGroup.size(); j++){
-        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
-            colList.push_back(cp);
-        }
-        
-    }
+//    for (int j = 0; j < enemyGroup.size(); j++){
+//        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+//            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
+//            colList.push_back(cp);
+//        }
+//        
+//    }
 }
 
 void handleNetwork()
@@ -200,32 +202,55 @@ void handleServer()
 	slotmessage msg;
 	if(tcpclient->Receive(msg))
 	{
+
+
 		int id;
-		char ch;
-		msg.UnLoadByte(ch, id);
+		int ch;
+		int x;
+		msg.UnLoadByte(ch, id, x);
+		if(ch=='2')
+		{
+			delete heroGroup[id];
+			heroGroup.erase(id);
+			return;
+		}
 		Hero* newhero = new Hero();
 		newhero->setPlayerId(id);
 		heroGroup[id]=newhero;
 		heroGroup[id]->setCoords(0, 0);
 		if(ch=='0')
 			myId=id;
+        for (int j = 0; j < enemyGroup.size(); j++){
+                CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
+                colList.push_back(cp);
+            
+        }
 	}
 
 }
 
 void handleClients()
 {
-	heromessage msg;
+	CNetMessage* msg;
 	int channel;
 	if(udpclient->Receive(msg, channel))
 	{
-		hero_pos pos;
-		msg.UnLoadByte(pos);
-		if(pos.id!=myId)
+		if(msg->getType()=='h')
 		{
-			heroGroup[pos.id]->setCoords(pos.x, pos.y);
+			hero_pos pos;
+			msg->UnLoadByte(pos.x, pos.y, pos.id);
+			if(pos.id!=myId)
+			{
+				heroGroup[pos.id]->setCoords(pos.x, pos.y);
+			}
+		}else if(msg->getType()=='b')
+		{
+			int bx, by, lvl;
+			msg->UnLoadByte(bx, by, lvl);
+			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
+			Bomb* newbomb=new Bomb("img/items/bomb_3.bmp", bx, by,4000,SDL_GetTicks(),lvl);
+		    bombGroup.push_back(newbomb);
 		}
-		cout<<"player: "<<pos.id<<endl;
 	}	
 }
 
@@ -268,7 +293,6 @@ void eventLoop(SDL_Surface * screen) {
         handleNetwork();
 
         
-        //update sprites
 
 		std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
@@ -278,9 +302,20 @@ void eventLoop(SDL_Surface * screen) {
 		if(moved){
 			hero_pos newPos=heroGroup[myId]->getPos();
 			heromessage msg;
-			msg.LoadByte(newPos);
+			msg.LoadByte(newPos.x, newPos.y, newPos.id);
 			udpclient->Send(msg,tcpclient->getIpAddress() ,-1);
 			moved=false;
+		}
+		if(bombed)
+		{
+			int bombx, bomby, level;
+			bombx=heroGroup[myId]->getBombx();
+			bomby=heroGroup[myId]->getBomby();
+			level=heroGroup[myId]->getBombLevel();
+			bombmessage bmsg;
+			bmsg.LoadByte(bombx, bomby, level);
+			udpclient->Send(bmsg, tcpclient->getIpAddress(), -1);
+			bombed=false;
 		}
         for (int i = 0; i < enemyGroup.size(); i++) {
             enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
@@ -306,12 +341,11 @@ void eventLoop(SDL_Surface * screen) {
         
         //draw sprites
         background->blit(screen);
-
+ 	for (int j = 0; j < bombGroup.size(); j++) {
+            bombGroup.at(j)->blit(screen);
+        }
         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             it->second->blit(screen);
-        }
-        for (int j = 0; j < bombGroup.size(); j++) {
-            bombGroup.at(j)->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
             explosionGroup.at(j)->blit(screen);
@@ -328,7 +362,7 @@ void eventLoop(SDL_Surface * screen) {
         
         
         //HUD
-        sprintf(textbuf, "Hero Life = %d", hero->getLife());
+        sprintf(textbuf, "Hero Life = %d", heroGroup[myId]->getLife());
         text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
         textDest.x = 10;
         textDest.y = 10;
@@ -340,7 +374,7 @@ void eventLoop(SDL_Surface * screen) {
          the changes show up*/
         SDL_Flip(screen);
         /* Wait 10 ms between frames*/
-        SDL_Delay(10);
+        SDL_Delay(50);
     }
     
 }

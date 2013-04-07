@@ -31,6 +31,11 @@ public:
         delete[] anim_frames;
         cout<<"sprite deleted!"<<endl;
     }
+    void setTransparent(){
+	SDL_SetColorKey(anim_frames[0],
+			SDL_SRCCOLORKEY | SDL_RLEACCEL,
+			SDL_MapRGB(anim_frames[0]->format, 0, 255, 0));
+    }
     void initSprite(const char * file){
         currentFrame = 0;
         maxAnimFrames = 1;
@@ -48,7 +53,7 @@ public:
             anim_frames[i] = SDL_LoadBMP(files[i]);
             SDL_SetColorKey(anim_frames[i],
                             SDL_SRCCOLORKEY | SDL_RLEACCEL,
-                            SDL_MapRGB(anim_frames[i]->format , 90, 90, 119));
+                            SDL_MapRGB(anim_frames[i]->format , 0, 255, 0));
             
         }
         pos.w = anim_frames[0]->w;

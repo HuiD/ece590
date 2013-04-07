@@ -153,7 +153,7 @@ void init()
     }
 
     font_color.r = 0;
-    font_color.g = 0xff;  //very green.  If you want black, make this 0.
+    font_color.g = 0;  //very green.  If you want black, make this 0.
     font_color.b = 0;
 
 
@@ -248,7 +248,7 @@ void handleClients()
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
 			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
-			Bomb* newbomb=new Bomb("img/blob2.bmp", bx, by,4000,SDL_GetTicks(),lvl);
+			Bomb* newbomb=new Bomb("img/items/bomb_3.bmp", bx, by,4000,SDL_GetTicks(),lvl);
 		    bombGroup.push_back(newbomb);
 		}
 	}	
@@ -341,12 +341,11 @@ void eventLoop(SDL_Surface * screen) {
         
         //draw sprites
         background->blit(screen);
-
+ 	for (int j = 0; j < bombGroup.size(); j++) {
+            bombGroup.at(j)->blit(screen);
+        }
         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             it->second->blit(screen);
-        }
-        for (int j = 0; j < bombGroup.size(); j++) {
-            bombGroup.at(j)->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
             explosionGroup.at(j)->blit(screen);
@@ -375,7 +374,7 @@ void eventLoop(SDL_Surface * screen) {
          the changes show up*/
         SDL_Flip(screen);
         /* Wait 10 ms between frames*/
-        SDL_Delay(10);
+        SDL_Delay(50);
     }
     
 }

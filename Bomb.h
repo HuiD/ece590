@@ -9,12 +9,12 @@ class Hero;
 
 #define NUM_EXP_FILES 3
 static const char * explo_file_names[2*NUM_EXP_FILES + 1] = {
-    "img/explo1.bmp",
-    "img/explo2.bmp",
-    "img/explo3.bmp",
-    "img/explo4.bmp",
-    "img/explo5.bmp",
-    "img/explo6.bmp",
+    "img/fire/explosion_1.bmp",
+    "img/fire/explosion_2.bmp",
+    "img/fire/explosion_3.bmp",
+    "img/fire/explosion_4.bmp",
+    "img/fire/explosion_5.bmp",
+    "img/fire/explosion_6.bmp",
     NULL
 };
 
@@ -35,6 +35,7 @@ public:
         isAwake = false;
         awakeInterval = 1500;
         bombLevel = level;
+	setTransparent();
     }
     ~Bomb() {
         //        delete sprite;

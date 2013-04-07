@@ -14,6 +14,7 @@ public:
         Sprite::setCoords(x, y);
         interval = intev;
         oriTime = cur_time;
+	setTransparent();
     }
     ~Explosion() {
 //        delete sprite;
