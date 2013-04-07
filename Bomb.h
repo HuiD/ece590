@@ -123,8 +123,8 @@ public:
         //            }
         //
         //        }
-        int hi = exp->getY()-exp->getH()/2+getH()/2-8;
-        int lo = exp->getY()+exp->getH()/2+getH()/2-8;
+        int hi = exp->getY()-exp->getH()/2+getH()/2;
+        int lo = exp->getY()+exp->getH()/2+getH()/2;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
             if (!bl->getSolid() || bl->getX()>exp->getX()+exp->getW() || bl->getX()+bl->getW()<exp->getX())
