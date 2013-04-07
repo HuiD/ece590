@@ -291,7 +291,7 @@ void CClientSocket::setIp(Uint16 port)
 	CIpAddress ipa("10.190.55.255", port);
 	IPaddress tempip;
 	tempip.port=ipa.GetPort();
-	tempip.host=ipa.GetHost();
+	tempip.host=m_RemoteIp.GetHost();
 	cout<<"ip address is:"<<SDLNet_Read32(&tempip.host)<<endl;
 	cout<<"port is:"<<SDLNet_Read16(&tempip.port)<<endl;
 	m_RemoteIp.SetIp(tempip);

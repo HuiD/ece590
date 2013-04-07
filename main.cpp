@@ -117,10 +117,10 @@ void sendHello()
 	tcpclient->Send(hello);
 }
 
-void init()
+void init(string ip)
 {
     tcpclient = new CClientSocket();
-	remoteip = new CIpAddress("10.190.53.36", 1234);
+	remoteip = new CIpAddress(ip, 1234);
 	Uint16 port=1234;
 	udpclient=new CUdpSocket(port);
 	if(udpclient==NULL)
@@ -240,6 +240,8 @@ void handleClients()
 			msg->UnLoadByte(pos.x, pos.y, pos.id);
 			if(pos.id!=myId)
 			{
+                oriX = heroGroup[pos.id]->getX();
+                oriY = heroGroup[pos.id]->getY();
 				heroGroup[pos.id]->setCoords(pos.x, pos.y);
 			}
 		}else if(msg->getType()=='b')
@@ -388,7 +390,7 @@ void eventLoop(SDL_Surface * screen) {
 
 
 
-int main(void) {
+int main(int argc, char* argv[]) {
     /* Initalize SDL - for this demo,
      we only are using the video stuff..
      if you are doing sound, you would do
@@ -417,7 +419,7 @@ int main(void) {
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
-    init();
+    init(argv[1]);
     eventLoop(screen);
     /* cleanup SDL- return to normal screen mode,
      etc */
