@@ -286,10 +286,14 @@ bool CClientSocket::Send (CNetMessage& sData) {
 	return true;
 }
 
-void CClientSocket::setIp(std::string host, Uint16 port)
+void CClientSocket::setIp(Uint16 port)
 {
-    CIpAddress tempip(host, port);
-    m_RemoteIp=tempip;
+	CIpAddress ipa("localhost", port);
+	Uint16 temp2=ipa.GetPort();
+	IPaddress tempip;
+	tempip.port=temp2;
+	tempip.host=m_RemoteIp.GetHost();
+	m_RemoteIp.SetIp(tempip);
 }
 
 void CClientSocket::OnReady() {
