@@ -300,24 +300,21 @@ void handleClients()
                     frame++;
                     if (frame>2)
                         frame = 0;
-                    heroGroup[pos.id]->setAnimFrame(frame);
+                    heroGroup[pos.id]->setAnimFrame(frame+6);
                 }
                 else if (pos.x>oriX){
-//                    frame = heroGroup[pos.id]->getFrame(); 
                     frame++;
                     if (frame>2)
                         frame = 0;
                     heroGroup[pos.id]->setAnimFrame(frame+3);
                 }
                 else if (pos.y>oriY){
-//                    frame = heroGroup[pos.id]->getFrame();
                     frame++;
                     if (frame>2)
                         frame = 0;
-                    heroGroup[pos.id]->setAnimFrame(frame+6);
+                    heroGroup[pos.id]->setAnimFrame(frame);
                 }
                 else if (pos.x<oriX){
-//                    frame = heroGroup[pos.id]->getFrame();
                     frame++;
                     if (frame>2)
                         frame = 0;
@@ -338,9 +335,6 @@ void handleClients()
 
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
-    
-
-        
     while(1) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -437,7 +431,8 @@ void eventLoop(SDL_Surface * screen) {
             it->second->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
-            explosionGroup.at(j)->blit(screen);
+            SDL_Rect tmp = explosionGroup.at(j)->getShowPart();
+            explosionGroup.at(j)->blit(screen, &tmp);
         }
         for (int i = 0; i < blocks.size(); i++) {
             blocks.at(i)->blit(screen);

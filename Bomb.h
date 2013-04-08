@@ -209,30 +209,11 @@ public:
     }
     
     void setVertExplosionBound(Explosion * exp, vector<Block *> blocks) {
-        //        exp->setCoords(exp->getX(), exp->getY() - exp->getH()/2);
-        //        for (int i = 0; i < blocks.size(); i++){
-        //            Block * bl = blocks.at(i);
-        //            if (bl->getY()>exp->getY()+exp->getH())
-        //                continue;
-        //            else if (bl->getY()>exp->getY()){
-        ////                exp->setH(bl->getY()-exp->getY());
-        //                exp->setSurface(exp->getW(), bl->getY()-exp->getY());
-        //            }
-        //            else if (bl->getY()+bl->getH()<exp->getY())
-        //                continue;
-        //            else {
-        //                exp->setSurface(exp->getW(), exp->getH() - (bl->getY()+bl->getH()-exp->getY()));
-        //
-        ////                exp->setH(exp->getH() - (bl->getY()+bl->getH()-exp->getY()));
-        //                exp->setCoords(exp->getX(), bl->getY()+bl->getH());
-        //            }
-        //
-        //        }
         int hi = exp->getY()-exp->getH()/2+getH()/2;
         int lo = exp->getY()+exp->getH()/2+getH()/2;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
-            if (!bl->getSolid() || bl->getX()>exp->getX()+exp->getW() || bl->getX()+bl->getW()<exp->getX())
+            if (!bl->getSolid() || bl->getX()>exp->getX()+exp->getW()-OFFSET || bl->getX()+bl->getW()<exp->getX()+OFFSET)
                 continue;
             if (exp->getY()>=bl->getY()+bl->getH()){
                 hi = max(bl->getY()+bl->getH(), hi);
@@ -241,9 +222,17 @@ public:
                 lo = min(bl->getY(), lo);
             }
         }
-        int ht = lo-hi+1;
-        exp->setSurface(exp->getW(), ht);
+        int ht = lo-hi;
+        int tmp = exp->getY()-exp->getH()/2+getH()/2;
         exp->setCoords(exp->getX(), hi);
+        exp->setH(ht);
+//        exp->rect.x=0;
+//        exp->rect.y=hi-tmp;
+//        exp->rect.w=exp->getW();
+//        exp->rect.h=ht;
+        exp->setShowPart(0, hi-tmp, exp->getW(), ht);
+//        exp->setSurface(exp->getX(), hi, exp->getW(), ht);
+//        exp->setCoords(exp->getX(), hi);
     }
     
     void setHoriExplosionBound(Explosion * exp, vector<Block *> blocks) {
@@ -251,7 +240,7 @@ public:
         int ri = exp->getX()+exp->getW()/2+getW()/2;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
-            if (!bl->getSolid() || bl->getY()>exp->getY()+exp->getH() || bl->getY()+bl->getH()<exp->getY())
+            if (!bl->getSolid() || bl->getY()>exp->getY()+exp->getH()-OFFSET || bl->getY()+bl->getH()<exp->getY()+OFFSET)
                 continue;
             if (exp->getX()>=bl->getX()+bl->getW()){
                 le = max(bl->getX()+bl->getW(), le);
@@ -260,9 +249,11 @@ public:
                 ri = min(bl->getX(), ri);
             }
         }
-        int wi = ri-le+1;
-        exp->setSurface(wi, exp->getH());
+        int wi = ri-le;
+        int tmp = exp->getX()-exp->getW()/2+getW()/2;
         exp->setCoords(le, exp->getY());
+        exp->setW(wi);
+        exp->setShowPart(le-tmp, 0, wi, exp->getH());
     }
     
     bool checkTimer(int interval) {

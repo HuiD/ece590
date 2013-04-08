@@ -59,14 +59,10 @@ public:
             return;
         }
         frame = frame++;
-<<<<<<< HEAD
-        if (frame > 5)
-	   frame = 0;
-=======
+
         if (frame > 5) {
             frame = 0;
         }
->>>>>>> 6cf9d0ac3d01118bf0611e306604895215d038ff
         //speedY = 0;
         if (SDL_GetTicks() - ori_time > 500) {
             ori_time = SDL_GetTicks();

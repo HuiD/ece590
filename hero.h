@@ -70,7 +70,7 @@ public:
         frame = 0;
         speedX = 0.0;
         speedY = 0.0;
-        walk_accel = 8.00;
+        walk_accel = 10.00;
         isBomb = false;
         protection = false;
 		tcpclient=NULL;
@@ -111,7 +111,7 @@ public:
 		tcpclient=client;
 	}
     
-#define MAX_SPEED  10
+#define MAX_SPEED  25
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
         
         if (!visible) {
@@ -169,7 +169,6 @@ public:
 		heropos.y=posY;
 		heropos.id=playerId;
         setCoords(posX, posY);
-//		cout<<posX<<" "<<posY<<endl;
 		
         for (int i = 0; i < blocks.size(); i++){
             if (!blocks.at(i)->getVisible())

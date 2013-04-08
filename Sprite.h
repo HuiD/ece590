@@ -14,6 +14,8 @@ enum colType{
 #define WINDOW_WIDTH 950
 #define WINDOW_HEIGHT 750
 
+#define OFFSET 15
+
 class Sprite {
 protected:
     int maxAnimFrames;
@@ -107,10 +109,10 @@ public:
         int left2 = other->getX();
         int bottom2 = top2 + other->getH();
         int right2 = left2 + other->getW();
-        if (bottom1 <= top2) return false;
-        if (top1 >= bottom2) return false;
-        if (right1 <= left2) return false;
-        if (left1 >= right2) return false;
+        if (bottom1 <= top2+OFFSET) return false;
+        if (top1 >= bottom2-OFFSET) return false;
+        if (right1 <= left2+OFFSET) return false;
+        if (left1 >= right2-OFFSET) return false;
         return true;
     }
     
@@ -146,12 +148,21 @@ public:
         return visible;
     }
     
-    void setSurface(int wid, int hei) {
-        anim_frames[currentFrame]->w = wid;
-        anim_frames[currentFrame]->h = hei;
-        pos.w = anim_frames[currentFrame]->w;
-        pos.h = anim_frames[currentFrame]->h;
-    }
+//    void setSurface(int x, int y, int w, int h) {
+//        anim_frames[currentFrame]->w = w;
+//        anim_frames[currentFrame]->h = h;
+//        pos.w = w;
+//        pos.h = h;
+//        
+//        SDL_Rect rect;
+//        rect.x = x;
+//        rect.y = y;
+//        rect.w = w;
+//        rect.h = h;
+//        SDL_SetClipRect(anim_frames[currentFrame], &rect);
+//        pos.w = anim_frames[currentFrame]->w;
+//        pos.h = anim_frames[currentFrame]->h;
+//    }
     
     virtual void inCollision(enum colType t) = 0;
 //    virtual void update(vector<SDL_Rect> blockMap, vector<CollisionPair * > &colList, vector<vector<Sprite *> > &colGroups) = 0;

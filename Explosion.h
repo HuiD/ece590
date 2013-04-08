@@ -9,6 +9,8 @@ private:
     int interval;
     int oriTime;
     int frame;
+    SDL_Rect showPart;
+
 public:
     Explosion(const char ** file, int x, int y, int intev, int cur_time){
         Sprite::setVisible(true);
@@ -16,20 +18,30 @@ public:
         Sprite::setCoords(x, y);
         interval = intev;
         oriTime = cur_time;
-	frame = 0;
-	setTransparent();
+        frame = 0;
+        setTransparent();
     }
     ~Explosion() {
-//        delete sprite;
+        //        delete sprite;
     }
-    
+    SDL_Rect getShowPart(){
+        return showPart;
+    }
+    void setShowPart(int x, int y, int w, int h) {
+        showPart.x=x;
+        showPart.y=y;
+        showPart.w=w;
+        showPart.h=h;
+    }
     void update() {
-	frame ++;
-	if (frame > 8)
-	    frame = 0;
-	setAnimFrame(frame);
+        frame++;
+        if (frame > 8)
+            frame = 0;
+        setAnimFrame(frame);
+        setW(showPart.w);
+        setH(showPart.h);
         if (visible && checkTimer()){
-//            cout<<visible<<endl;
+            //            cout<<visible<<endl;
             setVisible(false);
         }
     }
@@ -44,7 +56,7 @@ public:
     void inCollision(enum colType t){
         switch (t) {
             case HeroExplosion:
-//                cout<<"hero on fire"<<endl;
+                //                cout<<"hero on fire"<<endl;
                 cout<<"test for level 3"<<endl;
                 break;
             case BombExplosion:
@@ -61,7 +73,7 @@ public:
         }
         
     }
-
+    
     
 };
 #endif
