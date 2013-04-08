@@ -2,7 +2,6 @@
 #define __BACKGROUND_H__
 #include "Sprite.h"
 #include "upgrade.h"
-#include <stdlib.h>     /* srand, rand */
 class Hero;
 
 
@@ -29,40 +28,40 @@ public:
     }
     
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Upgrade *> &upgradeGroup){
-        if (SDL_GetTicks() - oriTime > PERIOD){
-            int x = rand()%(WINDOW_WIDTH-UPGRADES_WIDTH);
-            int y = rand()%(WINDOW_HEIGHT-UPGRADES_WIDTH);
-            for (int i = 0; i < blocks.size(); i++) {
-                Block * bl = blocks.at(i);
-                if (!bl->getVisible())
-                    continue;
-                if (x>bl->getX()-UPGRADES_WIDTH && x<bl->getX()+bl->getW() && y>bl->getY()-UPGRADES_WIDTH && y<bl->getY()+getH())
-                    return;
-            }
-            enum colType t;
-            int tmp = rand()%2;
-            switch (tmp) {
-                case 0:
-                    t = HeroUpgrade;
-                    break;
-                case 1:
-                    t = HeroLife;
-                    break;
-//                case 2:
-//                    t = addLife;
+//        if (SDL_GetTicks() - oriTime > PERIOD){
+//            int x = rand()%(WINDOW_WIDTH-UPGRADES_WIDTH);
+//            int y = rand()%(WINDOW_HEIGHT-UPGRADES_WIDTH);
+//            for (int i = 0; i < blocks.size(); i++) {
+//                Block * bl = blocks.at(i);
+//                if (!bl->getVisible())
+//                    continue;
+//                if (x>bl->getX()-UPGRADES_WIDTH && x<bl->getX()+bl->getW() && y>bl->getY()-UPGRADES_WIDTH && y<bl->getY()+getH())
+//                    return;
+//            }
+//            enum colType t;
+//            int tmp = rand()%2;
+//            switch (tmp) {
+//                case 0:
+//                    t = HeroUpgrade;
 //                    break;
-                default:
-                    break;
-            }
-            Upgrade * up = new Upgrade(x, y, t);
-            upgradeGroup.push_back(up);
-            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
-                colList.push_back(cp);
-                
-            }
-            oriTime = SDL_GetTicks();
-        }
+//                case 1:
+//                    t = HeroLife;
+//                    break;
+////                case 2:
+////                    t = addLife;
+////                    break;
+//                default:
+//                    break;
+//            }
+//            Upgrade * up = new Upgrade(x, y, t);
+//            upgradeGroup.push_back(up);
+//            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+//                CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
+//                colList.push_back(cp);
+//                
+//            }
+//            oriTime = SDL_GetTicks();
+//        }
     }
     
     void inCollision(enum colType t){

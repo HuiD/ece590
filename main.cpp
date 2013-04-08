@@ -400,6 +400,9 @@ void eventLoop(SDL_Surface * screen) {
 			udpclient->Send(bmsg, tcpclient->getIpAddress(), -1);
 			bombed=false;
 		}
+        for (int i = 0; i < blocks.size(); i++) {
+            blocks[i]->update(colList, heroGroup, explosionGroup, upgradeGroup);
+        }
         for (int i = 0; i < enemyGroup.size(); i++) {
             enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
         }
