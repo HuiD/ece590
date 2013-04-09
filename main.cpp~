@@ -90,20 +90,34 @@ void handle_keyup(SDLKey k) {
 
 }
 
+<<<<<<< HEAD
 //#define UNIT 50
 
 void initBlock() {
+=======
+#define UNIT 50
+
+void initBlock() {
+    bool initialized =false;
+>>>>>>> dbec80d503ec6873c700e2d86da4f0fad75e1b42
 
     for (int j=0; j<WINDOW_WIDTH/UNIT; j++) {
         int x = j*UNIT;
         int y = 2*UNIT;
+<<<<<<< HEAD
         blocks.push_back(new Block(x, y, true));
         y = (WINDOW_HEIGHT/UNIT-1)*UNIT;
         blocks.push_back(new Block(x, y, true));
+=======
+        blocks.push_back(new Block(x, y, true,3));
+        y = (WINDOW_HEIGHT/UNIT-1)*UNIT;
+        blocks.push_back(new Block(x, y, true,3));
+>>>>>>> dbec80d503ec6873c700e2d86da4f0fad75e1b42
     }
     for (int i=3; i<WINDOW_HEIGHT/UNIT-1; i++) {
         int x = 0;
         int y = i*UNIT;
+<<<<<<< HEAD
         blocks.push_back(new Block(x, y, true));
         x = (WINDOW_WIDTH/UNIT-1)*UNIT;
         blocks.push_back(new Block(x, y, true));
@@ -133,6 +147,33 @@ void initBlock() {
                 blocks.push_back(new Block(i*50, j*50, false));
             
         }
+=======
+        blocks.push_back(new Block(x, y, true,3));
+        x = (WINDOW_WIDTH/UNIT-1)*UNIT;
+        blocks.push_back(new Block(x, y, true,3));
+    }
+    for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
+        for (int j=4; j<WINDOW_HEIGHT/UNIT-1; j+=2){
+            blocks.push_back(new Block(i*50, j*50, true,3));
+
+        }
+    }
+    blockmessage bmsg;
+    while(1)
+    {
+        if(tcpclient->Ready())
+        {
+            if(tcpclient->Receive(bmsg))
+            {
+                int x, y, r;
+                bmsg.UnLoadByte(x, y, r);
+                if(r==7)
+                    break;
+                blocks.push_back(new Block(x*50, y*50, false, r));
+            }
+        }
+        
+>>>>>>> dbec80d503ec6873c700e2d86da4f0fad75e1b42
     }
 }
 
