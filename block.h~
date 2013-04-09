@@ -3,6 +3,10 @@
 #include "Sprite.h"
 #include "CollisionPair.h"
 #include <algorithm>
+#include <map>
+//class Upgrade;
+#include "upgrade.h"
+#include <stdlib.h>     /* srand, rand */
 
 class Bomb;
 class Hero;
@@ -13,34 +17,65 @@ class Block : public Sprite{
     
 private:
     bool solid;
-    bool exploded;
+    int upgradeType;
 public:
     Block(int x, int y, bool ifSolid){
         Sprite::setVisible(true);
-        Sprite::initSprite("img/blocks/tiles_2.bmp");
+        if (ifSolid)
+            Sprite::initSprite("img/blocks/tiles_0.bmp");
+        else
+            initSprite("img/blocks/tiles_1.bmp");
         Sprite::setCoords(x,y);
         solid = ifSolid;
-        exploded = false;
+        upgradeType = 0;
     }
     ~Block() {
         //        delete sprite;
     }
     
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, vector<Hero *> &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
-//        if (exploded) {
-//            vector<Block *>::iterator position = find(blocks.begin(), blocks.end(), this);
-//            if (position != blocks.end()) {
-//                blocks.erase(position);
-//            }
-//        }
+    void update(vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Explosion *> &explosionGroup, vector<Upgrade *> &upgradeGroup) {
+        
+        if (upgradeType>0) {
+            enum colType t;
+            switch (upgradeType) {
+                case 1:
+                    t = HeroUpgrade;
+                    break;
+                case 2:
+                    t = HeroLife;
+                    break;
+                default:
+                    break;
+            }
+            Upgrade * up = new Upgrade(getX(), getY(), t);
+            upgradeGroup.push_back(up);
+            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
+                colList.push_back(cp);
+            }
+            upgradeType = 0;
+        }
     }
-
+    
     void inCollision(enum colType t){
+        int tmp;
         switch (t) {
             case BlockExplosion:
-//                cout<<"block bombed!"<<endl;
+                //                cout<<"block bombed!"<<endl;
                 setVisible(false);
-                exploded = true;
+                // generate upgrades
+                tmp = rand()%4;
+                switch (tmp) {
+                        
+                    case 2:
+                        upgradeType = 1;
+                        break;
+                    case 3:
+                        upgradeType = 2;
+                        break;
+                    default:
+                        break;
+                }
                 break;
             default:
                 break;

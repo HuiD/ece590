@@ -19,7 +19,7 @@ private:
     bool solid;
     int upgradeType;
 public:
-    Block(int x, int y, bool ifSolid){
+    Block(int x, int y, bool ifSolid, int rand){
         Sprite::setVisible(true);
         if (ifSolid)
             Sprite::initSprite("img/blocks/tiles_0.bmp");
@@ -27,7 +27,12 @@ public:
             initSprite("img/blocks/tiles_1.bmp");
         Sprite::setCoords(x,y);
         solid = ifSolid;
-        upgradeType = 0;
+        if(rand==0)
+            upgradeType=1;
+        else if(rand==1)
+            upgradeType=2;
+        else
+            upgradeType=0;
     }
     ~Block() {
         //        delete sprite;
