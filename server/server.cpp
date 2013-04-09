@@ -190,7 +190,6 @@ void server::OnLoop()
                     }
 				}else if(msg->getType()=='b')
                 {
-					cout<<"received bomb msg\n";
                     bombmessage bmsg;
                     int bx, by, lvl;
                     msg->UnLoadByte(bx, by, lvl);

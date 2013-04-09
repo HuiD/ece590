@@ -66,10 +66,8 @@ void heromessage::loadBuffer(string str, int& pos, charbuf& ch)
 void heromessage::LoadByte(int x, int y, int id)
 {
 	charbuf ch;
-//	cout<<heropos.id<<endl;
     ch[0]='h';
 	ch[1]=(char)id;
-//	cout<<ch[0]<<endl;
 	stringstream ss;
 	ss<<x;
 	string strx = ss.str();
@@ -80,7 +78,6 @@ void heromessage::LoadByte(int x, int y, int id)
 	loadBuffer(strx, pos, ch);
 	loadBuffer(stry, pos, ch);
     LoadBytes(ch, 8);
-	cout<<ch[5]<<ch[6]<<ch[7]<<": msg pos y"<<endl;
     finish();
 }
 
