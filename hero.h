@@ -10,7 +10,8 @@
 #include "heromessage.h"
 #include "enemy.h"
 
-#define NUM_HERO_FILES 12
+#define NUM_HERO_FILES 16
+
 using namespace std;
 static const char * hero_file_names[NUM_HERO_FILES + 1] = {
     "img/person/player_1_1.bmp",
@@ -25,15 +26,18 @@ static const char * hero_file_names[NUM_HERO_FILES + 1] = {
     "img/person/player_1_10.bmp",
     "img/person/player_1_11.bmp",
     "img/person/player_1_12.bmp",
+    "img/person/player_1_die1.bmp",
+    "img/person/player_1_die2.bmp",
+    "img/person/player_1_die3.bmp",
+    "img/person/player_1_die4.bmp",
     NULL
 };
-
 
 enum move_state {
     MOVE_LEFT,
     MOVE_RIGHT,
-	MOVE_DOWN,
-	MOVE_UP,
+    MOVE_DOWN,
+    MOVE_UP,
     DONT_MOVE
 };
 
@@ -44,19 +48,22 @@ class Hero : public Sprite{
 private:
     enum move_state move;
     int frame;
+    int deadframe;
+    int counter;
     double speedX;
     double speedY;
     double walk_accel;
     double fall_accel;
     bool isBomb;
+    bool isDead;
     bool protection;
     int inExplosionTime;
 	heromessage msg;
     int life;
     int bombLevel;
-	int bombx;
-	int bomby;
-	int playerId;
+    int bombx;
+    int bomby;
+    int playerId;
     hero_pos heropos;
 public:
 	CClientSocket* tcpclient;
@@ -68,12 +75,15 @@ public:
 	setTransparent();
 //        Sprite::setCoords(500,450);
         frame = 0;
+	deadframe = 11;
+	counter = 0;
         speedX = 0.0;
         speedY = 0.0;
         walk_accel = 10.00;
         isBomb = false;
+	isDead = false;
         protection = false;
-		tcpclient=NULL;
+	tcpclient=NULL;
         life = TOTAL_LIFE_NUM;
         bombLevel = 1;
 	
@@ -113,13 +123,44 @@ public:
     
 #define MAX_SPEED  25
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
-        
+        if (life <= 0) {
+	    setVisible(false);
+	    return;
+	}
         if (!visible) {
             return;
         }
-//        frame = frame++;
-//        frame = frame & 3;
-        //speedY = 0;
+	if (isDead) {
+	    counter++;
+	    if (counter == 4) {
+	    	deadframe++;
+		counter = 0;
+	    	setAnimFrame(deadframe);
+	    	if (deadframe > 15) {
+		    frame = 0;
+		    deadframe = 11;
+		    isDead = false;
+		    setAnimFrame(frame);
+		    switch (playerId) {
+            		case 0:
+                	    setCoords(UNIT, 3*UNIT);
+                	    break;
+            		case 1:
+                	    setCoords((WINDOW_WIDTH/UNIT-2)*UNIT, (WINDOW_HEIGHT/UNIT-2)*UNIT);
+                	    break;
+            		case 2:
+                	    setCoords((WINDOW_WIDTH/UNIT-2)*UNIT, 3*UNIT);
+                	    break;
+            		case 3:
+                	    setCoords(UNIT, (WINDOW_HEIGHT/UNIT-2)*UNIT);
+                	    break;
+            		default:
+                	    break;
+        	    }
+	        }
+	    }
+	}
+				
         switch(move) {
             case DONT_MOVE:
                 speedX=0;
@@ -195,22 +236,8 @@ public:
 //        Sprite::setAnimFrame(frame);
         
         if (isBomb){
-			bombx=getX();
-			bomby=getY();
-           /* Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
-            bombGroup.push_back(newBomb);
-            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                CollisionPair * cp = new CollisionPair(it->second, newBomb, HeroBomb);
-                colList.push_back(cp);
-            }
-            for (int i = 0; i < explosionGroup.size(); i++){
-                CollisionPair * cp = new CollisionPair(newBomb, explosionGroup.at(i), BombExplosion);
-                colList.push_back(cp);
-            }
-            for (int i = 0; i < enemyGroup.size(); i++){
-                CollisionPair * cp = new CollisionPair(newBomb, enemyGroup.at(i), BombEnemy);
-                colList.push_back(cp);
-            }*/
+	    bombx=getX();
+	    bomby=getY();
             isBomb = false;
         }
     }
@@ -228,14 +255,14 @@ public:
     void moveRight() {
         move = MOVE_RIGHT;
     }
-	void moveDown()
-	{
-		move = MOVE_DOWN;
-	}
-	void moveUp()
-	{
-		move = MOVE_UP;
-	}
+    void moveDown()
+    {
+	move = MOVE_DOWN;
+    }
+    void moveUp()
+    {
+	move = MOVE_UP;
+    }
     
     void inCollision(enum colType t){
         switch (t) {
@@ -244,6 +271,7 @@ public:
                 cout<<"hero bombed! life "<<life<<endl;
                 break;
             case HeroExplosion:
+		isDead = true;
                 if (!protection){
                     life--;
                     cout<<"hero on fire1: life "<<life<<endl;
@@ -254,10 +282,10 @@ public:
                     life--;
                     cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
-
                 }
                 break;
             case HeroEnemy:
+		isDead = true;
                 if (!protection){
                     life--;
                     cout<<"enemy hero collison1! life: "<<life<<endl;
@@ -265,7 +293,7 @@ public:
                     protection = true;
                 }
                 else if (protection && checkExplosionTime()){
-                    //                    protection = false;
+                    //	protection = false;
                     life--;
                     cout<<"enemy hero collison2! life: "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();

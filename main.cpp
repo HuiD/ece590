@@ -90,7 +90,7 @@ void handle_keyup(SDLKey k) {
 
 }
 
-#define UNIT 50
+//#define UNIT 50
 
 void initBlock() {
 
@@ -237,8 +237,6 @@ void handleServer()
 	slotmessage msg;
 	if(tcpclient->Receive(msg))
 	{
-
-
 		int id;
 		int ch;
 		int x;
@@ -430,9 +428,6 @@ void eventLoop(SDL_Surface * screen) {
  	for (int j = 0; j < bombGroup.size(); j++) {
             bombGroup.at(j)->blit(screen);
         }
-        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-            it->second->blit(screen);
-        }
         for (int j = 0; j < explosionGroup.size(); j++) {
             SDL_Rect tmp = explosionGroup.at(j)->getShowPart();
             explosionGroup.at(j)->blit(screen, &tmp);
@@ -445,6 +440,9 @@ void eventLoop(SDL_Surface * screen) {
         }
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->blit(screen);
+        }
+ 	for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+            it->second->blit(screen);
         }
         
         

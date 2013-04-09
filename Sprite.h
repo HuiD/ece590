@@ -13,7 +13,7 @@ enum colType{
 
 #define WINDOW_WIDTH 950
 #define WINDOW_HEIGHT 750
-
+#define UNIT 50
 #define OFFSET 15
 
 class Sprite {
