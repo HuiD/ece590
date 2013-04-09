@@ -18,6 +18,7 @@ class Block : public Sprite{
 private:
     bool solid;
     int upgradeType;
+    bool isExploded;
 public:
     Block(int x, int y, bool ifSolid, int rand){
         Sprite::setVisible(true);
@@ -33,32 +34,35 @@ public:
             upgradeType=2;
         else
             upgradeType=0;
+        isExploded = false;
     }
     ~Block() {
         //        delete sprite;
     }
     
     void update(vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Explosion *> &explosionGroup, vector<Upgrade *> &upgradeGroup) {
-        
-        if (upgradeType>0) {
-            enum colType t;
-            switch (upgradeType) {
-                case 1:
-                    t = HeroUpgrade;
-                    break;
-                case 2:
-                    t = HeroLife;
-                    break;
-                default:
-                    break;
+        if (isExploded){
+            if (upgradeType>0) {
+                enum colType t;
+                switch (upgradeType) {
+                    case 1:
+                        t = HeroUpgrade;
+                        break;
+                    case 2:
+                        t = HeroLife;
+                        break;
+                    default:
+                        break;
+                }
+                Upgrade * up = new Upgrade(getX(), getY(), t);
+                upgradeGroup.push_back(up);
+                for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                    CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
+                    colList.push_back(cp);
+                }
+                upgradeType = 0;
             }
-            Upgrade * up = new Upgrade(getX(), getY(), t);
-            upgradeGroup.push_back(up);
-            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
-                colList.push_back(cp);
-            }
-            upgradeType = 0;
+            isExploded = false;
         }
     }
     
@@ -68,19 +72,7 @@ public:
             case BlockExplosion:
                 //                cout<<"block bombed!"<<endl;
                 setVisible(false);
-                // generate upgrades
-//                tmp = rand()%4;
-//                switch (tmp) {
-//                        
-//                    case 2:
-//                        upgradeType = 1;
-//                        break;
-//                    case 3:
-//                        upgradeType = 2;
-//                        break;
-//                    default:
-//                        break;
-//                }
+                isExploded = true;
                 break;
             default:
                 break;
