@@ -15,6 +15,8 @@
 #include "hellomessage.h"
 #include "slotmessage.h"
 #include "bombmessage.h"
+#include <stdlib.h>     /* srand, rand */
+
 
 Hero * hero;
 Bomb * bomb; vector<Block * > blocks;
@@ -88,21 +90,52 @@ void handle_keyup(SDLKey k) {
 
 }
 
+#define UNIT 50
 
 void initBlock() {
-    int locationX[5] = {100, 200, 300, 400, 500};
-    int locationY[5] = {450, 350, 250, 150, 50};
-    for (int i = 0; i < 5; i++){
-        Block * tmp = new Block(locationX[i], locationY[i], false);
-        blocks.push_back(tmp);
+    bool initialized =false;
+
+    for (int j=0; j<WINDOW_WIDTH/UNIT; j++) {
+        int x = j*UNIT;
+        int y = 2*UNIT;
+        blocks.push_back(new Block(x, y, true,3));
+        y = (WINDOW_HEIGHT/UNIT-1)*UNIT;
+        blocks.push_back(new Block(x, y, true,3));
     }
-    Block * tmp = new Block(600, 500, true);
-    blocks.push_back(tmp);
+    for (int i=3; i<WINDOW_HEIGHT/UNIT-1; i++) {
+        int x = 0;
+        int y = i*UNIT;
+        blocks.push_back(new Block(x, y, true,3));
+        x = (WINDOW_WIDTH/UNIT-1)*UNIT;
+        blocks.push_back(new Block(x, y, true,3));
+    }
+    for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
+        for (int j=4; j<WINDOW_HEIGHT/UNIT-1; j+=2){
+            blocks.push_back(new Block(i*50, j*50, true,3));
+
+        }
+    }
+    blockmessage bmsg;
+    while(1)
+    {
+        if(tcpclient->Ready())
+        {
+            if(tcpclient->Receive(bmsg))
+            {
+                int x, y, r;
+                bmsg.UnLoadByte(x, y, r);
+                if(r==7)
+                    break;
+                blocks.push_back(new Block(x*50, y*50, false, r));
+            }
+        }
+        
+    }
 }
 
 void initEnemy() {
-    int locationX[2] = {20, 700};
-    int locationY[2] = {20, 550};
+    int locationX[2] = {6*UNIT, 7*UNIT};
+    int locationY[2] = {9*UNIT, 4*UNIT};
     for (int i = 0; i < 2; i++){
         Enemy * tmp = new Enemy(locationX[i], locationY[i]);
         enemyGroup.push_back(tmp);
@@ -216,7 +249,23 @@ void handleServer()
 		Hero* newhero = new Hero();
 		newhero->setPlayerId(id);
 		heroGroup[id]=newhero;
-		heroGroup[id]->setCoords(0, 0);
+        switch (id) {
+            case 0:
+                heroGroup[id]->setCoords(UNIT, 3*UNIT);
+                break;
+            case 1:
+                heroGroup[id]->setCoords((WINDOW_WIDTH/UNIT-2)*UNIT, (WINDOW_HEIGHT/UNIT-2)*UNIT);
+                break;
+            case 2:
+                heroGroup[id]->setCoords((WINDOW_WIDTH/UNIT-2)*UNIT, 3*UNIT);
+                break;
+            case 3:
+                heroGroup[id]->setCoords(UNIT, (WINDOW_HEIGHT/UNIT-2)*UNIT);
+                break;
+            default:
+                break;
+        }
+//		heroGroup[id]->setCoords(UNIT, 3*UNIT);
 		if(ch=='0')
 			myId=id;
         for (int j = 0; j < enemyGroup.size(); j++){
@@ -240,9 +289,35 @@ void handleClients()
 			msg->UnLoadByte(pos.x, pos.y, pos.id);
 			if(pos.id!=myId)
 			{
-                oriX = heroGroup[pos.id]->getX();
-                oriY = heroGroup[pos.id]->getY();
+                int oriX = heroGroup[pos.id]->getX();
+                int oriY = heroGroup[pos.id]->getY();
 				heroGroup[pos.id]->setCoords(pos.x, pos.y);
+                int frame = heroGroup[pos.id]->getFrame();
+                if (pos.y<oriY){
+                    frame++;
+                    if (frame>2)
+                        frame = 0;
+                    heroGroup[pos.id]->setAnimFrame(frame+6);
+                }
+                else if (pos.x>oriX){
+                    frame++;
+                    if (frame>2)
+                        frame = 0;
+                    heroGroup[pos.id]->setAnimFrame(frame+3);
+                }
+                else if (pos.y>oriY){
+                    frame++;
+                    if (frame>2)
+                        frame = 0;
+                    heroGroup[pos.id]->setAnimFrame(frame);
+                }
+                else if (pos.x<oriX){
+                    frame++;
+                    if (frame>2)
+                        frame = 0;
+                    heroGroup[pos.id]->setAnimFrame(frame+9);
+                }
+                heroGroup[pos.id]->setFrame(frame);
 			}
 		}else if(msg->getType()=='b')
 		{
@@ -257,9 +332,6 @@ void handleClients()
 
 void eventLoop(SDL_Surface * screen) {
     SDL_Event event;
-    
-
-        
     while(1) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -325,6 +397,9 @@ void eventLoop(SDL_Surface * screen) {
 			udpclient->Send(bmsg, tcpclient->getIpAddress(), -1);
 			bombed=false;
 		}
+        for (int i = 0; i < blocks.size(); i++) {
+            blocks[i]->update(colList, heroGroup, explosionGroup, upgradeGroup);
+        }
         for (int i = 0; i < enemyGroup.size(); i++) {
             enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
         }
@@ -356,7 +431,8 @@ void eventLoop(SDL_Surface * screen) {
             it->second->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
-            explosionGroup.at(j)->blit(screen);
+            SDL_Rect tmp = explosionGroup.at(j)->getShowPart();
+            explosionGroup.at(j)->blit(screen, &tmp);
         }
         for (int i = 0; i < blocks.size(); i++) {
             blocks.at(i)->blit(screen);

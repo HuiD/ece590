@@ -15,6 +15,7 @@
 #include "hellomessage.h"
 #include "slotmessage.h"
 #include "bombmessage.h"
+#include "blockmessage.h"
 #include <stdlib.h>     /* srand, rand */
 
 
@@ -93,46 +94,43 @@ void handle_keyup(SDLKey k) {
 #define UNIT 50
 
 void initBlock() {
+    bool initialized =false;
 
     for (int j=0; j<WINDOW_WIDTH/UNIT; j++) {
         int x = j*UNIT;
         int y = 2*UNIT;
-        blocks.push_back(new Block(x, y, true));
+        blocks.push_back(new Block(x, y, true,3));
         y = (WINDOW_HEIGHT/UNIT-1)*UNIT;
-        blocks.push_back(new Block(x, y, true));
+        blocks.push_back(new Block(x, y, true,3));
     }
     for (int i=3; i<WINDOW_HEIGHT/UNIT-1; i++) {
         int x = 0;
         int y = i*UNIT;
-        blocks.push_back(new Block(x, y, true));
+        blocks.push_back(new Block(x, y, true,3));
         x = (WINDOW_WIDTH/UNIT-1)*UNIT;
-        blocks.push_back(new Block(x, y, true));
+        blocks.push_back(new Block(x, y, true,3));
     }
     for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
         for (int j=4; j<WINDOW_HEIGHT/UNIT-1; j+=2){
-            blocks.push_back(new Block(i*50, j*50, true));
+            blocks.push_back(new Block(i*50, j*50, true,3));
 
         }
     }
-    for (int i=1; i<WINDOW_WIDTH/UNIT-1; i+=2){
-        for (int j=3; j<WINDOW_HEIGHT/UNIT-1; j++){
-            if (i==1&&j==3 || i==1&&j==4 || i==WINDOW_WIDTH/UNIT-2&&j==3 || i==WINDOW_WIDTH/UNIT-2&&j==4 || i==1&&j==WINDOW_HEIGHT/UNIT-2 || i==1&&j==WINDOW_HEIGHT/UNIT-3 || i==WINDOW_WIDTH/UNIT-2&&j==WINDOW_HEIGHT/UNIT-2 || i==WINDOW_WIDTH/UNIT-2&&j==WINDOW_HEIGHT/UNIT-3)
-                continue;
-            int r = rand()%2;
-            if (r==0)
-                blocks.push_back(new Block(i*50, j*50, false));
-            
+    blockmessage bmsg;
+    while(1)
+    {
+        if(tcpclient->Ready())
+        {
+            if(tcpclient->Receive(bmsg))
+            {
+                int x, y, r;
+                bmsg.UnLoadByte(x, y, r);
+                if(r==7)
+                    break;
+                blocks.push_back(new Block(x*50, y*50, false, r));
+            }
         }
-    }
-    for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
-        for (int j=3; j<WINDOW_HEIGHT/UNIT-1; j+=2){
-            if (i==2&&j==3 || i==WINDOW_WIDTH/UNIT-3&&j==3 || i==2&&j==WINDOW_HEIGHT/UNIT-2 || i==WINDOW_WIDTH/UNIT-3&&j==WINDOW_HEIGHT/UNIT-2)
-                continue;
-            int r = rand()%2;
-            if (r==0)
-                blocks.push_back(new Block(i*50, j*50, false));
-            
-        }
+        
     }
 }
 
@@ -180,6 +178,7 @@ void init(string ip)
 				 break;
 			}
 	}
+	initBlock();
 	sendHello();
     text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);    
     if (text_font == NULL) {
@@ -194,7 +193,6 @@ void init(string ip)
 
     
     background = new Background("img/background.bmp");
-    initBlock();
     initEnemy();
     background->setCoords(0,0);
     

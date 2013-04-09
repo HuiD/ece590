@@ -39,6 +39,7 @@ bool server::OnInit()
 		exit(EXIT_FAILURE);
 	} tcplistener = new CHostSocket(1234);
 	servsocket=new CUdpSocket(1234);
+	createBlocks();
 	if(!tcplistener->Ok())
 	{
 		exit(EXIT_FAILURE);
@@ -62,6 +63,53 @@ void server::notifyClosed(int which)
 	}
 }
 
+void server::createBlocks()
+{
+     for (int i=1; i<WINDOW_WIDTH/UNIT-1; i+=2){
+        for (int j=3; j<WINDOW_HEIGHT/UNIT-1; j++){
+            if (i==1&&j==3 || i==1&&j==4 || i==WINDOW_WIDTH/UNIT-2&&j==3 || i==WINDOW_WIDTH/UNIT-2&&j==4 || i==1&&j==WINDOW_HEIGHT/UNIT-2 || i==1&&j==WINDOW_HEIGHT/UNIT-3 || i==WINDOW_WIDTH/UNIT-2&&j==WINDOW_HEIGHT/UNIT-2 || i==WINDOW_WIDTH/UNIT-2&&j==WINDOW_HEIGHT/UNIT-3)
+                continue;
+            int r = rand()%2;
+            if (r==0)
+            {
+                bpos blockpos;
+                blockpos.x=i;
+                blockpos.y=j;
+                blockpos.r=rand()%6;
+                blocks_pos.push_back(blockpos);
+            }   
+        }
+    }
+    for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
+        for (int j=3; j<WINDOW_HEIGHT/UNIT-1; j+=2){
+            if (i==2&&j==3 || i==WINDOW_WIDTH/UNIT-3&&j==3 || i==2&&j==WINDOW_HEIGHT/UNIT-2 || i==WINDOW_WIDTH/UNIT-3&&j==WINDOW_HEIGHT/UNIT-2)
+                continue;
+            int r = rand()%2;
+            if (r==0)
+            {
+                bpos blockpos;
+                blockpos.x=i;
+                blockpos.y=j;
+                blockpos.r=rand()%6;
+                blocks_pos.push_back(blockpos);
+            } 
+        }
+    }  
+    bpos blockpos;
+    blockpos.x=0; blockpos.y=0; blockpos.r=7;
+    blocks_pos.push_back(blockpos);
+}
+
+void server::sendOutBlockMessage(int which)
+{
+    for(int i=0; i<blocks_pos.size(); i++)
+    {
+        blockmessage bmsg;
+        bmsg.LoadByte(blocks_pos[i].x, blocks_pos[i].y, blocks_pos[i].r);
+        clients[which]->Send(bmsg);
+    }
+}
+
 int server::net_thread_main()
 {
     while(1)
@@ -75,6 +123,7 @@ int server::net_thread_main()
 				if(tcplistener->Accept(*clients[i]))
 				{
 					cout<<"tcp connected to slot: "<<i<<endl;
+					sendOutBlockMessage(i);
 
 				}
 			}
