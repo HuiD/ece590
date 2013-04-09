@@ -288,10 +288,9 @@ bool CClientSocket::Send (CNetMessage& sData) {
 
 void CClientSocket::setIp(Uint16 port)
 {
-	CIpAddress ipa("localhost", port);
-	Uint16 temp2=ipa.GetPort();
+	CIpAddress ipa("10.190.55.255", port);
 	IPaddress tempip;
-	tempip.port=temp2;
+	tempip.port=ipa.GetPort();
 	tempip.host=m_RemoteIp.GetHost();
 	cout<<"ip address is:"<<SDLNet_Read32(&tempip.host)<<endl;
 	cout<<"port is:"<<SDLNet_Read16(&tempip.port)<<endl;
@@ -355,9 +354,8 @@ void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)
 		p->len=len+1;
 	    p->address.host=ip.GetHost();	
 		p->address.port=ip.GetPort();
-		Uint32 ipa=ip.GetHost();
 	}
-	int sent=SDLNet_UDP_Send(udpsocket, -1, p);
+	SDLNet_UDP_Send(udpsocket, -1, p);
 	SDLNet_FreePacket(p);
 }
 
