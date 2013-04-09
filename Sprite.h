@@ -31,7 +31,7 @@ public:
             SDL_FreeSurface(anim_frames[i]);
         }
         delete[] anim_frames;
-        cout<<"sprite deleted!"<<endl;
+//        cout<<"sprite deleted!"<<endl;
     }
     void setTransparent(){
 	SDL_SetColorKey(anim_frames[0],

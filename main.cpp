@@ -322,7 +322,7 @@ void handleClients()
 		{
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
-			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
+//			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
 			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}

@@ -294,7 +294,7 @@ public:
                 explosionInterval = 0;
                 break;
             case BombExplosion:
-                cout<<"i here"<<endl;
+//                cout<<"i here"<<endl;
                 explosionInterval = 0;
                 //                awakeInterval = 0;
                 break;

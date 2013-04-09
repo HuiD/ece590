@@ -303,19 +303,19 @@ public:
         switch (t) {
             case HeroBomb:
                 life--;
-                cout<<"hero bombed! life "<<life<<endl;
+//                cout<<"hero bombed! life "<<life<<endl;
                 break;
             case HeroExplosion:
 		isDead = true;
                 if (!protection){
                     life--;
-                    cout<<"hero on fire1: life "<<life<<endl;
+//                    cout<<"hero on fire1: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
                     protection = true;
                 }
                 else if (protection && checkExplosionTime()){
                     life--;
-                    cout<<"hero on fire2: life "<<life<<endl;
+//                    cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
 
                 }
@@ -331,7 +331,7 @@ public:
                 else if (protection && checkExplosionTime()){
                     //	protection = false;
                     life--;
-                    cout<<"enemy hero collison2! life: "<<life<<endl;
+//                    cout<<"enemy hero collison2! life: "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
                     
                 }
@@ -339,12 +339,12 @@ public:
             case HeroUpgrade:
                 if (bombLevel < TOTAL_BOMB_LEVEL)
                     bombLevel++;
-                cout<<"hero bomb level: "<<bombLevel<<endl;
+//                cout<<"hero bomb level: "<<bombLevel<<endl;
                 break;
             case HeroLife:
                 if (life < TOTAL_LIFE_NUM)
                     life++;
-                cout<<"hero life: "<<life<<endl;
+//                cout<<"hero life: "<<life<<endl;
                 break;
             default:
                 break;

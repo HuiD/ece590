@@ -57,16 +57,16 @@ public:
         switch (t) {
             case HeroExplosion:
                 //                cout<<"hero on fire"<<endl;
-                cout<<"test for level 3"<<endl;
+//                cout<<"test for level 3"<<endl;
                 break;
             case BombExplosion:
-                cout<<"bomb on bomb"<<endl;
+//                cout<<"bomb on bomb"<<endl;
                 break;
             case EnemyExplosion:
-                cout<<"enemy explode!"<<endl;
+//                cout<<"enemy explode!"<<endl;
                 break;
             case BlockExplosion:
-                cout<<"block bombed!"<<endl;
+//                cout<<"block bombed!"<<endl;
                 break;
             default:
                 break;

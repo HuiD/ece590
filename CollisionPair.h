@@ -22,7 +22,7 @@ public:
         collisionType = t;
     }
     ~CollisionPair() {
-        cout<<"yes"<<endl;
+//        cout<<"yes"<<endl;
 //        delete s1;
 //        delete s2;
     }
