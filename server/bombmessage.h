@@ -80,15 +80,17 @@ class bombmessage : public CNetMessage
 			{
 				num[i]=buf[pos++];
 			}	
-			x=atoi(num);
+			stringstream strv;
+			strv<<num;
+			strv>>x;
 			char num1[3];
 			for(int i=0; i<3; i++)
 			{
 				num1[i]=buf[pos++];
 			}
-			stringstream strv;
-			strv<<num1;
-			strv>>y;
+			stringstream strv1;
+			strv1<<num1;
+			strv1>>y;
 		}
 };
 

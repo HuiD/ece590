@@ -27,13 +27,17 @@ void heromessage::UnLoadByte(int&x, int& y, int& id)
 	{
 		num[i]=c[pos++];
 	}
-	x=atoi(num);
+	stringstream strv;
+	strv<<num;
+	strv>>x;
 	char num1[3];
 	for(int i=0; i<3; i++)
 	{
 		num1[i]=c[pos++];
 	}
-	y=atoi(num1);
+	stringstream strv1;
+	strv1<<num1;
+	strv1>>y;
 }
 
 char heromessage::getType()
