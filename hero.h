@@ -58,6 +58,7 @@ private:
 	int bomby;
 	int playerId;
     hero_pos heropos;
+    int walkOutTime;
 public:
 	CClientSocket* tcpclient;
 	int* num;
@@ -65,8 +66,8 @@ public:
         Sprite::setVisible(true);
         move = DONT_MOVE;
         Sprite::initSprite(NUM_HERO_FILES, hero_file_names);
-	setTransparent();
-//        Sprite::setCoords(500,450);
+        setTransparent();
+        //        Sprite::setCoords(500,450);
         frame = 0;
         speedX = 0.0;
         speedY = 0.0;
@@ -76,7 +77,7 @@ public:
 		tcpclient=NULL;
         life = TOTAL_LIFE_NUM;
         bombLevel = 1;
-	
+        walkOutTime = 0;
     }
     ~Hero() {
         //        delete sprite;
@@ -92,7 +93,7 @@ public:
 		playerId=id;
 	}
     hero_pos getPos(){
-        return heropos;    
+        return heropos;
     }
 	int getBombLevel()
 	{
@@ -117,8 +118,8 @@ public:
         if (!visible) {
             return;
         }
-//        frame = frame++;
-//        frame = frame & 3;
+        //        frame = frame++;
+        //        frame = frame & 3;
         //speedY = 0;
         switch(move) {
             case DONT_MOVE:
@@ -164,7 +165,7 @@ public:
 		int posY = getY()+speedY;
 		if(posX<0) posX=0;
 		if(posY<0) posY=0;
-
+        
 		heropos.x=posX;
 		heropos.y=posY;
 		heropos.id=playerId;
@@ -177,6 +178,17 @@ public:
             if (getX()>tmp->getX()-getW() && getX()<tmp->getX()+tmp->getW() && getY()>tmp->getY()-getH()+5 && getY()<tmp->getY()+tmp->getH()-5){
                 setCoords(oriX, oriY);
                 break;
+            }
+        }
+        if (SDL_GetTicks()-walkOutTime > 1000) {
+            for (int i = 0; i < bombGroup.size(); i++){
+                if (!bombGroup.at(i)->getVisible())
+                    continue;
+                Bomb * tmp = bombGroup.at(i);
+                if (getX()>tmp->getX()-getW() && getX()<tmp->getX()+tmp->getW() && getY()>tmp->getY()-getH()+5 && getY()<tmp->getY()+tmp->getH()-5){
+                    setCoords(oriX, oriY);
+                    break;
+                }
             }
         }
         //limit inside boundary
@@ -192,25 +204,26 @@ public:
         if (Sprite::getX() > WINDOW_WIDTH-getW()) {
             Sprite::setCoords(WINDOW_WIDTH-getW(), getY());
         }
-//        Sprite::setAnimFrame(frame);
+        //        Sprite::setAnimFrame(frame);
         
         if (isBomb){
 			bombx=getX();
 			bomby=getY();
-           /* Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
-            bombGroup.push_back(newBomb);
-            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                CollisionPair * cp = new CollisionPair(it->second, newBomb, HeroBomb);
-                colList.push_back(cp);
-            }
-            for (int i = 0; i < explosionGroup.size(); i++){
-                CollisionPair * cp = new CollisionPair(newBomb, explosionGroup.at(i), BombExplosion);
-                colList.push_back(cp);
-            }
-            for (int i = 0; i < enemyGroup.size(); i++){
-                CollisionPair * cp = new CollisionPair(newBomb, enemyGroup.at(i), BombEnemy);
-                colList.push_back(cp);
-            }*/
+            walkOutTime = SDL_GetTicks();
+            /* Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
+             bombGroup.push_back(newBomb);
+             for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+             CollisionPair * cp = new CollisionPair(it->second, newBomb, HeroBomb);
+             colList.push_back(cp);
+             }
+             for (int i = 0; i < explosionGroup.size(); i++){
+             CollisionPair * cp = new CollisionPair(newBomb, explosionGroup.at(i), BombExplosion);
+             colList.push_back(cp);
+             }
+             for (int i = 0; i < enemyGroup.size(); i++){
+             CollisionPair * cp = new CollisionPair(newBomb, enemyGroup.at(i), BombEnemy);
+             colList.push_back(cp);
+             }*/
             isBomb = false;
         }
     }
@@ -254,7 +267,7 @@ public:
                     life--;
                     cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
-
+                    
                 }
                 break;
             case HeroEnemy:

@@ -110,12 +110,12 @@ public:
         Sprite::setCoords(x, y);
         explosionInterval = intev;
         oriTime = cur_time;
-	frame = 0;
-	counter = 0;
+        frame = 0;
+        counter = 0;
         isAwake = false;
         awakeInterval = 1500;
         bombLevel = level;
-	setTransparent();
+        setTransparent();
     }
     ~Bomb() {
         //        delete sprite;
@@ -123,14 +123,14 @@ public:
     
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
         counter++;
-	if (counter == 2) {
-           frame = frame++;
-           if (frame > 2) 
-	      frame = 0;
-	   counter = 0;
-	   setAnimFrame(frame);
+        if (counter == 2) {
+            frame = frame++;
+            if (frame > 2)
+                frame = 0;
+            counter = 0;
+            setAnimFrame(frame);
         }
-	
+        
         if (checkTimer(explosionInterval)){
             generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
             
@@ -146,31 +146,31 @@ public:
             return;
         }
         setVisible(false);
-//        isAwake = false;
-	Explosion * explosion1;
-	Explosion * explosion2;
+        //        isAwake = false;
+        Explosion * explosion1;
+        Explosion * explosion2;
         switch(bombLevel) {
             case 1:
                 explosion1 = new Explosion(explo1h_file_names, getX(), getY(), 500, SDL_GetTicks());
-        	setHoriExplosionBound(explosion1, blocks);
-        	explosion2 = new Explosion(explo1v_file_names, getX(), getY(), 500, SDL_GetTicks());
-        	setVertExplosionBound(explosion2, blocks);
-		break;
-	    case 2:
-		explosion1 = new Explosion(explo2h_file_names, getX(), getY(), 500, SDL_GetTicks());
-        	setHoriExplosionBound(explosion1, blocks);
-        	explosion2 = new Explosion(explo2v_file_names, getX(), getY(), 500, SDL_GetTicks());
-        	setVertExplosionBound(explosion2, blocks);
-		break;
-	    case 3:
-		explosion1 = new Explosion(explo3h_file_names, getX(), getY(), 500, SDL_GetTicks());
-        	setHoriExplosionBound(explosion1, blocks);
-        	explosion2 = new Explosion(explo3v_file_names, getX(), getY(), 500, SDL_GetTicks());
-        	setVertExplosionBound(explosion2, blocks);
-		break;
-	    default:
-		break;
-	}
+                setHoriExplosionBound(explosion1, blocks);
+                explosion2 = new Explosion(explo1v_file_names, getX(), getY(), 500, SDL_GetTicks());
+                setVertExplosionBound(explosion2, blocks);
+                break;
+            case 2:
+                explosion1 = new Explosion(explo2h_file_names, getX(), getY(), 500, SDL_GetTicks());
+                setHoriExplosionBound(explosion1, blocks);
+                explosion2 = new Explosion(explo2v_file_names, getX(), getY(), 500, SDL_GetTicks());
+                setVertExplosionBound(explosion2, blocks);
+                break;
+            case 3:
+                explosion1 = new Explosion(explo3h_file_names, getX(), getY(), 500, SDL_GetTicks());
+                setHoriExplosionBound(explosion1, blocks);
+                explosion2 = new Explosion(explo3v_file_names, getX(), getY(), 500, SDL_GetTicks());
+                setVertExplosionBound(explosion2, blocks);
+                break;
+            default:
+                break;
+        }
         explosionGroup.push_back(explosion1);
         explosionGroup.push_back(explosion2);
         
@@ -213,9 +213,17 @@ public:
         int lo = exp->getY()+exp->getH()/2+getH()/2;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
-            if (!bl->getSolid() || bl->getX()>exp->getX()+exp->getW()-OFFSET || bl->getX()+bl->getW()<exp->getX()+OFFSET)
+            if (!bl->getVisible() || bl->getX()>exp->getX()+exp->getW()-OFFSET || bl->getX()+bl->getW()<exp->getX()+OFFSET)
                 continue;
-            if (exp->getY()>=bl->getY()+bl->getH()){
+            if (!bl->getSolid()){
+                if (exp->getY()>=bl->getY()+bl->getH()){
+                    hi = max(bl->getY(), hi);
+                }
+                else if (exp->getY()<=bl->getY()){
+                    lo = min(bl->getY()+bl->getH(), lo);
+                }
+            }
+            else if (exp->getY()>=bl->getY()+bl->getH()){
                 hi = max(bl->getY()+bl->getH(), hi);
             }
             else if (exp->getY()<=bl->getY()){
@@ -226,13 +234,13 @@ public:
         int tmp = exp->getY()-exp->getH()/2+getH()/2;
         exp->setCoords(exp->getX(), hi);
         exp->setH(ht);
-//        exp->rect.x=0;
-//        exp->rect.y=hi-tmp;
-//        exp->rect.w=exp->getW();
-//        exp->rect.h=ht;
+        //        exp->rect.x=0;
+        //        exp->rect.y=hi-tmp;
+        //        exp->rect.w=exp->getW();
+        //        exp->rect.h=ht;
         exp->setShowPart(0, hi-tmp, exp->getW(), ht);
-//        exp->setSurface(exp->getX(), hi, exp->getW(), ht);
-//        exp->setCoords(exp->getX(), hi);
+        //        exp->setSurface(exp->getX(), hi, exp->getW(), ht);
+        //        exp->setCoords(exp->getX(), hi);
     }
     
     void setHoriExplosionBound(Explosion * exp, vector<Block *> blocks) {
@@ -240,9 +248,17 @@ public:
         int ri = exp->getX()+exp->getW()/2+getW()/2;
         for (int i = 0; i < blocks.size(); i++){
             Block * bl = blocks.at(i);
-            if (!bl->getSolid() || bl->getY()>exp->getY()+exp->getH()-OFFSET || bl->getY()+bl->getH()<exp->getY()+OFFSET)
+            if (!bl->getVisible() || bl->getY()>exp->getY()+exp->getH()-OFFSET || bl->getY()+bl->getH()<exp->getY()+OFFSET)
                 continue;
-            if (exp->getX()>=bl->getX()+bl->getW()){
+            if (!bl->getSolid()){
+                if (exp->getX()>=bl->getX()+bl->getW()){
+                    le = max(bl->getX(), le);
+                }
+                else if (exp->getX()<=bl->getX()){
+                    ri = min(bl->getX()+bl->getW(), ri);
+                }
+            }
+            else if (exp->getX()>=bl->getX()+bl->getW()){
                 le = max(bl->getX()+bl->getW(), le);
             }
             else if (exp->getX()<=bl->getX()){
@@ -274,13 +290,13 @@ public:
         switch (t) {
             case HeroBomb:
             case BombEnemy:
-//                setVisible(false);
+                //                setVisible(false);
                 explosionInterval = 0;
                 break;
             case BombExplosion:
                 cout<<"i here"<<endl;
                 explosionInterval = 0;
-//                awakeInterval = 0;
+                //                awakeInterval = 0;
                 break;
             default:
                 break;

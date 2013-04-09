@@ -14,4 +14,4 @@ main: server.cpp
 	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o server
 
 clean:
-	rm -rf $(OBJECTS)
+	rm -rf $(OBJECTS) server

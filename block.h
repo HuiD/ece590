@@ -64,18 +64,18 @@ public:
                 //                cout<<"block bombed!"<<endl;
                 setVisible(false);
                 // generate upgrades
-                tmp = rand()%4;
-                switch (tmp) {
-                        
-                    case 2:
-                        upgradeType = 1;
-                        break;
-                    case 3:
-                        upgradeType = 2;
-                        break;
-                    default:
-                        break;
-                }
+//                tmp = rand()%4;
+//                switch (tmp) {
+//                        
+//                    case 2:
+//                        upgradeType = 1;
+//                        break;
+//                    case 3:
+//                        upgradeType = 2;
+//                        break;
+//                    default:
+//                        break;
+//                }
                 break;
             default:
                 break;

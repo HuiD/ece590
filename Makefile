@@ -14,4 +14,4 @@ main: main.cpp
 		$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o client
 
 clean:
-	rm -rf $(OBJECTS)
+	rm -rf $(OBJECTS) client
