@@ -20,7 +20,8 @@ int server::OnExecute()
 	}
     SDL_Thread * net_thread=SDL_CreateThread(StaticThread,this);
 	if(!net_thread)
-	{ printf("SDL_CreateThread: %s\n",SDL_GetError());
+	{
+	   	printf("SDL_CreateThread: %s\n",SDL_GetError());
 	}
 	while(Running)
 	{
@@ -37,7 +38,8 @@ bool server::OnInit()
 	{
 		fprintf(stderr, "couldn't initialize sdl_net: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
-	} tcplistener = new CHostSocket(1234);
+	}
+   	tcplistener = new CHostSocket(1234);
 	servsocket=new CUdpSocket(1234);
 	createBlocks();
 	if(!tcplistener->Ok())
@@ -75,7 +77,7 @@ void server::createBlocks()
                 bpos blockpos;
                 blockpos.x=i;
                 blockpos.y=j;
-                blockpos.r=rand()%6;
+                blockpos.r=rand()%9;
                 blocks_pos.push_back(blockpos);
             }   
         }
@@ -90,13 +92,13 @@ void server::createBlocks()
                 bpos blockpos;
                 blockpos.x=i;
                 blockpos.y=j;
-                blockpos.r=rand()%6;
+                blockpos.r=rand()%9;
                 blocks_pos.push_back(blockpos);
             } 
         }
     }  
     bpos blockpos;
-    blockpos.x=0; blockpos.y=0; blockpos.r=7;
+    blockpos.x=0; blockpos.y=0; blockpos.r=9;
     blocks_pos.push_back(blockpos);
 }
 
@@ -114,7 +116,7 @@ int server::net_thread_main()
 {
     while(1)
     {
-		for(int i=0; i<MAX_CLIENTS; i++)
+		for(int i=0; i<max_players; i++)
 		{
 			if(clients[i]==NULL)
 				clients[i]=new CClientSocket();
@@ -139,15 +141,15 @@ int server::net_thread_main()
 					    hello.UnLoadByte(mport, x, y);
 					    Uint16 port=mport;	
 					    clients[i]->setIp(port);
-						smsg.LoadByte('0',i,0);
+						smsg.LoadByte('0',i,max_players);
 						clients[i]->Send(smsg);
-						for(int j=0;j<MAX_CLIENTS; j++)
+						for(int j=0;j<max_players; j++)
 						{
 							if(j!=i&&clients[j]->Ok())
 							{
-								smsg.LoadByte('1', i, 0);
+								smsg.LoadByte('1', i, max_players);
 								clients[j]->Send(smsg);
-								smsg.LoadByte('1', j, 0);
+								smsg.LoadByte('1', j, max_players);
 								clients[i]->Send(smsg);
 							}
 						}
@@ -167,8 +169,6 @@ int server::net_thread_main()
 
 void server::OnLoop() 
 {
-		//if(!clients[i]->Ok())
-		//	continue;
 		if(servsocket->Ready())
 		{
 			CNetMessage* msg;
@@ -230,7 +230,13 @@ void server::OnCleanup()
 }
 int main(int argc, char* argv[])
 {
+	if(argc!=2)
+	{
+		cout<<"wrong arguments number\n";
+		exit(EXIT_FAILURE);
+	}
 	server s;
+	s.setMaxPlayer(atoi(argv[1]));
 
 	return s.OnExecute();
 }

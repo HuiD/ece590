@@ -7,14 +7,14 @@ class slotmessage:public CNetMessage
 		virtual int NumToLoad()
 		{
 			if(state==EMPTY)
-				return 2;
+				return 3;
 			else
 				return 0;
 		}
 		virtual int NumToUnload()
 		{
 			if(state==FULL)
-				return 2;
+				return 3;
 			else
 				return 0;
 		}
@@ -28,6 +28,7 @@ class slotmessage:public CNetMessage
 			charbuf buf;
 			buf[0]=(char)ch;
 			buf[1]=(char)id;
+			buf[2]=(char)a;
 			LoadBytes(buf,3);
 			finish();
 		}
@@ -37,5 +38,6 @@ class slotmessage:public CNetMessage
 			UnLoadBytes(buf);
 			ch=(int)buf[0];
 			id=(int)buf[1];
+			a = (int)buf[2];
 		}
 };

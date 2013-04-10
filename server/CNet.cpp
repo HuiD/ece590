@@ -51,8 +51,7 @@ CIpAddress::CIpAddress (Uint16 port) {
 		std::cerr << "SDLNet_ResolveHost: " << SDLNet_GetError() << std::endl;
 		m_Ip.host = 0;
 		m_Ip.port = 0;
-	}
-}
+	} }
 
 
 CIpAddress::CIpAddress (std::string host, Uint16 port) {
@@ -174,7 +173,7 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
 	TCPsocket cs;
 	if ((cs = SDLNet_TCP_Accept(m_Socket))) {
 		the_client_socket.SetSocket(cs);
-        if(SDLNet_TCP_AddSocket(set, cs)<0)
+        /*if(SDLNet_TCP_AddSocket(set, cs)<0)
         {
             cout<<"maximum capacity reached"<<endl;
             return false;
@@ -182,7 +181,7 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
         else
         {
             return true;
-        }
+        }*/
 	}
 	else
 		return false;
