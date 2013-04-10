@@ -55,10 +55,8 @@ private:
     double speedX;
     double speedY;
     double walk_accel;
-    double fall_accel;
     bool isBomb;
     bool isDead;
-    bool isSpeedup;
     bool protection;
     int inExplosionTime;
 	heromessage msg;
@@ -68,6 +66,7 @@ private:
     int bombx;
     int bomby;
     int playerId;
+    int speedUpTime;
     hero_pos heropos;
     int walkOutTime;
     queue<int> exploTime;
@@ -88,13 +87,13 @@ public:
         walk_accel = 10.00;
         isBomb = false;
 	isDead = false;
-	isSpeedup = false;
         protection = false;
 	tcpclient=NULL;
         life = TOTAL_LIFE_NUM;
         bombLevel = 1;
 	maxBombNum = 1;
         walkOutTime = 0;
+	speedUpTime = 0;
     }
     ~Hero() {
         //        delete sprite;
@@ -168,8 +167,16 @@ public:
             		default:
                 	    break;
         	    }
+		    walk_accel = 10;
+		    maxBombNum = 1;
+		    bombLevel = 1;
+		    speedUpTime = 0;
 	        }
 	    }
+	}
+
+	if (walk_accel == 25 && SDL_GetTicks()-speedUpTime > 10000) {
+	    walk_accel = 10;
 	}
 
         switch(move) {
@@ -347,10 +354,8 @@ public:
 //                cout<<"hero life: "<<life<<endl;
                 break;
 	    case HeroSpeed:
-		if (!isSpeedup) {
-		    walk_accel = 25;
-		    isSpeedup = true;
-		}
+		walk_accel = 25;
+		speedUpTime = SDL_GetTicks();  
 //		  cout<<"is hero speed up: "<<isSpeedup<<endl;
 	        break;
 	    case HeroBomb:

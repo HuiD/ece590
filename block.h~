@@ -32,7 +32,7 @@ private:
     bool isDestroyed;
     int upgradeType;
     int frame;
-    bool isExploded;
+    //bool isExploded;
 public:
     Block(int x, int y, bool ifSolid, int rand){
         Sprite::setVisible(true);
@@ -48,6 +48,10 @@ public:
             upgradeType=1;
         else if(rand==1)
             upgradeType=2;
+	else if(rand==2)
+	    upgradeType=3;
+	else if(rand==3)
+	    upgradeType=4;
         else
             upgradeType=0;
         isExploded = false;
@@ -71,6 +75,12 @@ public:
                		case 2:
                             t = HeroLife;
                     	    break;
+			case 3:
+			    t = HeroSpeed;
+			    break;
+			case 4:
+			    t = HeroBomb;
+			    break;
                 	default:
                     	    break;
                     }
@@ -84,30 +94,6 @@ public:
                 }
 	    }
 	}
-
-	if (isExploded){
-            if (upgradeType>0) {
-                enum colType t;
-                switch (upgradeType) {
-                    case 1:
-                        t = HeroUpgrade;
-                        break;
-                    case 2:
-                        t = HeroLife;
-                        break;
-                    default:
-                        break;
-                }
-                Upgrade * up = new Upgrade(getX(), getY(), t);
-                upgradeGroup.push_back(up);
-                for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                    CollisionPair * cp = new CollisionPair(it->second, up, up->getUpType());
-                    colList.push_back(cp);
-                }
-                upgradeType = 0;
-            }
-            isExploded = false;
-        }   
 }
 
     
@@ -120,9 +106,6 @@ public:
                 // setVisible(false);
                 // generate upgrades
 		isDestroyed = true;
-                
-                isExploded = true;
-
                 break;
             default:
                 break;
