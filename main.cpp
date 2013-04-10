@@ -28,8 +28,7 @@ vector<Enemy * > enemyGroup;
 map<int, Hero*> heroGroup;
 vector<Bomb *> bombGroup;
 vector<Explosion *> explosionGroup;
-vector<Upgrade *> upgradeGroup;
-bool Connected;
+vector<Upgrade *> upgradeGroup; bool Connected;
 CClientSocket* tcpclient;
 CIpAddress* remoteip;
 CUdpSocket* udpclient;
@@ -337,6 +336,7 @@ void handleClients()
 		    bombGroup.push_back(newbomb);
 		}
 	}	
+	delete msg;
 }
 
 void eventLoop(SDL_Surface * screen) {

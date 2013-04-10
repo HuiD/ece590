@@ -203,6 +203,7 @@ void server::OnLoop()
 					}
                 }
 
+				delete msg;
 			}
 		}
 }
