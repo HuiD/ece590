@@ -23,6 +23,7 @@ typedef block_pos bpos;
 class server
 {
 	private:
+		int max_players;
 		bool Connected;
 		bool Running;
 		CClientSocket* tcpclient;
@@ -47,7 +48,10 @@ class server
         int net_thread_main();
 	public:
 		server();
-        
+		void setMaxPlayer(int num)
+		{
+			max_players=num;
+		}		
 		int  OnExecute();
 		bool OnInit();
 		void OnLoop();

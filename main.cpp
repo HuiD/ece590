@@ -21,6 +21,7 @@
 
 
 Hero * hero;
+int max_players=-1;
 Bomb * bomb; vector<Block * > blocks;
 vector<Enemy * > enemyGroup;
 //vector<Hero *> heroGroup;
@@ -42,12 +43,15 @@ char textbuf[80];
 SDL_Rect textDest;
 TTF_Font *text_font;
 SDL_Color font_color;
+bool start=false;
 
 void handleServer();
 void handleNetwork();
 void handleClients();
 
 int handle_key(SDLKey k) {
+	if(!start)
+		return 0;
     switch(k) {
         case SDLK_ESCAPE:
             return 1;
@@ -71,6 +75,8 @@ int handle_key(SDLKey k) {
     return 0;
 }
 void handle_keyup(SDLKey k) {
+	if(!start)
+		return ;
     switch (k) {
         case SDLK_LEFT:
 			heroGroup[myId]->stopMoving();
@@ -127,7 +133,7 @@ void initBlock() {
             {
                 int x, y, r;
                 bmsg.UnLoadByte(x, y, r);
-                if(r==7)
+                if(r==9)
                     break;
                 blocks.push_back(new Block(x*50, y*50, false, r));
             }
@@ -241,6 +247,8 @@ void handleServer()
 		int ch;
 		int x;
 		msg.UnLoadByte(ch, id, x);
+		max_players=x;
+		cout<<"max players: "<<max_players<<endl;
 		if(ch=='2')
 		{
 			delete heroGroup[id];
@@ -371,6 +379,8 @@ void eventLoop(SDL_Surface * screen) {
         
         //update sprites
         background->update(blocks, colList, heroGroup, upgradeGroup);
+		if(heroGroup.size()==max_players)
+			start=true;
         handleNetwork();
 
         
