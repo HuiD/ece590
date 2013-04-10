@@ -9,6 +9,7 @@
 #include "CNet.h"
 #include "heromessage.h"
 #include "enemy.h"
+#include <queue>
 
 #define NUM_HERO_FILES 16
 
@@ -45,6 +46,7 @@ enum move_state {
 class Hero : public Sprite{
 #define TOTAL_LIFE_NUM 5
 #define TOTAL_BOMB_LEVEL 3
+#define TOTAL_BOMB_NUM 9
 private:
     enum move_state move;
     int frame;
@@ -56,16 +58,19 @@ private:
     double fall_accel;
     bool isBomb;
     bool isDead;
+    bool isSpeedup;
     bool protection;
     int inExplosionTime;
 	heromessage msg;
     int life;
+    int maxBombNum;
     int bombLevel;
     int bombx;
     int bomby;
     int playerId;
     hero_pos heropos;
     int walkOutTime;
+    queue<int> exploTime;
 public:
 	CClientSocket* tcpclient;
 	int* num;
@@ -83,10 +88,12 @@ public:
         walk_accel = 10.00;
         isBomb = false;
 	isDead = false;
+	isSpeedup = false;
         protection = false;
 	tcpclient=NULL;
         life = TOTAL_LIFE_NUM;
         bombLevel = 1;
+	maxBombNum = 1;
         walkOutTime = 0;
     }
     ~Hero() {
@@ -124,10 +131,7 @@ public:
     
 #define MAX_SPEED  25
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
-        if (life <= 0) {
-	    setVisible(false);
-	    return;
-	}
+
         if (!visible) {
             return;
         }
@@ -144,6 +148,10 @@ public:
 		    deadframe = 11;
 		    isDead = false;
 		    setAnimFrame(frame);
+		    if (life <= 0) {
+			setVisible(false);
+			return;
+		    }
 		    switch (playerId) {
             		case 0:
                 	    setCoords(UNIT, 3*UNIT);
@@ -163,10 +171,6 @@ public:
 	        }
 	    }
 	}
-
-        //        frame = frame++;
-        //        frame = frame & 3;
-        //speedY = 0;
 
         switch(move) {
             case DONT_MOVE:
@@ -253,32 +257,29 @@ public:
         }
         //        Sprite::setAnimFrame(frame);
         
-        if (isBomb){
+	if (!exploTime.empty()) {
+	    if (SDL_GetTicks()-exploTime.front() > 4000) { 
+	    	exploTime.pop(); 
+	    }   
+	}
 
-			bombx=getX();
-			bomby=getY();
+        if (isBomb){	   
+	    bombx=getX();
+	    bomby=getY();
             walkOutTime = SDL_GetTicks();
-            /* Bomb * newBomb = new Bomb("img/blob2.bmp", getX(), getY(), 4000, SDL_GetTicks(), bombLevel);
-             bombGroup.push_back(newBomb);
-             for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-             CollisionPair * cp = new CollisionPair(it->second, newBomb, HeroBomb);
-             colList.push_back(cp);
-             }
-             for (int i = 0; i < explosionGroup.size(); i++){
-             CollisionPair * cp = new CollisionPair(newBomb, explosionGroup.at(i), BombExplosion);
-             colList.push_back(cp);
-             }
-             for (int i = 0; i < enemyGroup.size(); i++){
-             CollisionPair * cp = new CollisionPair(newBomb, enemyGroup.at(i), BombEnemy);
-             colList.push_back(cp);
-             }*/
-
-            isBomb = false;
+	    isBomb = false;
         }
     }
     
+    bool getIsBomb(){
+	return isBomb;
+    }
+
     void placeBomb(){
-        isBomb = true;
+	if (exploTime.size() < maxBombNum) {
+	    isBomb = true;
+	    exploTime.push(SDL_GetTicks());
+	}
     }
     
     void stopMoving() {
@@ -301,10 +302,10 @@ public:
     
     void inCollision(enum colType t){
         switch (t) {
-            case HeroBomb:
+            /*case HeroBomb:
                 life--;
 //                cout<<"hero bombed! life "<<life<<endl;
-                break;
+                break;*/
             case HeroExplosion:
 		isDead = true;
                 if (!protection){
@@ -317,7 +318,6 @@ public:
                     life--;
 //                    cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
-
                 }
                 break;
             case HeroEnemy:
@@ -346,10 +346,20 @@ public:
                     life++;
 //                cout<<"hero life: "<<life<<endl;
                 break;
+	    case HeroSpeed:
+		if (!isSpeedup) {
+		    walk_accel = 25;
+		    isSpeedup = true;
+		}
+//		  cout<<"is hero speed up: "<<isSpeedup<<endl;
+	        break;
+	    case HeroBomb:
+		if (maxBombNum < TOTAL_BOMB_NUM)
+		    maxBombNum++;
+		break;
             default:
                 break;
-        }
-        
+        }   
     }
     
     bool checkExplosionTime(){

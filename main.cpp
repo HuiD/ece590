@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
+//#include "SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -84,8 +85,9 @@ void handle_keyup(SDLKey k) {
             heroGroup[myId]->stopMoving();
             break;
         case SDLK_SPACE:
-			bombed=true;
+			//bombed=true;
             heroGroup[myId]->placeBomb();
+	    bombed = heroGroup[myId]->getIsBomb();
             break;
     }
 
@@ -457,7 +459,7 @@ void eventLoop(SDL_Surface * screen) {
         /* since its double buffered, make
          the changes show up*/
         SDL_Flip(screen);
-        /* Wait 10 ms between frames*/
+        /* Wait 50 ms between frames*/
         SDL_Delay(50);
     }
     
@@ -473,8 +475,18 @@ int main(int argc, char* argv[]) {
      you can also do timers, cdrom, joystick-
      see man page :)
      */
-    SDL_Init(SDL_INIT_VIDEO );
-	SDLNet_Init();
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+
+    int audio_rate = 44100;
+    Uint16 audio_format = AUDIO_S16SYS;
+    int audio_channels = 2;
+    int audio_buffers = 4096;
+
+    /*if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+	fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
+	exit(1);
+    }*/    
+    SDLNet_Init();
     TTF_Init();
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
                                             WINDOW_HEIGHT,

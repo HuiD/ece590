@@ -57,7 +57,6 @@ public:
     }
     
     void update(vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Explosion *> &explosionGroup, vector<Upgrade *> &upgradeGroup) {
-<<<<<<< HEAD
         if (isDestroyed) {
 	    frame ++;
 	    setAnimFrame(frame);
@@ -84,10 +83,9 @@ public:
             	    upgradeType = 0;
                 }
 	    }
-	}   
-}
-=======
-        if (isExploded){
+	}
+
+	if (isExploded){
             if (upgradeType>0) {
                 enum colType t;
                 switch (upgradeType) {
@@ -109,34 +107,22 @@ public:
                 upgradeType = 0;
             }
             isExploded = false;
-        }
-    }
->>>>>>> dbec80d503ec6873c700e2d86da4f0fad75e1b42
+        }   
+}
+
     
     void inCollision(enum colType t){
         int tmp;
         switch (t) {
             case BlockExplosion:
                 //                cout<<"block bombed!"<<endl;
-<<<<<<< HEAD
+
                 // setVisible(false);
                 // generate upgrades
 		isDestroyed = true;
-                tmp = rand()%4;
-                switch (tmp) {           
-                    case 2:
-                        upgradeType = 1;
-                        break;
-                    case 3:
-                        upgradeType = 2;
-                        break;
-                    default:
-                        break;
-                }
-=======
-                setVisible(false);
+                
                 isExploded = true;
->>>>>>> dbec80d503ec6873c700e2d86da4f0fad75e1b42
+
                 break;
             default:
                 break;

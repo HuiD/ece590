@@ -11,6 +11,8 @@ class Enemy;
 
 #define NUM_LIFEUP_FILES 2
 #define NUM_FIREUP_FILES 2
+#define NUM_SPEEDUP_FILES 2
+#define NUM_BOMBUP_FILES 2
 
 static const char * lifeup_file_names[NUM_LIFEUP_FILES + 1] = {
     "img/items/lifeup_1.bmp",
@@ -21,6 +23,18 @@ static const char * lifeup_file_names[NUM_LIFEUP_FILES + 1] = {
 static const char * fireup_file_names[NUM_FIREUP_FILES + 1] = {
     "img/items/fireup_1.bmp",
     "img/items/fireup_2.bmp",
+    NULL
+};
+
+static const char * speedup_file_names[NUM_SPEEDUP_FILES + 1] = {
+    "img/items/speedup_1.bmp",
+    "img/items/speedup_2.bmp",
+    NULL
+};
+
+static const char * bombup_file_names[NUM_BOMBUP_FILES + 1] = {
+    "img/items/bombup_1.bmp",
+    "img/items/bombup_2.bmp",
     NULL
 };
 
@@ -45,9 +59,14 @@ public:
                 Sprite::initSprite(NUM_LIFEUP_FILES, lifeup_file_names);
 		frame = 0;
                 break;
-//            case addLife:
-//                Sprite::initSprite("img/blob3.bmp");
-//                break;
+	    case HeroSpeed:
+		Sprite::initSprite(NUM_SPEEDUP_FILES, speedup_file_names);
+		frame = 0;
+		break;
+	    case HeroBomb:
+		Sprite::initSprite(NUM_BOMBUP_FILES, bombup_file_names);
+		frame = 0;
+		break;
             default:
                 break;
         }
@@ -72,23 +91,28 @@ public:
     void inCollision(enum colType t){
         switch (t) {
             case HeroUpgrade:
-//                cout<<"hero upgraded!"<<endl;
+//      cout<<"hero upgraded!"<<endl;
                 setVisible(false);
                 break;
             case HeroLife:
-                //                cout<<"hero upgraded!"<<endl;
+//      cout<<"hero upgraded!"<<endl;
                 setVisible(false);
                 break;
+	    case HeroSpeed:
+//	cout<<"hero upgraded!"<<endl;
+		setVisible(false);
+		break;
+	    case HeroBomb:
+//	cout<<"hero upgraded!"<<endl;
+		setVisible(false);		
+		break;
             default:
                 break;
-        }
-        
+        }       
     }
     
     colType getUpType() {
         return upType;
-    }
-    
-    
+    } 
 };
 #endif

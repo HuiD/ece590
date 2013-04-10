@@ -48,6 +48,7 @@ public:
             upgradeType=1;
         else if(rand==1)
             upgradeType=2;
+
         else
             upgradeType=0;
         isExploded = false;
