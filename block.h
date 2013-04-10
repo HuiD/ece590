@@ -48,7 +48,10 @@ public:
             upgradeType=1;
         else if(rand==1)
             upgradeType=2;
-
+		else if(rand==2)
+			upgradeType=3;
+		else if(rand==3)
+			upgradeType=4;
         else
             upgradeType=0;
         isExploded = false;
@@ -72,6 +75,12 @@ public:
                		case 2:
                             t = HeroLife;
                     	    break;
+					case 3:
+							t = HeroSpeed;
+							break;
+					case 4:
+							t = HeroBomb;
+							break;
                 	default:
                     	    break;
                     }
