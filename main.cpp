@@ -331,7 +331,6 @@ void handleClients()
 		{
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
-//			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
 			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}
@@ -521,6 +520,7 @@ int main(int argc, char* argv[]) {
     /* cleanup SDL- return to normal screen mode,
      etc */
     SDL_Quit();
+	SDLNet_Init();
     TTF_Quit();
 
     
