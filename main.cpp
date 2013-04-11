@@ -418,14 +418,15 @@ int eventLoop(SDL_Surface * screen) {
                             delete tmp;
                         }
                         cout<<"collist"<<colList.size()<<endl;
-                        //                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                        //                            delete it->second;
-                        //                        }
-                        while (!heroGroup.empty()){
-                            Hero * tmp = heroGroup[0];
-                            heroGroup.erase(0);
-                            delete tmp;
+                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                            delete it->second;
+                            heroGroup.erase(it);
                         }
+//                        while (!heroGroup.empty()){
+//                            Hero * tmp = heroGroup[0];
+//                            heroGroup.erase(0);
+//                            delete tmp;
+//                        }
                         cout<<"hero"<<heroGroup.size()<<endl;
                         
                         while(!blocks.empty()){
