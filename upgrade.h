@@ -46,6 +46,7 @@ private:
     enum colType upType;
     int oriTime;
     int frame;
+    Mix_Chunk *soundEffect;
 public:
     Upgrade(int x, int y, enum colType t){
         Sprite::setVisible(true);
@@ -54,18 +55,22 @@ public:
             case HeroUpgrade:
                 Sprite::initSprite(NUM_FIREUP_FILES, fireup_file_names);
                 frame = 0;
+		soundEffect = Mix_LoadWAV("sound/fireup.wav");
                 break;
             case HeroLife:
                 Sprite::initSprite(NUM_LIFEUP_FILES, lifeup_file_names);
 		frame = 0;
+		soundEffect = Mix_LoadWAV("sound/lifeup.wav");
                 break;
 	    case HeroSpeed:
 		Sprite::initSprite(NUM_SPEEDUP_FILES, speedup_file_names);
 		frame = 0;
+		soundEffect = Mix_LoadWAV("sound/fireup.wav");
 		break;
 	    case HeroBomb:
 		Sprite::initSprite(NUM_BOMBUP_FILES, bombup_file_names);
 		frame = 0;
+		soundEffect = Mix_LoadWAV("sound/bombup.wav");
 		break;
             default:
                 break;
@@ -89,6 +94,10 @@ public:
     }
 
     void inCollision(enum colType t){
+	if (Mix_PlayChannel(-1, soundEffect, 0) == -1)
+	    fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	    //while (Mix_Playing(Mix_PlayChannel(-1, soundEffect, 0)) == 0)
+	    //    Mix_FreeChunk(soundEffect);
         switch (t) {
             case HeroUpgrade:
 //      cout<<"hero upgraded!"<<endl;

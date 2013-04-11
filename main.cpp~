@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
-#include "SDL_mixer.h"
+#include "SDL/SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -21,14 +21,14 @@
 
 
 Hero * hero;
+int max_players=-1;
 Bomb * bomb; vector<Block * > blocks;
 vector<Enemy * > enemyGroup;
 //vector<Hero *> heroGroup;
 map<int, Hero*> heroGroup;
 vector<Bomb *> bombGroup;
 vector<Explosion *> explosionGroup;
-vector<Upgrade *> upgradeGroup;
-bool Connected;
+vector<Upgrade *> upgradeGroup; bool Connected;
 CClientSocket* tcpclient;
 CIpAddress* remoteip;
 CUdpSocket* udpclient;
@@ -42,12 +42,15 @@ char textbuf[80];
 SDL_Rect textDest;
 TTF_Font *text_font;
 SDL_Color font_color;
+bool start=false;
 
 void handleServer();
 void handleNetwork();
 void handleClients();
 
 int handle_key(SDLKey k) {
+	if(!start)
+		return 0;
     switch(k) {
         case SDLK_ESCAPE:
             return 1;
@@ -71,6 +74,15 @@ int handle_key(SDLKey k) {
     return 0;
 }
 void handle_keyup(SDLKey k) {
+    if(!start)
+	return ;
+
+    Mix_Chunk * placeBomb = Mix_LoadWAV("sound/placebomb.bmp");
+    if (placeBomb == NULL) {
+	printf("Could not load sound effect\n");
+	exit(1);
+    }
+
     switch (k) {
         case SDLK_LEFT:
 			heroGroup[myId]->stopMoving();
@@ -86,6 +98,8 @@ void handle_keyup(SDLKey k) {
             break;
         case SDLK_SPACE:
 			//bombed=true;
+	    if (Mix_PlayChannel(-1, placeBomb, 0) == -1)
+		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
             heroGroup[myId]->placeBomb();
 	    bombed = heroGroup[myId]->getIsBomb();
             break;
@@ -127,7 +141,7 @@ void initBlock() {
             {
                 int x, y, r;
                 bmsg.UnLoadByte(x, y, r);
-                if(r==7)
+                if(r==9)
                     break;
                 blocks.push_back(new Block(x*50, y*50, false, r));
             }
@@ -198,6 +212,12 @@ void init(string ip)
     initEnemy();
     background->setCoords(0,0);
     
+    /*Mix_Chunk * placeBomb = Mix_LoadWAV("sound/placebomb.bmp");
+    if (placeBomb == NULL) {
+	printf("Could not load sound effect\n");
+	exit(1);
+    }*/
+
     int totalScroll =0;
     
     //preprocess collision
@@ -241,6 +261,8 @@ void handleServer()
 		int ch;
 		int x;
 		msg.UnLoadByte(ch, id, x);
+		max_players=x;
+		cout<<"max players: "<<max_players<<endl;
 		if(ch=='2')
 		{
 			delete heroGroup[id];
@@ -329,6 +351,7 @@ void handleClients()
 		    bombGroup.push_back(newbomb);
 		}
 	}	
+	delete msg;
 }
 
 void eventLoop(SDL_Surface * screen) {
@@ -371,6 +394,8 @@ void eventLoop(SDL_Surface * screen) {
         
         //update sprites
         background->update(blocks, colList, heroGroup, upgradeGroup);
+		if(heroGroup.size()==max_players)
+			start=true;
         handleNetwork();
 
         
@@ -485,7 +510,8 @@ int main(int argc, char* argv[]) {
     if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
 	fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
 	exit(1);
-    }    
+    }
+    
     SDLNet_Init();
     TTF_Init();
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,

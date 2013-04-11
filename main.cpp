@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
-//#include "SDL_mixer.h"
+#include "SDL/SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -74,8 +74,9 @@ int handle_key(SDLKey k) {
     return 0;
 }
 void handle_keyup(SDLKey k) {
-	if(!start)
-		return ;
+    if(!start)
+	return ;
+
     switch (k) {
         case SDLK_LEFT:
 			heroGroup[myId]->stopMoving();
@@ -203,6 +204,12 @@ void init(string ip)
     initEnemy();
     background->setCoords(0,0);
     
+    /*Mix_Chunk * placeBomb = Mix_LoadWAV("sound/placebomb.bmp");
+    if (placeBomb == NULL) {
+	printf("Could not load sound effect\n");
+	exit(1);
+    }*/
+
     int totalScroll =0;
     
     //preprocess collision
@@ -492,10 +499,11 @@ int main(int argc, char* argv[]) {
     int audio_channels = 2;
     int audio_buffers = 4096;
 
-    /*if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+    if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
 	fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
 	exit(1);
-    }*/    
+    }
+    
     SDLNet_Init();
     TTF_Init();
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
