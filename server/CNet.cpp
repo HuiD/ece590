@@ -182,6 +182,7 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
         {
             return true;
         }*/
+		return true;
 	}
 	else
 		return false;

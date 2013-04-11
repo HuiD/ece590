@@ -126,7 +126,6 @@ int server::net_thread_main()
 				{
 					cout<<"tcp connected to slot: "<<i<<endl;
 					sendOutBlockMessage(i);
-
 				}
 			}
 			else if(clients[i]->Ready())
