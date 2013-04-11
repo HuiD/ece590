@@ -173,15 +173,8 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
 	TCPsocket cs;
 	if ((cs = SDLNet_TCP_Accept(m_Socket))) {
 		the_client_socket.SetSocket(cs);
-        /*if(SDLNet_TCP_AddSocket(set, cs)<0)
-        {
-            cout<<"maximum capacity reached"<<endl;
-            return false;
-        }
-        else
-        {
-            return true;
-        }*/
+		cout<<"tcp connected\n";
+		return true;
 	}
 	else
 		return false;

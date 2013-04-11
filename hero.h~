@@ -332,8 +332,8 @@ public:
                     protection = true;
                 }
                 else if (protection && checkExplosionTime()){
-		    //if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
-	    	    //	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+		    if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
+	    	    	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
                     life--;
 //                    cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
@@ -343,8 +343,8 @@ public:
 		isDead = true;
 		
                 if (!protection){
-		    //if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
-	    	    //	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+		    if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
+	    	    	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
                     life--;
                     cout<<"enemy hero collison1! life: "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
