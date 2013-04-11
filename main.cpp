@@ -18,6 +18,9 @@
 #include "blockmessage.h"
 #include <stdlib.h>     /* srand, rand */
 
+#define MULTIPLE 1
+#define EXIT 2
+#define MENU 3
 
 Hero * hero;
 Bomb * bomb; vector<Block * > blocks;
@@ -42,14 +45,15 @@ SDL_Rect textDest;
 TTF_Font *text_font;
 SDL_Color font_color;
 
+
 void handleServer();
 void handleNetwork();
 void handleClients();
 
 int handle_key(SDLKey k) {
     switch(k) {
-        case SDLK_ESCAPE:
-            return 1;
+            //        case SDLK_ESCAPE:
+            //            return 1;
         case SDLK_LEFT:
 			moved=true;
             heroGroup[myId]->moveLeft();
@@ -66,10 +70,13 @@ int handle_key(SDLKey k) {
 			moved=true;
 			heroGroup[myId]->moveDown();
 			break;
+        case SDLK_d:
+            return MENU;
     }
     return 0;
 }
-void handle_keyup(SDLKey k) {
+
+int handle_keyup(SDLKey k) {
     switch (k) {
         case SDLK_LEFT:
 			heroGroup[myId]->stopMoving();
@@ -87,15 +94,51 @@ void handle_keyup(SDLKey k) {
 			bombed=true;
             heroGroup[myId]->placeBomb();
             break;
+            //        case SDLK_d:
+            //            return MENU;
     }
-
+    return 0;
 }
 
-//#define UNIT 50
+int handle_menu_key(SDLKey k, int & arrowPos) {
+    switch(k) {
+        case SDLK_ESCAPE:
+            return EXIT;
+		case SDLK_RETURN:
+            if (arrowPos==0)
+                return MULTIPLE;
+            if(arrowPos==1)
+                return EXIT;
+			break;
+            
+    }
+    return 0;
+}
+int handle_menu_keyup(SDLKey k, int & arrowPos) {
+    switch(k) {
+		case SDLK_UP:
+			arrowPos--;
+            if (arrowPos<0)
+                arrowPos = 1;
+			break;
+		case SDLK_DOWN:
+			arrowPos++;
+            if(arrowPos>1)
+                arrowPos = 0;
+			break;
+        case SDLK_SPACE:
+            if (arrowPos==0)
+                return MULTIPLE;
+            if(arrowPos==1)
+                return EXIT;
+			break;
+    }
+    return 0;
+}
 
 void initBlock() {
     bool initialized =false;
-
+    
     for (int j=0; j<WINDOW_WIDTH/UNIT; j++) {
         int x = j*UNIT;
         int y = 2*UNIT;
@@ -113,7 +156,7 @@ void initBlock() {
     for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
         for (int j=4; j<WINDOW_HEIGHT/UNIT-1; j+=2){
             blocks.push_back(new Block(i*50, j*50, true,3));
-
+            
         }
     }
     blockmessage bmsg;
@@ -151,6 +194,18 @@ void sendHello()
 	tcpclient->Send(hello);
 }
 
+void initFont() {
+    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);
+    if (text_font == NULL) {
+        printf("Could not load font\n");
+        exit(1);
+    }
+    
+    font_color.r = 0;
+    font_color.g = 0;  //very green.  If you want black, make this 0.
+    font_color.b = 0;
+}
+
 void init(string ip)
 {
     tcpclient = new CClientSocket();
@@ -175,22 +230,22 @@ void init(string ip)
 		    }
 		}
 		else{
-				 break;
-			}
+            break;
+        }
 	}
 	initBlock();
 	sendHello();
-    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);    
-    if (text_font == NULL) {
-        printf("Could not load font\n");
-        exit(1);
-    }
-
-    font_color.r = 0;
-    font_color.g = 0;  //very green.  If you want black, make this 0.
-    font_color.b = 0;
-
-
+    //    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);
+    //    if (text_font == NULL) {
+    //        printf("Could not load font\n");
+    //        exit(1);
+    //    }
+    //
+    //    font_color.r = 0;
+    //    font_color.g = 0;  //very green.  If you want black, make this 0.
+    //    font_color.b = 0;
+    
+    //    initFont();
     
     background = new Background("img/background.bmp");
     initEnemy();
@@ -199,25 +254,25 @@ void init(string ip)
     int totalScroll =0;
     
     //preprocess collision
-
-//    heroGroup.push_back(hero);
-  //  heroGroup[0] = hero;
-  
+    
+    //    heroGroup.push_back(hero);
+    //  heroGroup[0] = hero;
+    
     for (int j = 0; j < bombGroup.size(); j++){
-//        for (int i = 0; i < heroGroup.size(); i++) {
+        //        for (int i = 0; i < heroGroup.size(); i++) {
         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             CollisionPair * cp = new CollisionPair(it->second, bombGroup.at(j), HeroBomb);
             colList.push_back(cp);
         }
-       
+        
     }
-//    for (int j = 0; j < enemyGroup.size(); j++){
-//        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-//            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
-//            colList.push_back(cp);
-//        }
-//        
-//    }
+    //    for (int j = 0; j < enemyGroup.size(); j++){
+    //        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+    //            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
+    //            colList.push_back(cp);
+    //        }
+    //
+    //    }
 }
 
 void handleNetwork()
@@ -264,16 +319,16 @@ void handleServer()
             default:
                 break;
         }
-//		heroGroup[id]->setCoords(UNIT, 3*UNIT);
+        //		heroGroup[id]->setCoords(UNIT, 3*UNIT);
 		if(ch=='0')
 			myId=id;
         for (int j = 0; j < enemyGroup.size(); j++){
-                CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
-                colList.push_back(cp);
+            CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
+            colList.push_back(cp);
             
         }
 	}
-
+    
 }
 
 void handleClients()
@@ -322,22 +377,22 @@ void handleClients()
 		{
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
-//			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
+            //			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
 			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}
-	}	
+	}
 }
 
-void eventLoop(SDL_Surface * screen) {
+int eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     while(1) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYDOWN:
-                    if(handle_key(event.key.keysym.sym)){
+                    if(handle_key(event.key.keysym.sym)==MENU){
                         delete background;
-//                        delete heroGroup[myId];
+                        //                        delete heroGroup[myId];
                         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
                             delete it->second;
                         }
@@ -355,8 +410,10 @@ void eventLoop(SDL_Surface * screen) {
                             delete colList.at(i);
                         }
                         TTF_CloseFont(text_font);
-//                        SDL_FreeSurface(text_image);
-                        return;
+                        //                        SDL_FreeSurface(text_image);
+                        delete tcpclient;
+                        delete udpclient;
+                        return MENU;
                     }
                     break;
                 case SDL_KEYUP:
@@ -365,14 +422,14 @@ void eventLoop(SDL_Surface * screen) {
             }
             
         }/* input event loop*/
-
+        
         
         //update sprites
         background->update(blocks, colList, heroGroup, upgradeGroup);
         handleNetwork();
-
         
-
+        
+        
 		std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
 		{
@@ -402,7 +459,7 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < enemyGroup.size(); i++) {
             enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
         }
-
+        
         for (int i = 0; i < bombGroup.size(); i++) {
             bombGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
         }
@@ -412,7 +469,7 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->update();
         }
-
+        
         //check for collision
         for (int i = 0; i < colList.size(); i++){
             CollisionPair * tmp = colList.at(i);
@@ -423,7 +480,7 @@ void eventLoop(SDL_Surface * screen) {
         
         //draw sprites
         background->blit(screen);
- 	for (int j = 0; j < bombGroup.size(); j++) {
+        for (int j = 0; j < bombGroup.size(); j++) {
             bombGroup.at(j)->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
@@ -439,7 +496,7 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->blit(screen);
         }
- 	for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             it->second->blit(screen);
         }
         
@@ -453,17 +510,64 @@ void eventLoop(SDL_Surface * screen) {
         textDest.h = text_image->h;
         SDL_BlitSurface(text_image, NULL, screen, &textDest);
         SDL_FreeSurface(text_image);
-
+        
         /* since its double buffered, make
          the changes show up*/
         SDL_Flip(screen);
         /* Wait 10 ms between frames*/
         SDL_Delay(50);
     }
-    
+    return 0;
 }
 
-
+int menu(SDL_Surface * screen) {
+    SDL_Event event;
+    Background * menuBackground = new Background("img/menu/menu.bmp");
+    menuBackground->setCoords(0,0);
+    Background * arrow = new Background("img/menu/arrow.bmp");
+    int arrowX = 250;
+    int arrowY = 515;
+    arrow->setCoords(arrowX,arrowY);
+    int arrowPos = 0;
+    int step = 83;
+    while(1) {
+        /* This function returns 0 if no
+         events are pending, 1 (and fills in event)
+         if one is*/
+        int stage;
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_KEYDOWN:
+                    stage = handle_menu_key(event.key.keysym.sym, arrowPos);
+                    break;
+                case SDL_KEYUP:
+                    stage = handle_menu_keyup(event.key.keysym.sym, arrowPos);
+                    break;
+            }
+            if (stage == EXIT)
+                return EXIT;
+            else if (stage == MULTIPLE)
+                return MULTIPLE;
+            
+        }/* input event loop*/
+        
+        // update arrrow
+        arrow->setCoords(arrowX, arrowY+arrowPos*step);
+        menuBackground->setCoords(0,0);
+        
+        
+        // draw sprites
+        menuBackground->blit(screen);
+        arrow->blit(screen);
+        
+        /* since its double buffered, make
+         the changes show up*/
+        SDL_Flip(screen);
+        /* Wait 10 ms between frames*/
+        SDL_Delay(10);
+    }
+    return 0;
+}
 
 int main(int argc, char* argv[]) {
     /* Initalize SDL - for this demo,
@@ -474,11 +578,10 @@ int main(int argc, char* argv[]) {
      see man page :)
      */
     SDL_Init(SDL_INIT_VIDEO );
-	SDLNet_Init();
-    TTF_Init();
+	//SDLNet_Init();
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
                                             WINDOW_HEIGHT,
-                                            0,
+                                            32,
                                             SDL_HWSURFACE |
                                             SDL_DOUBLEBUF
                                             );
@@ -494,12 +597,37 @@ int main(int argc, char* argv[]) {
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
-    init(argv[1]);
-    eventLoop(screen);
+    //init(argv[1]);
+    //initFont();
+    int stage = menu(screen);
+    
+//    if (stage == MULTIPLE)
+//        stage = eventLoop(screen);
+//    //    SDL_FillRect(screen, NULL, 0x000000); //Fills 'screen' black.
+//    
+//    if (stage == MENU)
+//        menu(screen);
+    while (stage != EXIT) {
+        if (stage == MENU)
+            stage = menu(screen);
+        if (stage == MULTIPLE){
+            SDLNet_Init();
+            init(argv[1]);
+            TTF_Init();
+
+            initFont();
+            stage = eventLoop(screen);
+            SDLNet_Quit();
+            Connected = false;
+            TTF_Quit();
+
+        }
+        
+    }
+    
     /* cleanup SDL- return to normal screen mode,
      etc */
     SDL_Quit();
-    TTF_Quit();
 
     
     return EXIT_SUCCESS;
