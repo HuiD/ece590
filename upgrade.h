@@ -65,7 +65,7 @@ public:
 	    case HeroSpeed:
 		Sprite::initSprite(NUM_SPEEDUP_FILES, speedup_file_names);
 		frame = 0;
-		soundEffect = Mix_LoadWAV("sound/fireup.wav");
+		soundEffect = Mix_LoadWAV("sound/speedup.wav");
 		break;
 	    case HeroBomb:
 		Sprite::initSprite(NUM_BOMBUP_FILES, bombup_file_names);

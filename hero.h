@@ -71,6 +71,7 @@ private:
     int walkOutTime;
     Mix_Chunk *placeBombSFX;
     Mix_Chunk *deadSFX;
+    Mix_Chunk *slowdownSFX;
     queue<int> exploTime;
 public:
 	CClientSocket* tcpclient;
@@ -98,6 +99,7 @@ public:
 	speedUpTime = 0;
 	placeBombSFX = Mix_LoadWAV("sound/placebomb.wav");
 	deadSFX = Mix_LoadWAV("sound/die.wav");
+	slowdownSFX = Mix_LoadWAV("sound/slowdown.wav");
     }
     ~Hero() {
         //        delete sprite;
@@ -182,6 +184,8 @@ public:
 
 	if (walk_accel == 25 && SDL_GetTicks()-speedUpTime > 10000) {
 	    walk_accel = 10;
+	    if (Mix_PlayChannel(-1, slowdownSFX, 0) == -1)
+		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
 	}
 
         switch(move) {
