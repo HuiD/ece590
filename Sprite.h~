@@ -1,19 +1,20 @@
 #ifndef __SPRITE_H__
 #define __SPRITE_H__
 #include "SDL.h"
+#include "SDL_mixer.h"
 #include <iostream>
 #include <vector>
 #include <map>
 using namespace std;
 
 enum colType{
-    HeroBomb, HeroExplosion, BombExplosion, BlockExplosion, HeroEnemy, EnemyExplosion, BombEnemy, HeroUpgrade, HeroLife
+    HeroBomb, HeroExplosion, BombExplosion, BlockExplosion, HeroEnemy, EnemyExplosion, BombEnemy, HeroUpgrade, HeroLife, HeroSpeed
 };
 
 
 #define WINDOW_WIDTH 950
 #define WINDOW_HEIGHT 750
-
+#define UNIT 50
 #define OFFSET 15
 
 class Sprite {
@@ -31,7 +32,7 @@ public:
             SDL_FreeSurface(anim_frames[i]);
         }
         delete[] anim_frames;
-        cout<<"sprite deleted!"<<endl;
+//        cout<<"sprite deleted!"<<endl;
     }
     void setTransparent(){
 	SDL_SetColorKey(anim_frames[0],

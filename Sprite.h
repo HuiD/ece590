@@ -1,13 +1,14 @@
 #ifndef __SPRITE_H__
 #define __SPRITE_H__
 #include "SDL.h"
+//#include "SDL_mixer.h"
 #include <iostream>
 #include <vector>
 #include <map>
 using namespace std;
 
 enum colType{
-    HeroBomb, HeroExplosion, BombExplosion, BlockExplosion, HeroEnemy, EnemyExplosion, BombEnemy, HeroUpgrade, HeroLife
+    HeroBomb, HeroExplosion, BombExplosion, BlockExplosion, HeroEnemy, EnemyExplosion, BombEnemy, HeroUpgrade, HeroLife, HeroSpeed
 };
 
 
