@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
-//#include "SDL_mixer.h"
+#include "SDL/SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -46,7 +46,9 @@ SDL_Rect textDest;
 TTF_Font *text_font;
 SDL_Color font_color;
 bool start=false;
-
+Mix_Music *menuMusic = NULL;
+Mix_Chunk *menuSFX = NULL;
+Mix_Music *mainMusic = NULL;
 
 void handleServer();
 void handleNetwork();
@@ -59,42 +61,44 @@ int handle_key(SDLKey k) {
             //        case SDLK_ESCAPE:
             //            return 1;
         case SDLK_LEFT:
-			moved=true;
+	    moved=true;
             heroGroup[myId]->moveLeft();
             break;
         case SDLK_RIGHT:
-			moved=true;
+	    moved=true;
             heroGroup[myId]->moveRight();
             break;
-		case SDLK_UP:
-			moved=true;
-			heroGroup[myId]->moveUp();
-			break;
-		case SDLK_DOWN:
-			moved=true;
-			heroGroup[myId]->moveDown();
-			break;
+	case SDLK_UP:
+	    moved=true;
+	    heroGroup[myId]->moveUp();
+	    break;
+	case SDLK_DOWN:
+	    moved=true;
+	    heroGroup[myId]->moveDown();
+	    break;
 //        case SDLK_d:
 //            return MENU;
     }
     return 0;
 }
 
+
 int handle_keyup(SDLKey k) {
     
 	if(!start)
 		return 0;
+
     switch (k) {
         case SDLK_LEFT:
-			heroGroup[myId]->stopMoving();
-			break;
+	    heroGroup[myId]->stopMoving();
+	    break;
         case SDLK_RIGHT:
-			heroGroup[myId]->stopMoving();
-			break;
-		case SDLK_UP:
-			heroGroup[myId]->stopMoving();
-			break;
-		case SDLK_DOWN:
+	    heroGroup[myId]->stopMoving();
+	    break;
+	case SDLK_UP:
+	    heroGroup[myId]->stopMoving();
+	    break;
+	case SDLK_DOWN:
             heroGroup[myId]->stopMoving();
             break;
         case SDLK_SPACE:
@@ -103,6 +107,7 @@ int handle_keyup(SDLKey k) {
             bombed = heroGroup[myId]->getIsBomb();
             break;
         case SDLK_ESCAPE:
+	    Mix_HaltMusic();
             return MENU;
             
     }
@@ -113,34 +118,40 @@ int handle_menu_key(SDLKey k, int & arrowPos) {
     switch(k) {
         case SDLK_ESCAPE:
             return EXIT;
-		case SDLK_RETURN:
+	case SDLK_RETURN:
+	    Mix_HaltMusic();
             if (arrowPos==0)
                 return MULTIPLE;
-            if(arrowPos==1)
+            if (arrowPos==1)
                 return EXIT;
-			break;
+	break;
             
     }
     return 0;
 }
 int handle_menu_keyup(SDLKey k, int & arrowPos) {
     switch(k) {
-		case SDLK_UP:
-			arrowPos--;
+	case SDLK_UP:
+	    if (Mix_PlayChannel(-1, menuSFX, 0) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	    arrowPos--;
             if (arrowPos<0)
                 arrowPos = 1;
-			break;
-		case SDLK_DOWN:
-			arrowPos++;
+	    break;
+	case SDLK_DOWN:
+	    if (Mix_PlayChannel(-1, menuSFX, 0) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	    arrowPos++;
             if(arrowPos>1)
                 arrowPos = 0;
-			break;
+	    break;
         case SDLK_SPACE:
+	    Mix_HaltMusic();
             if (arrowPos==0)
                 return MULTIPLE;
-            if(arrowPos==1)
+            if (arrowPos==1)
                 return EXIT;
-			break;
+	    break;
     }
     return 0;
 }
@@ -260,7 +271,9 @@ void init(string ip)
     background = new Background("img/background.bmp");
     //initEnemy();
     background->setCoords(0,0);
-    
+
+    mainMusic = Mix_LoadMUS("sound/mainbgm.wav");
+
     int totalScroll =0;
     
     //preprocess collision
@@ -534,6 +547,12 @@ int eventLoop(SDL_Surface * screen) {
         
         //draw sprites
         background->blit(screen);
+
+	if (Mix_PlayingMusic() == 0) {
+	    if (Mix_PlayMusic(mainMusic, -1) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	}
+
         for (int j = 0; j < bombGroup.size(); j++) {
             bombGroup.at(j)->blit(screen);
         }
@@ -579,6 +598,8 @@ int menu(SDL_Surface * screen) {
     Background * menuBackground = new Background("img/menu/menu.bmp");
     menuBackground->setCoords(0,0);
     Background * arrow = new Background("img/menu/arrow.bmp");
+    menuMusic = Mix_LoadMUS("sound/menubgm.wav");
+    menuSFX = Mix_LoadWAV("sound/arrow.wav");
     int arrowX = 250;
     int arrowY = 515;
     arrow->setCoords(arrowX,arrowY);
@@ -613,6 +634,11 @@ int menu(SDL_Surface * screen) {
         // draw sprites
         menuBackground->blit(screen);
         arrow->blit(screen);
+
+	if (Mix_PlayingMusic() == 0) {
+	    if (Mix_PlayMusic(menuMusic, -1) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	}
         
         /* since its double buffered, make
          the changes show up*/
@@ -638,14 +664,15 @@ int main(int argc, char* argv[]) {
     Uint16 audio_format = AUDIO_S16SYS;
     int audio_channels = 2;
     int audio_buffers = 4096;
+
+    if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+	fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
+	exit(1);
+    }
     
-    /*if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
-     fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
-     exit(1);
-     }*/
-    //    SDLNet_Init();
-    //    TTF_Init();
-    
+    //SDLNet_Init();
+    //TTF_Init();
+
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
                                             WINDOW_HEIGHT,
                                             32,
