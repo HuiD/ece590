@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
-#include "SDL/SDL_mixer.h"
+#include "SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -408,7 +408,6 @@ void handleClients()
 		{
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
-            //			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
 			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}
@@ -746,6 +745,7 @@ int main(int argc, char* argv[]) {
 //    Mix_Quit();
 
     SDL_Quit();
+
     
     
     return EXIT_SUCCESS;

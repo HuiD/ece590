@@ -6,7 +6,7 @@ server::server()
 	tcplistener=NULL;
 	Connected=false;
 	numOfClients=0;
-	for(int i=0; i<MAX_CLIENTS; i++)
+	for(int i=0; i<max_players; i++)
 	{
 		isReceived[i]=false;
 	}
@@ -18,7 +18,7 @@ int server::OnExecute()
 	{
 		return -1;
 	}
-    SDL_Thread * net_thread=SDL_CreateThread(StaticThread,this);
+    net_thread=SDL_CreateThread(StaticThread,this);
 	if(!net_thread)
 	{
 	   	printf("SDL_CreateThread: %s\n",SDL_GetError());
@@ -46,7 +46,7 @@ bool server::OnInit()
 	{
 		exit(EXIT_FAILURE);
 	}
-	for(int i=0; i<4; i++)
+	for(int i=0; i<max_players; i++)
 	{
 		clients[i]=new CClientSocket();
 	}
@@ -55,7 +55,7 @@ bool server::OnInit()
 
 void server::notifyClosed(int which)
 {
-	for(int i=0; i<MAX_CLIENTS; i++)
+	for(int i=0; i<max_players; i++)
 	{
 		if(i==which)
 			continue;
@@ -126,7 +126,6 @@ int server::net_thread_main()
 				{
 					cout<<"tcp connected to slot: "<<i<<endl;
 					sendOutBlockMessage(i);
-
 				}
 			}
 			else if(clients[i]->Ready())
@@ -180,7 +179,7 @@ void server::OnLoop()
                     heromessage sentmsg;
 				    hero_pos pos;
 				    msg->UnLoadByte(pos.x,pos.y,pos.id);
-                    for(int i=0; i<MAX_CLIENTS; ++i)
+                    for(int i=0; i<max_players; ++i)
                     {
                         if(clients[i]->Ok())
                         {
@@ -193,7 +192,7 @@ void server::OnLoop()
                     bombmessage bmsg;
                     int bx, by, lvl;
                     msg->UnLoadByte(bx, by, lvl);
-					for(int i=0; i<MAX_CLIENTS;++i)
+					for(int i=0; i<max_players;++i)
 					{
                     	if(clients[i]->Ok())
                     	{
@@ -223,10 +222,17 @@ void server::OnCleanup()
 	delete tcplistener;
 	delete tcpclient;
 	delete servsocket;
-	for(int i=0; i<numOfClients; i++)
+	for(int i=0;i<max_players;i++)
 	{
-		delete clients[i];
+		if(clients[i]!=NULL)
+		{
+			delete clients[i];
+			clients[i]=NULL;
+		}
 	}
+	SDL_KillThread(net_thread); 
+	SDL_WaitThread(net_thread,NULL); 
+	SDLNet_Quit();
 	SDL_Quit();
 }
 int main(int argc, char* argv[])
