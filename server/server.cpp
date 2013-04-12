@@ -1,11 +1,12 @@
 #include "server.h"
-server::server()
+server::server(int num)
 {
 	Running=true;
 	tcpclient=NULL;
 	tcplistener=NULL;
 	Connected=false;
 	numOfClients=0;
+	max_players=num;
 	for(int i=0; i<max_players; i++)
 	{
 		isReceived[i]=false;
@@ -242,8 +243,7 @@ int main(int argc, char* argv[])
 		cout<<"wrong arguments number\n";
 		exit(EXIT_FAILURE);
 	}
-	server s;
-	s.setMaxPlayer(atoi(argv[1]));
+	server s(atoi(argv[1]));
 
 	return s.OnExecute();
 }
