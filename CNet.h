@@ -117,7 +117,6 @@ class CUdpSocket
 {
     protected:
         UDPsocket udpsocket;
-		UDPpacket *udppacket;
 		SDLNet_SocketSet set;
         Uint16 mport;
 	public:

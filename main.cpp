@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
-//#include "SDL_mixer.h"
+#include "SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -8,10 +8,10 @@
 #include "background.h"
 #include "Bomb.h"
 #include "Explosion.h"
-#include "enemy.h"
 #include <algorithm>
 #include "upgrade.h"
 #include "SDL_ttf.h"
+#include "enemy.h"
 #include <map>
 #include "hellomessage.h"
 #include "slotmessage.h"
@@ -19,6 +19,9 @@
 #include "blockmessage.h"
 #include <stdlib.h>     /* srand, rand */
 
+#define MULTIPLE 1
+#define EXIT 2
+#define MENU 3
 
 Hero * hero;
 int max_players=-1;
@@ -43,6 +46,9 @@ SDL_Rect textDest;
 TTF_Font *text_font;
 SDL_Color font_color;
 bool start=false;
+Mix_Music *menuMusic = NULL;
+Mix_Chunk *menuSFX = NULL;
+Mix_Music *mainMusic = NULL;
 
 void handleServer();
 void handleNetwork();
@@ -52,57 +58,107 @@ int handle_key(SDLKey k) {
 	if(!start)
 		return 0;
     switch(k) {
-        case SDLK_ESCAPE:
-            return 1;
+            //        case SDLK_ESCAPE:
+            //            return 1;
         case SDLK_LEFT:
-			moved=true;
+	    moved=true;
             heroGroup[myId]->moveLeft();
             break;
         case SDLK_RIGHT:
-			moved=true;
+	    moved=true;
             heroGroup[myId]->moveRight();
             break;
-		case SDLK_UP:
-			moved=true;
-			heroGroup[myId]->moveUp();
-			break;
-		case SDLK_DOWN:
-			moved=true;
-			heroGroup[myId]->moveDown();
-			break;
+	case SDLK_UP:
+	    moved=true;
+	    heroGroup[myId]->moveUp();
+	    break;
+	case SDLK_DOWN:
+	    moved=true;
+	    heroGroup[myId]->moveDown();
+	    break;
+//        case SDLK_d:
+//            return MENU;
     }
     return 0;
 }
-void handle_keyup(SDLKey k) {
+
+
+int handle_keyup(SDLKey k) {
+    
 	if(!start)
-		return ;
+		return 0;
+
     switch (k) {
         case SDLK_LEFT:
-			heroGroup[myId]->stopMoving();
-			break;
+	    heroGroup[myId]->stopMoving();
+	    break;
         case SDLK_RIGHT:
-			heroGroup[myId]->stopMoving();
-			break;
-		case SDLK_UP:
-			heroGroup[myId]->stopMoving();
-			break;
-		case SDLK_DOWN:
+	    heroGroup[myId]->stopMoving();
+	    break;
+	case SDLK_UP:
+	    heroGroup[myId]->stopMoving();
+	    break;
+	case SDLK_DOWN:
             heroGroup[myId]->stopMoving();
             break;
         case SDLK_SPACE:
 			//bombed=true;
             heroGroup[myId]->placeBomb();
-	    bombed = heroGroup[myId]->getIsBomb();
+            bombed = heroGroup[myId]->getIsBomb();
             break;
+        case SDLK_ESCAPE:
+	    Mix_HaltMusic();
+            return MENU;
+            
     }
-
+    return 0;
 }
 
-//#define UNIT 50
+int handle_menu_key(SDLKey k, int & arrowPos) {
+    switch(k) {
+        case SDLK_ESCAPE:
+            return EXIT;
+	case SDLK_RETURN:
+	    Mix_HaltMusic();
+            if (arrowPos==0)
+                return MULTIPLE;
+            if (arrowPos==1)
+                return EXIT;
+	break;
+            
+    }
+    return 0;
+}
+int handle_menu_keyup(SDLKey k, int & arrowPos) {
+    switch(k) {
+	case SDLK_UP:
+	    if (Mix_PlayChannel(-1, menuSFX, 0) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	    arrowPos--;
+            if (arrowPos<0)
+                arrowPos = 1;
+	    break;
+	case SDLK_DOWN:
+	    if (Mix_PlayChannel(-1, menuSFX, 0) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	    arrowPos++;
+            if(arrowPos>1)
+                arrowPos = 0;
+	    break;
+        case SDLK_SPACE:
+	    Mix_HaltMusic();
+            if (arrowPos==0)
+                return MULTIPLE;
+            if (arrowPos==1)
+                return EXIT;
+	    break;
+    }
+    return 0;
+}
 
 void initBlock() {
     bool initialized =false;
-
+    
     for (int j=0; j<WINDOW_WIDTH/UNIT; j++) {
         int x = j*UNIT;
         int y = 2*UNIT;
@@ -120,10 +176,11 @@ void initBlock() {
     for (int i=2; i<WINDOW_WIDTH/UNIT-1; i+=2){
         for (int j=4; j<WINDOW_HEIGHT/UNIT-1; j+=2){
             blocks.push_back(new Block(i*50, j*50, true,3));
-
+            
         }
     }
     blockmessage bmsg;
+    
     while(1)
     {
         if(tcpclient->Ready())
@@ -141,14 +198,14 @@ void initBlock() {
     }
 }
 
-void initEnemy() {
-    int locationX[2] = {6*UNIT, 7*UNIT};
-    int locationY[2] = {9*UNIT, 4*UNIT};
-    for (int i = 0; i < 2; i++){
-        Enemy * tmp = new Enemy(locationX[i], locationY[i]);
-        enemyGroup.push_back(tmp);
-    }
-}
+//void initEnemy() {
+//    int locationX[2] = {6*UNIT, 7*UNIT};
+//    int locationY[2] = {9*UNIT, 4*UNIT};
+//    for (int i = 0; i < 2; i++){
+//        Enemy * tmp = new Enemy(locationX[i], locationY[i]);
+//        enemyGroup.push_back(tmp);
+//    }
+//}
 
 void sendHello()
 {
@@ -156,6 +213,18 @@ void sendHello()
 	Uint16 port = udpclient->getPort();
 	hello.LoadByte(port,0,0);
 	tcpclient->Send(hello);
+}
+
+void initFont() {
+    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);
+    if (text_font == NULL) {
+        printf("Could not load font\n");
+        exit(1);
+    }
+    
+    font_color.r = 0;
+    font_color.g = 0;  //very green.  If you want black, make this 0.
+    font_color.b = 0;
 }
 
 void init(string ip)
@@ -182,59 +251,67 @@ void init(string ip)
 		    }
 		}
 		else{
-				 break;
-			}
+            break;
+        }
 	}
 	initBlock();
 	sendHello();
-    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);    
-    if (text_font == NULL) {
-        printf("Could not load font\n");
-        exit(1);
-    }
-
-    font_color.r = 0;
-    font_color.g = 0;  //very green.  If you want black, make this 0.
-    font_color.b = 0;
-
-
+    //    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);
+    //    if (text_font == NULL) {
+    //        printf("Could not load font\n");
+    //        exit(1);
+    //    }
+    //
+    //    font_color.r = 0;
+    //    font_color.g = 0;  //very green.  If you want black, make this 0.
+    //    font_color.b = 0;
+    
+    //    initFont();
     
     background = new Background("img/background.bmp");
-    initEnemy();
+    //initEnemy();
     background->setCoords(0,0);
-    
+
+    mainMusic = Mix_LoadMUS("sound/mainbgm.wav");
+
     int totalScroll =0;
     
     //preprocess collision
-
-//    heroGroup.push_back(hero);
-  //  heroGroup[0] = hero;
-  
-    for (int j = 0; j < bombGroup.size(); j++){
-//        for (int i = 0; i < heroGroup.size(); i++) {
-        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-            CollisionPair * cp = new CollisionPair(it->second, bombGroup.at(j), HeroBomb);
-            colList.push_back(cp);
-        }
-       
-    }
-//    for (int j = 0; j < enemyGroup.size(); j++){
-//        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-//            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
-//            colList.push_back(cp);
-//        }
-//        
-//    }
+    
+    //    heroGroup.push_back(hero);
+    //  heroGroup[0] = hero;
+    
+    //    for (int j = 0; j < bombGroup.size(); j++){
+    //        //        for (int i = 0; i < heroGroup.size(); i++) {
+    //        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+    //            CollisionPair * cp = new CollisionPair(it->second, bombGroup.at(j), HeroBomb);
+    //            colList.push_back(cp);
+    //        }
+    //
+    //    }
+    //    for (int j = 0; j < enemyGroup.size(); j++){
+    //        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+    //            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
+    //            colList.push_back(cp);
+    //        }
+    //
+    //    }
 }
 
 void handleNetwork()
 {
-	if(tcpclient->Ready())
-	{
-		handleServer();
+	while(!start){
+        if(tcpclient->Ready())
+        {
+            
+            handleServer();
+        }
+        if(heroGroup.size()==max_players)
+            start=true;
 	}
-	if(udpclient->Ready())
+	if(udpclient->Ready()){
 		handleClients();
+    }
 }
 
 void handleServer()
@@ -273,16 +350,16 @@ void handleServer()
             default:
                 break;
         }
-//		heroGroup[id]->setCoords(UNIT, 3*UNIT);
+        //		heroGroup[id]->setCoords(UNIT, 3*UNIT);
 		if(ch=='0')
 			myId=id;
-        for (int j = 0; j < enemyGroup.size(); j++){
-                CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
-                colList.push_back(cp);
-            
-        }
+//        for (int j = 0; j < enemyGroup.size(); j++){
+//            CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
+//            colList.push_back(cp);
+//            
+//        }
 	}
-
+    
 }
 
 void handleClients()
@@ -334,56 +411,90 @@ void handleClients()
 			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}
-	}	
+        
+	}
 	delete msg;
 }
 
-void eventLoop(SDL_Surface * screen) {
+int eventLoop(SDL_Surface * screen) {
     SDL_Event event;
     while(1) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-                case SDL_KEYDOWN:
-                    if(handle_key(event.key.keysym.sym)){
+                case SDL_KEYUP:
+                    if(handle_keyup(event.key.keysym.sym)==MENU){
                         delete background;
-//                        delete heroGroup[myId];
-                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                            delete it->second;
+                        while(!colList.empty()) {
+                            CollisionPair * tmp = colList.back();
+                            colList.pop_back();
+                            delete tmp;
                         }
-                        for (int i = 0; i < blocks.size(); i++)
-                            delete blocks.at(i);
-                        for (int i = 0; i < explosionGroup.size(); i++)
-                            delete explosionGroup.at(i);
-                        for (int i = 0; i < enemyGroup.size(); i++)
-                            delete enemyGroup.at(i);
-                        for (int i = 0; i < bombGroup.size(); i++)
-                            delete bombGroup.at(i);
-                        for (int i = 0; i < upgradeGroup.size(); i++)
-                            delete upgradeGroup.at(i);
-                        for (int i = 0; i < colList.size(); i++) {
-                            delete colList.at(i);
+                        cout<<"collist"<<colList.size()<<endl;
+                        //                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                        //                            delete it->second;
+                        //                        }
+                        while (!heroGroup.empty()){
+                            Hero * tmp = heroGroup[0];
+                            heroGroup.erase(0);
+                            delete tmp;
                         }
+                        cout<<"hero"<<heroGroup.size()<<endl;
+                        
+                        while(!blocks.empty()){
+                            Block * tmp = blocks.back();
+                            blocks.pop_back();
+                            delete tmp;
+                        }
+                        cout<<"block"<<blocks.size()<<endl;
+                        
+                        while(!explosionGroup.empty()){
+                            Explosion * tmp = explosionGroup.back();
+                            explosionGroup.pop_back();
+                            delete tmp;
+                        }
+                        cout<<"exp"<<explosionGroup.size()<<endl;
+                        
+//                        while(!enemyGroup.empty()){
+//                            Enemy * tmp = enemyGroup.back();
+//                            enemyGroup.pop_back();
+//                            delete tmp;
+//                        }
+//                        cout<<"enemy"<<enemyGroup.size()<<endl;
+                        
+                        while(!bombGroup.empty()){
+                            Bomb * tmp = bombGroup.back();
+                            bombGroup.pop_back();
+                            delete tmp;
+                        }
+                        cout<<"bomb"<<bombGroup.size()<<endl;
+                        
+                        while(!upgradeGroup.empty()){
+                            Upgrade * tmp = upgradeGroup.back();
+                            upgradeGroup.pop_back();
+                            delete tmp;
+                        }
+                        cout<<"up"<<upgradeGroup.size()<<endl;
+                        
                         TTF_CloseFont(text_font);
-//                        SDL_FreeSurface(text_image);
-                        return;
+                        //                        SDL_FreeSurface(text_image);
+                        delete tcpclient;
+                        delete udpclient;
+                        return MENU;
                     }
                     break;
-                case SDL_KEYUP:
-                    handle_keyup(event.key.keysym.sym);
+                case SDL_KEYDOWN:
+                    handle_key(event.key.keysym.sym);
                     break;
             }
             
         }/* input event loop*/
-
         
         //update sprites
-        background->update(blocks, colList, heroGroup, upgradeGroup);
-		if(heroGroup.size()==max_players)
-			start=true;
+        //        background->update(blocks, colList, heroGroup, upgradeGroup);
+        //	if(heroGroup.size()==max_players)
+        //		start=true;
         handleNetwork();
-
         
-
 		std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
 		{
@@ -410,10 +521,10 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < blocks.size(); i++) {
             blocks[i]->update(colList, heroGroup, explosionGroup, upgradeGroup);
         }
-        for (int i = 0; i < enemyGroup.size(); i++) {
-            enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
-        }
-
+//        for (int i = 0; i < enemyGroup.size(); i++) {
+//            enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
+//        }
+        
         for (int i = 0; i < bombGroup.size(); i++) {
             bombGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
         }
@@ -423,7 +534,7 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->update();
         }
-
+        
         //check for collision
         for (int i = 0; i < colList.size(); i++){
             CollisionPair * tmp = colList.at(i);
@@ -434,7 +545,13 @@ void eventLoop(SDL_Surface * screen) {
         
         //draw sprites
         background->blit(screen);
- 	for (int j = 0; j < bombGroup.size(); j++) {
+
+	if (Mix_PlayingMusic() == 0) {
+	    if (Mix_PlayMusic(mainMusic, -1) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	}
+
+        for (int j = 0; j < bombGroup.size(); j++) {
             bombGroup.at(j)->blit(screen);
         }
         for (int j = 0; j < explosionGroup.size(); j++) {
@@ -444,13 +561,13 @@ void eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < blocks.size(); i++) {
             blocks.at(i)->blit(screen);
         }
-        for (int i = 0; i < enemyGroup.size(); i++) {
-            enemyGroup.at(i)->blit(screen);
-        }
+//        for (int i = 0; i < enemyGroup.size(); i++) {
+//            enemyGroup.at(i)->blit(screen);
+//        }
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->blit(screen);
         }
- 	for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             it->second->blit(screen);
         }
         
@@ -464,17 +581,71 @@ void eventLoop(SDL_Surface * screen) {
         textDest.h = text_image->h;
         SDL_BlitSurface(text_image, NULL, screen, &textDest);
         SDL_FreeSurface(text_image);
-
+        
         /* since its double buffered, make
          the changes show up*/
         SDL_Flip(screen);
         /* Wait 50 ms between frames*/
         SDL_Delay(50);
     }
-    
+    return 0;
 }
 
+int menu(SDL_Surface * screen) {
+    SDL_Event event;
+    Background * menuBackground = new Background("img/menu/menu.bmp");
+    menuBackground->setCoords(0,0);
+    Background * arrow = new Background("img/menu/arrow.bmp");
+    menuMusic = Mix_LoadMUS("sound/menubgm.wav");
+    menuSFX = Mix_LoadWAV("sound/arrow.wav");
+    int arrowX = 250;
+    int arrowY = 515;
+    arrow->setCoords(arrowX,arrowY);
+    int arrowPos = 0;
+    int step = 83;
+    while(1) {
+        /* This function returns 0 if no
+         events are pending, 1 (and fills in event)
+         if one is*/
+        int stage;
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_KEYDOWN:
+                    stage = handle_menu_key(event.key.keysym.sym, arrowPos);
+                    break;
+                case SDL_KEYUP:
+                    stage = handle_menu_keyup(event.key.keysym.sym, arrowPos);
+                    break;
+            }
+            if (stage == EXIT)
+                return EXIT;
+            else if (stage == MULTIPLE)
+                return MULTIPLE;
+            
+        }/* input event loop*/
+        
+        // update arrrow
+        arrow->setCoords(arrowX, arrowY+arrowPos*step);
+        menuBackground->setCoords(0,0);
+        
+        
+        // draw sprites
+        menuBackground->blit(screen);
+        arrow->blit(screen);
 
+	if (Mix_PlayingMusic() == 0) {
+	    if (Mix_PlayMusic(menuMusic, -1) == -1)
+	        fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	}
+        
+        /* since its double buffered, make
+         the changes show up*/
+        SDL_Flip(screen);
+        /* Wait 10 ms between frames*/
+        SDL_Delay(10);
+    }
+    return 0;
+}
 
 int main(int argc, char* argv[]) {
     /* Initalize SDL - for this demo,
@@ -484,22 +655,25 @@ int main(int argc, char* argv[]) {
      you can also do timers, cdrom, joystick-
      see man page :)
      */
+    
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-
+    
     int audio_rate = 44100;
     Uint16 audio_format = AUDIO_S16SYS;
     int audio_channels = 2;
     int audio_buffers = 4096;
 
-    /*if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+    if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
 	fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
 	exit(1);
-    }*/    
-    SDLNet_Init();
-    TTF_Init();
+    }
+    
+    //SDLNet_Init();
+    //TTF_Init();
+
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
                                             WINDOW_HEIGHT,
-                                            0,
+                                            32,
                                             SDL_HWSURFACE |
                                             SDL_DOUBLEBUF
                                             );
@@ -515,14 +689,42 @@ int main(int argc, char* argv[]) {
     /* Set the screen resolution: 1024x768, 32 bpp
      We also want to do full screen, double-buffered,
      and have the surface in video hardware */
-    init(argv[1]);
-    eventLoop(screen);
+    //init(argv[1]);
+    //initFont();
+    int stage = menu(screen);
+    
+    //    if (stage == MULTIPLE)
+    //        stage = eventLoop(screen);
+    //    //    SDL_FillRect(screen, NULL, 0x000000); //Fills 'screen' black.
+    //
+    //    if (stage == MENU)
+    //        menu(screen);
+    while (stage != EXIT) {
+        if (stage == MENU)
+            stage = menu(screen);
+        if (stage == MULTIPLE){
+            SDLNet_Init();
+            start=false;
+            init(argv[1]);
+            TTF_Init();
+            
+            initFont();
+            stage = eventLoop(screen);
+            SDLNet_Quit();
+            Connected = false;
+            TTF_Quit();
+            
+        }
+        
+    }
+    
     /* cleanup SDL- return to normal screen mode,
      etc */
     SDL_Quit();
-	SDLNet_Init();
-    TTF_Quit();
 
     
+    
     return EXIT_SUCCESS;
+    
+    
 }

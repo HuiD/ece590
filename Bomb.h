@@ -132,8 +132,19 @@ public:
         }
         
         if (checkTimer(explosionInterval)){
+	    if (!visible) {
+		return;
+	    }
+	    Mix_Chunk *bang = Mix_LoadWAV("sound/bang.wav");
+	    if (bang == NULL)
+		return;
+	    int onPlay;
+	    onPlay = Mix_PlayChannel(-1, bang, 0);
+	    if (onPlay == -1)
+		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+	    while(Mix_Playing(onPlay) == 0)
+	    	Mix_FreeChunk(bang);
             generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
-            
         }
         if (!isAwake && checkTimer(awakeInterval)){
             isAwake = true;
@@ -288,7 +299,7 @@ public:
     
     void inCollision(enum colType t){
         switch (t) {
-            case HeroBomb:
+            //case HeroBomb:
             case BombEnemy:
                 //                setVisible(false);
                 explosionInterval = 0;

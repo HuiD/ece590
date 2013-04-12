@@ -51,8 +51,7 @@ CIpAddress::CIpAddress (Uint16 port) {
 		std::cerr << "SDLNet_ResolveHost: " << SDLNet_GetError() << std::endl;
 		m_Ip.host = 0;
 		m_Ip.port = 0;
-	}
-}
+	} }
 
 
 CIpAddress::CIpAddress (std::string host, Uint16 port) {
@@ -174,15 +173,7 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
 	TCPsocket cs;
 	if ((cs = SDLNet_TCP_Accept(m_Socket))) {
 		the_client_socket.SetSocket(cs);
-        if(SDLNet_TCP_AddSocket(set, cs)<0)
-        {
-            cout<<"maximum capacity reached"<<endl;
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+		return true;
 	}
 	else
 		return false;
@@ -315,11 +306,6 @@ CUdpSocket::CUdpSocket(Uint16 port)
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 	}
-	if(!(udppacket = SDLNet_AllocPacket(256)))
-	{
-		fprintf(stderr, "SDLNet_AllocPacket Fail:%s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
 	set=SDLNet_AllocSocketSet(1);
 	SDLNet_UDP_AddSocket(set, udpsocket);
 	SDLNet_CheckSockets(set, 0);
@@ -347,6 +333,7 @@ void CUdpSocket::Send(CNetMessage& msg, CIpAddress ip, int channel)
 		if(!(p=SDLNet_AllocPacket(256)))
 		{
 			fprintf(stderr, "SDLNet_AllocPacket Fail:%s\n", SDLNet_GetError());
+			SDLNet_FreePacket(p);
 			exit(EXIT_FAILURE);
 		}
 		msg.UnLoadBytes(buf);
@@ -376,7 +363,6 @@ bool CUdpSocket::Receive(CNetMessage* & msg, int & channel)
          {
              msg = new bombmessage();
          }
-         channel=udppacket->channel;
 		 memcpy(buf, p->data, p->maxlen); 	
 		 msg->LoadBytes(buf, msg->NumToLoad());
 	}else

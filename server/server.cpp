@@ -46,7 +46,7 @@ bool server::OnInit()
 	{
 		exit(EXIT_FAILURE);
 	}
-	for(int i=0; i<4; i++)
+	for(int i=0; i<max_players; i++)
 	{
 		clients[i]=new CClientSocket();
 	}
@@ -222,10 +222,14 @@ void server::OnCleanup()
 	delete tcplistener;
 	delete tcpclient;
 	delete servsocket;
-	for(int i=0; i<numOfClients; i++)
+	for(int i=0;i<max_players;i++)
 	{
-		delete clients[i];
+		if(clients[i]!=NULL)
+		{
+			delete clients[i];
+		}
 	}
+	SDLNet_Quit();
 	SDL_Quit();
 }
 int main(int argc, char* argv[])
