@@ -10,8 +10,8 @@ CC=g++
 LDFLAGS= `sdl-config --libs` -lSDL -lSDL_net
 
 main: server.cpp
-	$(CC) $(CPPFLAGS) -c server.cpp CNet.cpp heromessage.cpp
-	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o server
+	$(CC) $(CPPFLAGS) -c server.cpp CNet.cpp heromessage.cpp 
+	$(CC) $(OBJECTS) $(CPPFLAGS) $(LDFLAGS) -o server 
 
 clean:
 	rm -rf $(OBJECTS) server
