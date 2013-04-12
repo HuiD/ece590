@@ -8,7 +8,6 @@
 #include "Bomb.h"
 #include "CNet.h"
 #include "heromessage.h"
-#include "enemy.h"
 #include <queue>
 
 #define NUM_HERO_FILES 16
@@ -44,7 +43,7 @@ enum move_state {
 
 
 class Hero : public Sprite{
-#define TOTAL_LIFE_NUM 5
+#define TOTAL_LIFE_NUM 2
 #define TOTAL_BOMB_LEVEL 3
 #define TOTAL_BOMB_NUM 9
 private:
@@ -139,7 +138,7 @@ public:
 	}
     
 #define MAX_SPEED  25
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
 
         if (!visible) {
             return;
@@ -354,7 +353,7 @@ public:
 		    if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
 	    	    	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
                     life--;
-                    cout<<"enemy hero collison1! life: "<<life<<endl;
+
                     inExplosionTime = SDL_GetTicks();
                     protection = true;
                 }

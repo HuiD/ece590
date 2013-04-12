@@ -11,7 +11,6 @@
 #include <algorithm>
 #include "upgrade.h"
 #include "SDL_ttf.h"
-#include "enemy.h"
 #include <map>
 #include "hellomessage.h"
 #include "slotmessage.h"
@@ -26,7 +25,6 @@
 Hero * hero;
 int max_players=-1;
 Bomb * bomb; vector<Block * > blocks;
-vector<Enemy * > enemyGroup;
 //vector<Hero *> heroGroup;
 map<int, Hero*> heroGroup;
 vector<Bomb *> bombGroup;
@@ -49,6 +47,8 @@ bool start=false;
 Mix_Music *menuMusic = NULL;
 Mix_Chunk *menuSFX = NULL;
 Mix_Music *mainMusic = NULL;
+Background * winScreen;
+Background * loseScreen;
 
 void handleServer();
 void handleNetwork();
@@ -272,6 +272,12 @@ void init(string ip)
     //initEnemy();
     background->setCoords(0,0);
     
+    winScreen = new Background("img/win.bmp");
+    winScreen->setCoords(0,0);
+    loseScreen = new Background("img/lose.bmp");
+    loseScreen->setCoords(0,0);
+
+    
     mainMusic = Mix_LoadMUS("sound/mainbgm.wav");
     
     int totalScroll =0;
@@ -416,73 +422,139 @@ void handleClients()
 	delete msg;
 }
 
+void gameLoopCleanUp() {
+    delete background;
+    while(!colList.empty()) {
+        CollisionPair * tmp = colList.back();
+        colList.pop_back();
+        delete tmp;
+    }
+    cout<<"collist"<<colList.size()<<endl;
+    for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+        delete it->second;
+        heroGroup.erase(it);
+    }
+    //                        while (!heroGroup.empty()){
+    //                            Hero * tmp = heroGroup[0];
+    //                            heroGroup.erase(0);
+    //                            delete tmp;
+    //                        }
+    cout<<"hero"<<heroGroup.size()<<endl;
+    
+    while(!blocks.empty()){
+        Block * tmp = blocks.back();
+        blocks.pop_back();
+        delete tmp;
+    }
+    cout<<"block"<<blocks.size()<<endl;
+    
+    while(!explosionGroup.empty()){
+        Explosion * tmp = explosionGroup.back();
+        explosionGroup.pop_back();
+        delete tmp;
+    }
+    cout<<"exp"<<explosionGroup.size()<<endl;
+    
+    //                        while(!enemyGroup.empty()){
+    //                            Enemy * tmp = enemyGroup.back();
+    //                            enemyGroup.pop_back();
+    //                            delete tmp;
+    //                        }
+    //                        cout<<"enemy"<<enemyGroup.size()<<endl;
+    
+    while(!bombGroup.empty()){
+        Bomb * tmp = bombGroup.back();
+        bombGroup.pop_back();
+        delete tmp;
+    }
+    cout<<"bomb"<<bombGroup.size()<<endl;
+    
+    while(!upgradeGroup.empty()){
+        Upgrade * tmp = upgradeGroup.back();
+        upgradeGroup.pop_back();
+        delete tmp;
+    }
+    cout<<"up"<<upgradeGroup.size()<<endl;
+    
+    TTF_CloseFont(text_font);
+    delete tcpclient;
+    delete udpclient;
+    delete remoteip;
+    Mix_HaltMusic();
+    Mix_FreeMusic(mainMusic);
+    delete winScreen;
+    delete loseScreen;
+}
+
 int eventLoop(SDL_Surface * screen) {
     SDL_Event event;
+    int animationCounter = 0;
     while(1) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYUP:
                     if(handle_keyup(event.key.keysym.sym)==MENU){
-                        delete background;
-                        while(!colList.empty()) {
-                            CollisionPair * tmp = colList.back();
-                            colList.pop_back();
-                            delete tmp;
-                        }
-                        cout<<"collist"<<colList.size()<<endl;
-                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-                            delete it->second;
-                            heroGroup.erase(it);
-                        }
-                        //                        while (!heroGroup.empty()){
-                        //                            Hero * tmp = heroGroup[0];
-                        //                            heroGroup.erase(0);
-                        //                            delete tmp;
-                        //                        }
-                        cout<<"hero"<<heroGroup.size()<<endl;
-                        
-                        while(!blocks.empty()){
-                            Block * tmp = blocks.back();
-                            blocks.pop_back();
-                            delete tmp;
-                        }
-                        cout<<"block"<<blocks.size()<<endl;
-                        
-                        while(!explosionGroup.empty()){
-                            Explosion * tmp = explosionGroup.back();
-                            explosionGroup.pop_back();
-                            delete tmp;
-                        }
-                        cout<<"exp"<<explosionGroup.size()<<endl;
-                        
-                        //                        while(!enemyGroup.empty()){
-                        //                            Enemy * tmp = enemyGroup.back();
-                        //                            enemyGroup.pop_back();
-                        //                            delete tmp;
-                        //                        }
-                        //                        cout<<"enemy"<<enemyGroup.size()<<endl;
-                        
-                        while(!bombGroup.empty()){
-                            Bomb * tmp = bombGroup.back();
-                            bombGroup.pop_back();
-                            delete tmp;
-                        }
-                        cout<<"bomb"<<bombGroup.size()<<endl;
-                        
-                        while(!upgradeGroup.empty()){
-                            Upgrade * tmp = upgradeGroup.back();
-                            upgradeGroup.pop_back();
-                            delete tmp;
-                        }
-                        cout<<"up"<<upgradeGroup.size()<<endl;
-                        
-                        TTF_CloseFont(text_font);
-                        delete tcpclient;
-                        delete udpclient;
-                        delete remoteip;
-                        Mix_HaltMusic();
-                        Mix_FreeMusic(mainMusic);
+//                        delete background;
+//                        while(!colList.empty()) {
+//                            CollisionPair * tmp = colList.back();
+//                            colList.pop_back();
+//                            delete tmp;
+//                        }
+//                        cout<<"collist"<<colList.size()<<endl;
+//                        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+//                            delete it->second;
+//                            heroGroup.erase(it);
+//                        }
+//                        //                        while (!heroGroup.empty()){
+//                        //                            Hero * tmp = heroGroup[0];
+//                        //                            heroGroup.erase(0);
+//                        //                            delete tmp;
+//                        //                        }
+//                        cout<<"hero"<<heroGroup.size()<<endl;
+//                        
+//                        while(!blocks.empty()){
+//                            Block * tmp = blocks.back();
+//                            blocks.pop_back();
+//                            delete tmp;
+//                        }
+//                        cout<<"block"<<blocks.size()<<endl;
+//                        
+//                        while(!explosionGroup.empty()){
+//                            Explosion * tmp = explosionGroup.back();
+//                            explosionGroup.pop_back();
+//                            delete tmp;
+//                        }
+//                        cout<<"exp"<<explosionGroup.size()<<endl;
+//                        
+//                        //                        while(!enemyGroup.empty()){
+//                        //                            Enemy * tmp = enemyGroup.back();
+//                        //                            enemyGroup.pop_back();
+//                        //                            delete tmp;
+//                        //                        }
+//                        //                        cout<<"enemy"<<enemyGroup.size()<<endl;
+//                        
+//                        while(!bombGroup.empty()){
+//                            Bomb * tmp = bombGroup.back();
+//                            bombGroup.pop_back();
+//                            delete tmp;
+//                        }
+//                        cout<<"bomb"<<bombGroup.size()<<endl;
+//                        
+//                        while(!upgradeGroup.empty()){
+//                            Upgrade * tmp = upgradeGroup.back();
+//                            upgradeGroup.pop_back();
+//                            delete tmp;
+//                        }
+//                        cout<<"up"<<upgradeGroup.size()<<endl;
+//                        
+//                        TTF_CloseFont(text_font);
+//                        delete tcpclient;
+//                        delete udpclient;
+//                        delete remoteip;
+//                        Mix_HaltMusic();
+//                        Mix_FreeMusic(mainMusic);
 
+                        gameLoopCleanUp();
                         return MENU;
                     }
                     break;
@@ -492,18 +564,14 @@ int eventLoop(SDL_Surface * screen) {
             }
             
         }/* input event loop*/
-        
-
-        
-        
-        
-        
+   
         handleNetwork();
-		std::map<int, Hero*>::iterator it;
+        
+        std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
 		{
 			if (it->second->getVisible())
-            it->second->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
+            it->second->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
 		}
 		if(moved){
 			hero_pos newPos=heroGroup[myId]->getPos();
@@ -531,7 +599,7 @@ int eventLoop(SDL_Surface * screen) {
         //        }
         
         for (int i = 0; i < bombGroup.size(); i++) {
-            bombGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
+            bombGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
         }
         for (int i = 0; i < explosionGroup.size(); i++) {
             explosionGroup.at(i)->update();
@@ -591,15 +659,56 @@ int eventLoop(SDL_Surface * screen) {
             SDL_FreeSurface(text_image[it->first]);
         }
         
+        // game over
+        bool iWin = false;
+        if (heroGroup[myId]->getLife()!=0){
+            iWin = true;
+            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                if (it->first != myId){
+                    if (it->second->getLife() != 0){
+                        iWin = false;
+                        break;
+                    }
+                }
+            }
+        }
+        bool iLose=false;
+        if (heroGroup[myId]->getLife()==0){
+            iLose = true;
+            int counter = 0;
+            for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+                if (it->first != myId){
+                    if (it->second->getLife() != 0){
+                        counter++;
+                        if (counter>1) {
+                            iLose = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         
-//        sprintf(textbuf, "Hero Life = %d", heroGroup[myId]->getLife());
-//        text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
-//        textDest.x = 10;
-//        textDest.y = 10;
-//        textDest.w = text_image->w;
-//        textDest.h = text_image->h;
-//        SDL_BlitSurface(text_image, NULL, screen, &textDest);
-//        SDL_FreeSurface(text_image);
+        if (iWin) {
+            animationCounter++;
+            if (animationCounter>20){
+            winScreen->blit(screen);
+            SDL_Flip(screen);
+            SDL_Delay(3000);
+            gameLoopCleanUp();
+            return MENU;
+            }
+        }
+        else if (iLose){
+            animationCounter++;
+            if (animationCounter>20){
+            loseScreen->blit(screen);
+            SDL_Flip(screen);
+            SDL_Delay(3000);
+            gameLoopCleanUp();
+            return MENU;
+            }
+        }
         
         /* since its double buffered, make
          the changes show up*/
@@ -755,9 +864,9 @@ int main(int argc, char* argv[]) {
     
     /* cleanup SDL- return to normal screen mode,
      etc */
-//    Mix_CloseAudio();
-//
-//    Mix_Quit();
+    Mix_CloseAudio();
+
+    Mix_Quit();
 
     SDL_Quit();
 

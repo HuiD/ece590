@@ -62,6 +62,7 @@ void server::notifyClosed(int which)
 			continue;
 		slotmessage slot;
 		slot.LoadByte('2',which,0);
+		if(clients[i])
 		clients[i]->Send(slot);
 	}
 }

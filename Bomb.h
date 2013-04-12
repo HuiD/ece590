@@ -4,7 +4,6 @@
 #include "Explosion.h"
 #include <climits>
 #include <algorithm>
-#include "enemy.h"
 class Hero;
 
 #define NUM_EXP_FILES 9
@@ -125,7 +124,7 @@ public:
         Mix_FreeChunk(bang);
     }
     
-    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
+    void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
         counter++;
         if (counter == 2) {
             frame = frame++;
@@ -148,7 +147,7 @@ public:
                 fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
             while(Mix_Playing(onPlay) == 0)
                 Mix_FreeChunk(bang);
-            generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
+            generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup);
 //            Mix_FreeChunk(bang);
 
         }
@@ -159,7 +158,7 @@ public:
         
     }
     
-    void generateExplosions(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
+    void generateExplosions(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
         if (!visible) {
             return;
         }
@@ -206,13 +205,13 @@ public:
             CollisionPair * cp2 = new CollisionPair(bombGroup.at(i), explosion2, BombExplosion);
             colList.push_back(cp2);
         }
-        // add EnemyExplosion collison pairs
-        for (int i = 0; i < enemyGroup.size(); i++) {
-            CollisionPair * cp1 = new CollisionPair(enemyGroup.at(i), explosion1, EnemyExplosion);
-            colList.push_back(cp1);
-            CollisionPair * cp2 = new CollisionPair(enemyGroup.at(i), explosion2, EnemyExplosion);
-            colList.push_back(cp2);
-        }
+//        // add EnemyExplosion collison pairs
+//        for (int i = 0; i < enemyGroup.size(); i++) {
+//            CollisionPair * cp1 = new CollisionPair(enemyGroup.at(i), explosion1, EnemyExplosion);
+//            colList.push_back(cp1);
+//            CollisionPair * cp2 = new CollisionPair(enemyGroup.at(i), explosion2, EnemyExplosion);
+//            colList.push_back(cp2);
+//        }
         // add BlockExplosion collison pairs
         for (int i = 0; i < blocks.size(); i++) {
             if (blocks.at(i)->getSolid())
