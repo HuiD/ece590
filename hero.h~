@@ -170,10 +170,7 @@ public:
     void setFrame(int fr){
         frame = fr;
     }
-    void setPlayerId(int id)
-	{
-		playerId=id;
-	}
+    
     hero_pos getPos(){
         return heropos;
     }

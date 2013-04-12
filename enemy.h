@@ -6,8 +6,7 @@
 #include <vector>
 #include "CollisionPair.h"
 class Bomb;
-#include <stdlib.h>     /* srand, rand */
-
+#include <stdlib.h>    
 
 
 #define NUM_ENEMY_FILES 6
@@ -26,7 +25,6 @@ static const char * enemy_file_names[NUM_ENEMY_FILES + 1] = {
 
 class Enemy : public Sprite{
 private:
-    //    enum move_state move;
     int frame;
     double speedX;
     double speedY;
@@ -37,7 +35,6 @@ private:
 public:
     Enemy(int x, int y){
         Sprite::setVisible(true);
-        //        move = DONT_MOVE;
         Sprite::initSprite(NUM_ENEMY_FILES, enemy_file_names);
         Sprite::setCoords(x, y);
         frame = 0;
@@ -54,7 +51,6 @@ public:
     
 #define SPEED  5
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
-        //        cout<<SDL_GetTicks()<<endl;
         if (!visible) {
             return;
         }
@@ -63,12 +59,12 @@ public:
         if (frame > 5) {
             frame = 0;
         }
-        //speedY = 0;
+
         if (SDL_GetTicks() - ori_time > 500) {
             ori_time = SDL_GetTicks();
             direction = rand()%5;
         }
-        //        int n = rand()%5;
+
         switch(direction) {
             case 0:
                 speedX=0;
@@ -109,7 +105,7 @@ public:
                 break;
             }
         }
-        //limit inside boundary
+
         if (Sprite::getY() > WINDOW_HEIGHT-getH()) {
             Sprite::setCoords(Sprite::getX(), WINDOW_HEIGHT-getH());
         }
@@ -129,7 +125,6 @@ public:
     void inCollision(enum colType t){
         switch (t) {
             case HeroEnemy:
-                //                cout<<"hero enemy collison!"<<endl;
                 break;
             case EnemyExplosion:
                 setVisible(false);

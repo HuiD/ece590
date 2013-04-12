@@ -32,7 +32,6 @@ public:
             SDL_FreeSurface(anim_frames[i]);
         }
         delete[] anim_frames;
-//        cout<<"sprite deleted!"<<endl;
     }
     void setTransparent(){
 	SDL_SetColorKey(anim_frames[0],
@@ -149,23 +148,6 @@ public:
         return visible;
     }
     
-//    void setSurface(int x, int y, int w, int h) {
-//        anim_frames[currentFrame]->w = w;
-//        anim_frames[currentFrame]->h = h;
-//        pos.w = w;
-//        pos.h = h;
-//        
-//        SDL_Rect rect;
-//        rect.x = x;
-//        rect.y = y;
-//        rect.w = w;
-//        rect.h = h;
-//        SDL_SetClipRect(anim_frames[currentFrame], &rect);
-//        pos.w = anim_frames[currentFrame]->w;
-//        pos.h = anim_frames[currentFrame]->h;
-//    }
-    
     virtual void inCollision(enum colType t) = 0;
-//    virtual void update(vector<SDL_Rect> blockMap, vector<CollisionPair * > &colList, vector<vector<Sprite *> > &colGroups) = 0;
 };
 #endif

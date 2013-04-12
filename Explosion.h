@@ -22,7 +22,7 @@ public:
         setTransparent();
     }
     ~Explosion() {
-        //        delete sprite;
+
     }
     SDL_Rect getShowPart(){
         return showPart;
@@ -41,7 +41,7 @@ public:
         setW(showPart.w);
         setH(showPart.h);
         if (visible && checkTimer()){
-            //            cout<<visible<<endl;
+
             setVisible(false);
         }
     }
@@ -56,24 +56,16 @@ public:
     void inCollision(enum colType t){
         switch (t) {
             case HeroExplosion:
-                //                cout<<"hero on fire"<<endl;
-//                cout<<"test for level 3"<<endl;
                 break;
             case BombExplosion:
-//                cout<<"bomb on bomb"<<endl;
                 break;
             case EnemyExplosion:
-//                cout<<"enemy explode!"<<endl;
                 break;
             case BlockExplosion:
-//                cout<<"block bombed!"<<endl;
                 break;
             default:
                 break;
-        }
-        
-    }
-    
-    
+        } 
+    }  
 };
 #endif

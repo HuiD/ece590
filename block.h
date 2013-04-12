@@ -4,9 +4,8 @@
 #include "CollisionPair.h"
 #include <algorithm>
 #include <map>
-//class Upgrade;
 #include "upgrade.h"
-#include <stdlib.h>     /* srand, rand */
+#include <stdlib.h>   
 
 class Bomb;
 class Hero;
@@ -32,7 +31,6 @@ private:
     bool isDestroyed;
     int upgradeType;
     int frame;
-    //bool isExploded;
 public:
     Block(int x, int y, bool ifSolid, int rand){
         Sprite::setVisible(true);
@@ -54,10 +52,9 @@ public:
 	    upgradeType=4;
         else
             upgradeType=0;
-        //isExploded = false;
     }
     ~Block() {
-        //        delete sprite;
+        
     }
     
     void update(vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Explosion *> &explosionGroup, vector<Upgrade *> &upgradeGroup) {
@@ -101,10 +98,6 @@ public:
         int tmp;
         switch (t) {
             case BlockExplosion:
-                //                cout<<"block bombed!"<<endl;
-
-                // setVisible(false);
-                // generate upgrades
 		isDestroyed = true;
                 break;
             default:

@@ -249,53 +249,21 @@ void init(string ip)
 			    	cout<<"connected to server"<<endl;
 			    }
 		    }
-		}
-		else{
-            break;
-        }
-	}
+	    }
+	    else{
+                break;
+            }
+    }
 	initBlock();
 	sendHello();
-    //    text_font =  TTF_OpenFont("fonts/FreeSerif.ttf", 20);
-    //    if (text_font == NULL) {
-    //        printf("Could not load font\n");
-    //        exit(1);
-    //    }
-    //
-    //    font_color.r = 0;
-    //    font_color.g = 0;  //very green.  If you want black, make this 0.
-    //    font_color.b = 0;
-    
-    //    initFont();
-    
+   
     background = new Background("img/background.bmp");
-    //initEnemy();
+
     background->setCoords(0,0);
     
     mainMusic = Mix_LoadMUS("sound/mainbgm.wav");
     
     int totalScroll =0;
-    
-    //preprocess collision
-    
-    //    heroGroup.push_back(hero);
-    //  heroGroup[0] = hero;
-    
-    //    for (int j = 0; j < bombGroup.size(); j++){
-    //        //        for (int i = 0; i < heroGroup.size(); i++) {
-    //        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-    //            CollisionPair * cp = new CollisionPair(it->second, bombGroup.at(j), HeroBomb);
-    //            colList.push_back(cp);
-    //        }
-    //
-    //    }
-    //    for (int j = 0; j < enemyGroup.size(); j++){
-    //        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
-    //            CollisionPair * cp = new CollisionPair(it->second, enemyGroup.at(j), HeroEnemy);
-    //            colList.push_back(cp);
-    //        }
-    //
-    //    }
 }
 
 void handleNetwork()
@@ -332,7 +300,6 @@ void handleServer()
 			return;
 		}
 		Hero* newhero = new Hero(id);
-		//newhero->setPlayerId(id);
 		heroGroup[id]=newhero;
         switch (id) {
             case 0:
@@ -350,16 +317,10 @@ void handleServer()
             default:
                 break;
         }
-        //		heroGroup[id]->setCoords(UNIT, 3*UNIT);
+ 
 		if(ch=='0')
 			myId=id;
-        //        for (int j = 0; j < enemyGroup.size(); j++){
-        //            CollisionPair * cp = new CollisionPair(heroGroup[id], enemyGroup.at(j), HeroEnemy);
-        //            colList.push_back(cp);
-        //
-        //        }
 	}
-    
 }
 
 void handleClients()
@@ -434,11 +395,7 @@ int eventLoop(SDL_Surface * screen) {
                             delete it->second;
                             heroGroup.erase(it);
                         }
-                        //                        while (!heroGroup.empty()){
-                        //                            Hero * tmp = heroGroup[0];
-                        //                            heroGroup.erase(0);
-                        //                            delete tmp;
-                        //                        }
+               
                         cout<<"hero"<<heroGroup.size()<<endl;
                         
                         while(!blocks.empty()){
@@ -454,13 +411,6 @@ int eventLoop(SDL_Surface * screen) {
                             delete tmp;
                         }
                         cout<<"exp"<<explosionGroup.size()<<endl;
-                        
-                        //                        while(!enemyGroup.empty()){
-                        //                            Enemy * tmp = enemyGroup.back();
-                        //                            enemyGroup.pop_back();
-                        //                            delete tmp;
-                        //                        }
-                        //                        cout<<"enemy"<<enemyGroup.size()<<endl;
                         
                         while(!bombGroup.empty()){
                             Bomb * tmp = bombGroup.back();
@@ -491,13 +441,8 @@ int eventLoop(SDL_Surface * screen) {
                     break;
             }
             
-        }/* input event loop*/
-        
-
-        
-        
-        
-        
+        }
+           
         handleNetwork();
 		std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
@@ -526,9 +471,6 @@ int eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < blocks.size(); i++) {
             blocks[i]->update(colList, heroGroup, explosionGroup, upgradeGroup);
         }
-        //        for (int i = 0; i < enemyGroup.size(); i++) {
-        //            enemyGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup);
-        //        }
         
         for (int i = 0; i < bombGroup.size(); i++) {
             bombGroup.at(i)->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
@@ -539,8 +481,7 @@ int eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->update();
         }
-        
-        //check for collision
+
         for (int i = 0; i < colList.size(); i++){
             CollisionPair * tmp = colList.at(i);
             if (tmp->isCollided()){
@@ -548,7 +489,6 @@ int eventLoop(SDL_Surface * screen) {
             }
         }
         
-        //draw sprites
         background->blit(screen);
         
         if (Mix_PlayingMusic() == 0) {
@@ -566,18 +506,14 @@ int eventLoop(SDL_Surface * screen) {
         for (int i = 0; i < blocks.size(); i++) {
             blocks.at(i)->blit(screen);
         }
-        //        for (int i = 0; i < enemyGroup.size(); i++) {
-        //            enemyGroup.at(i)->blit(screen);
-        //        }
+        
         for (int i = 0; i < upgradeGroup.size(); i++) {
             upgradeGroup.at(i)->blit(screen);
         }
         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             it->second->blit(screen);
         }
-        
-        
-        //HUD
+
         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             sprintf(textbuf[it->first], "Player %d = %d", it->first+1, it->second->getLife());
             text_image[it->first] =  TTF_RenderText_Solid(text_font, textbuf[it->first], font_color);
@@ -591,20 +527,8 @@ int eventLoop(SDL_Surface * screen) {
             SDL_FreeSurface(text_image[it->first]);
         }
         
-        
-//        sprintf(textbuf, "Hero Life = %d", heroGroup[myId]->getLife());
-//        text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
-//        textDest.x = 10;
-//        textDest.y = 10;
-//        textDest.w = text_image->w;
-//        textDest.h = text_image->h;
-//        SDL_BlitSurface(text_image, NULL, screen, &textDest);
-//        SDL_FreeSurface(text_image);
-        
-        /* since its double buffered, make
-         the changes show up*/
         SDL_Flip(screen);
-        /* Wait 50 ms between frames*/
+     
         SDL_Delay(50);
     }
     return 0;
@@ -623,9 +547,6 @@ int menu(SDL_Surface * screen) {
     int arrowPos = 0;
     int step = 83;
     while(1) {
-        /* This function returns 0 if no
-         events are pending, 1 (and fills in event)
-         if one is*/
         int stage;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -657,14 +578,11 @@ int menu(SDL_Surface * screen) {
                 
             }
             
-        }/* input event loop*/
+        }
         
-        // update arrrow
         arrow->setCoords(arrowX, arrowY+arrowPos*step);
         menuBackground->setCoords(0,0);
         
-        
-        // draw sprites
         menuBackground->blit(screen);
         arrow->blit(screen);
         
@@ -673,24 +591,15 @@ int menu(SDL_Surface * screen) {
                 fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
         }
         
-        /* since its double buffered, make
-         the changes show up*/
         SDL_Flip(screen);
-        /* Wait 10 ms between frames*/
+
         SDL_Delay(10);
     }
     return 0;
 }
 
 int main(int argc, char* argv[]) {
-    /* Initalize SDL - for this demo,
-     we only are using the video stuff..
-     if you are doing sound, you would do
-     SDL_INIT_VIDEO | SDL_INIT_AUDIO
-     you can also do timers, cdrom, joystick-
-     see man page :)
-     */
-    
+
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     
     int audio_rate = 44100;
@@ -703,16 +612,13 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     
-    //SDLNet_Init();
-    //TTF_Init();
-    
     SDL_Surface * screen = SDL_SetVideoMode(WINDOW_WIDTH,
                                             WINDOW_HEIGHT,
                                             32,
                                             SDL_HWSURFACE |
                                             SDL_DOUBLEBUF
                                             );
-    /* make it so that holding down a key repeats it*/
+
     SDL_EnableKeyRepeat(10,10);
     
     if(screen == NULL) {
@@ -721,19 +627,9 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return EXIT_FAILURE;
     }
-    /* Set the screen resolution: 1024x768, 32 bpp
-     We also want to do full screen, double-buffered,
-     and have the surface in video hardware */
-    //init(argv[1]);
-    //initFont();
+
     int stage = menu(screen);
     
-    //    if (stage == MULTIPLE)
-    //        stage = eventLoop(screen);
-    //    //    SDL_FillRect(screen, NULL, 0x000000); //Fills 'screen' black.
-    //
-    //    if (stage == MENU)
-    //        menu(screen);
     while (stage != EXIT) {
         if (stage == MENU)
             stage = menu(screen);
@@ -752,12 +648,10 @@ int main(int argc, char* argv[]) {
         }
         
     }
-    
-    /* cleanup SDL- return to normal screen mode,
-     etc */
+
     Mix_CloseAudio();
-//
-//    Mix_Quit();
+
+//  Mix_Quit();
 
     SDL_Quit();
 

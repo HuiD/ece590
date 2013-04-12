@@ -22,6 +22,9 @@ public:
         collisionType = t;
     }
     ~CollisionPair() {
+//        cout<<"yes"<<endl;
+//        delete s1;
+//        delete s2;
     }
     
     bool isCollided(){
@@ -31,6 +34,20 @@ public:
     }
     
     void onCollision() {
+//        switch (collisionType) {
+//            case HeroBomb:
+//                s2->setVisible(false);
+//                cout<<"collided!"<<endl;
+//                break;
+//            case HeroBlock:
+//                break;
+//            case HeroExplosion:
+////                s1->inExplosion();
+//                cout<<"hero dies!"<<endl;
+//                break;
+//            default:
+//                break;
+//        }
         s1->inCollision(collisionType);
         s2->inCollision(collisionType);
     }

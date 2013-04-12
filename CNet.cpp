@@ -71,7 +71,7 @@ bool CIpAddress::Ok() const {
 	return !(m_Ip.port == 0);
 }
 
-void CIpAddress::SetIp (IPaddress sdl_ip) { //sets a CTcpSocket object from a existing SDL socket
+void CIpAddress::SetIp (IPaddress sdl_ip) { 
 	m_Ip = sdl_ip;
 }
 
@@ -261,13 +261,11 @@ bool CClientSocket::Receive(CNetMessage& rData) {
 }
 
 bool CClientSocket::Send (CNetMessage& sData) {
-//check if there is a socket
 	if (m_Socket == NULL)
 		return false;
 	charbuf buf;
 	int len;
 
-//Check if the instance can send bytes, if it can, unload the number of bytes specfied by NumToLoad() virtual function
 	while ((len = sData.NumToUnload()) > 0) {
 		sData.UnLoadBytes (buf);
 		if (SDLNet_TCP_Send(m_Socket, (void *)buf, len) < len) {
