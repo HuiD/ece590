@@ -103,6 +103,10 @@ public:
     }
     ~Hero() {
         //        delete sprite;
+        Mix_FreeChunk(placeBombSFX);
+        Mix_FreeChunk(deadSFX);
+        Mix_FreeChunk(slowdownSFX);
+
     }
     int getFrame(){
         return frame;
