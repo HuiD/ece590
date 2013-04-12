@@ -7,9 +7,9 @@
 #include "bombmessage.h"
 #include "blockmessage.h"
 #include <SDL_net.h>
-#define MAX_CLIENTS 4
 #define WINDOW_WIDTH 950
 #define WINDOW_HEIGHT 750
+#define MAX_CLIENTS 4
 #define UNIT 50
 
 struct block_pos
@@ -23,6 +23,7 @@ typedef block_pos bpos;
 class server
 {
 	private:
+		SDL_Thread *net_thread;
 		int max_players;
 		bool Connected;
 		bool Running;

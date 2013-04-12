@@ -95,16 +95,16 @@ void CIpAddress::setPort(Uint16 port)
 
 CTcpSocket::CTcpSocket() {
 	m_Socket = NULL;
-	set = SDLNet_AllocSocketSet(16);
+	set = SDLNet_AllocSocketSet(1);
 }
 
 CTcpSocket::~CTcpSocket() {
 	if (!(m_Socket == NULL)) {
   		SDLNet_TCP_DelSocket(set,m_Socket);
-		SDLNet_FreeSocketSet(set);
 		SDLNet_TCP_Close (m_Socket);
 		m_Socket=NULL;
 	}
+	SDLNet_FreeSocketSet(set);
 }
 
 void CTcpSocket::SetSocket (TCPsocket the_sdl_socket) {
@@ -175,8 +175,10 @@ bool CHostSocket::Accept (CClientSocket& the_client_socket) {
 		the_client_socket.SetSocket(cs);
 		return true;
 	}
-	else
+	else{
+		SDLNet_TCP_Close(cs);
 		return false;
+	}
 }
 
 void CHostSocket::OnReady() {

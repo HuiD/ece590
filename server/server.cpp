@@ -6,7 +6,7 @@ server::server()
 	tcplistener=NULL;
 	Connected=false;
 	numOfClients=0;
-	for(int i=0; i<MAX_CLIENTS; i++)
+	for(int i=0; i<max_players; i++)
 	{
 		isReceived[i]=false;
 	}
@@ -18,7 +18,7 @@ int server::OnExecute()
 	{
 		return -1;
 	}
-    SDL_Thread * net_thread=SDL_CreateThread(StaticThread,this);
+    net_thread=SDL_CreateThread(StaticThread,this);
 	if(!net_thread)
 	{
 	   	printf("SDL_CreateThread: %s\n",SDL_GetError());
@@ -55,7 +55,7 @@ bool server::OnInit()
 
 void server::notifyClosed(int which)
 {
-	for(int i=0; i<MAX_CLIENTS; i++)
+	for(int i=0; i<max_players; i++)
 	{
 		if(i==which)
 			continue;
@@ -179,7 +179,7 @@ void server::OnLoop()
                     heromessage sentmsg;
 				    hero_pos pos;
 				    msg->UnLoadByte(pos.x,pos.y,pos.id);
-                    for(int i=0; i<MAX_CLIENTS; ++i)
+                    for(int i=0; i<max_players; ++i)
                     {
                         if(clients[i]->Ok())
                         {
@@ -192,7 +192,7 @@ void server::OnLoop()
                     bombmessage bmsg;
                     int bx, by, lvl;
                     msg->UnLoadByte(bx, by, lvl);
-					for(int i=0; i<MAX_CLIENTS;++i)
+					for(int i=0; i<max_players;++i)
 					{
                     	if(clients[i]->Ok())
                     	{
@@ -227,8 +227,11 @@ void server::OnCleanup()
 		if(clients[i]!=NULL)
 		{
 			delete clients[i];
+			clients[i]=NULL;
 		}
 	}
+	SDL_KillThread(net_thread); 
+	SDL_WaitThread(net_thread,NULL); 
 	SDLNet_Quit();
 	SDL_Quit();
 }
