@@ -480,6 +480,7 @@ int eventLoop(SDL_Surface * screen) {
                         delete tcpclient;
                         delete udpclient;
                         delete remoteip;
+                        Mix_HaltMusic();
                         Mix_FreeMusic(mainMusic);
 
                         return MENU;
@@ -624,7 +625,9 @@ int menu(SDL_Surface * screen) {
                 delete menuBackground;
                 delete arrow;
                 Mix_FreeChunk(menuSFX);
+                Mix_HaltMusic();
                 Mix_FreeMusic(menuMusic);
+                menuMusic = NULL;
                 return EXIT;
 
             }
@@ -632,7 +635,9 @@ int menu(SDL_Surface * screen) {
                 delete menuBackground;
                 delete arrow;
                 Mix_FreeChunk(menuSFX);
+                Mix_HaltMusic();
                 Mix_FreeMusic(menuMusic);
+                menuMusic = NULL;
                 return MULTIPLE;
                 
             }
@@ -735,9 +740,9 @@ int main(int argc, char* argv[]) {
     
     /* cleanup SDL- return to normal screen mode,
      etc */
-    Mix_CloseAudio();
-
-    Mix_Quit();
+//    Mix_CloseAudio();
+//
+//    Mix_Quit();
 
     SDL_Quit();
 
