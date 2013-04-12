@@ -19,7 +19,7 @@ public:
         oriTime = SDL_GetTicks();
     }
     ~Background() {
-        
+
     }
     
     
@@ -28,6 +28,10 @@ public:
     }
     
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero*> &heroGroup, vector<Upgrade *> &upgradeGroup){
+
+    }
+    
+    void inCollision(enum colType t){
         
     }
 };
