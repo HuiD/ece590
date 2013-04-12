@@ -40,9 +40,9 @@ int myId;
 bool moved=false;
 bool bombed=false;
 Background * background;
-SDL_Surface *text_image;
-char textbuf[80];
-SDL_Rect textDest;
+SDL_Surface *text_image[5];
+char textbuf[5][80];
+SDL_Rect textDest[5];
 TTF_Font *text_font;
 SDL_Color font_color;
 bool start=false;
@@ -494,16 +494,17 @@ int eventLoop(SDL_Surface * screen) {
             
         }/* input event loop*/
         
-        //update sprites
-        //        background->update(blocks, colList, heroGroup, upgradeGroup);
-        //	if(heroGroup.size()==max_players)
-        //		start=true;
-        handleNetwork();
+
         
+        
+        
+        
+        handleNetwork();
 		std::map<int, Hero*>::iterator it;
 		for(it=heroGroup.begin();it!=heroGroup.end();++it)
 		{
-			it->second->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
+			if (it->second->getVisible())
+            it->second->update(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
 		}
 		if(moved){
 			hero_pos newPos=heroGroup[myId]->getPos();
@@ -578,14 +579,28 @@ int eventLoop(SDL_Surface * screen) {
         
         
         //HUD
-        sprintf(textbuf, "Hero Life = %d", heroGroup[myId]->getLife());
-        text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
-        textDest.x = 10;
-        textDest.y = 10;
-        textDest.w = text_image->w;
-        textDest.h = text_image->h;
-        SDL_BlitSurface(text_image, NULL, screen, &textDest);
-        SDL_FreeSurface(text_image);
+        for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
+            sprintf(textbuf[it->first], "Player %d = %d", it->first+1, it->second->getLife());
+            text_image[it->first] =  TTF_RenderText_Solid(text_font, textbuf[it->first], font_color);
+            int offsetX = it->first<2 ? 0:1;
+            int offsetY = it->first%2==0 ? 0:1;
+            textDest[it->first].x = 50+750*offsetX;
+            textDest[it->first].y = 10+50*offsetY;
+            textDest[it->first].w = text_image[it->first]->w;
+            textDest[it->first].h = text_image[it->first]->h;
+            SDL_BlitSurface(text_image[it->first], NULL, screen, &(textDest[it->first]));
+            SDL_FreeSurface(text_image[it->first]);
+        }
+        
+        
+//        sprintf(textbuf, "Hero Life = %d", heroGroup[myId]->getLife());
+//        text_image =  TTF_RenderText_Solid(text_font, textbuf, font_color);
+//        textDest.x = 10;
+//        textDest.y = 10;
+//        textDest.w = text_image->w;
+//        textDest.h = text_image->h;
+//        SDL_BlitSurface(text_image, NULL, screen, &textDest);
+//        SDL_FreeSurface(text_image);
         
         /* since its double buffered, make
          the changes show up*/
