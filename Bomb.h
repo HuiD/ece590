@@ -103,6 +103,7 @@ private:
     bool isAwake;
     int bombLevel;
     int counter;
+    Mix_Chunk *bang;
 public:
     Bomb(int x, int y, int intev, int cur_time, int level){
         Sprite::setVisible(true);
@@ -116,9 +117,12 @@ public:
         awakeInterval = 1500;
         bombLevel = level;
         setTransparent();
+        bang = Mix_LoadWAV("sound/bang.wav");
+
     }
     ~Bomb() {
         //        delete sprite;
+        Mix_FreeChunk(bang);
     }
     
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
@@ -132,24 +136,27 @@ public:
         }
         
         if (checkTimer(explosionInterval)){
-	    if (!visible) {
-		return;
-	    }
-	    Mix_Chunk *bang = Mix_LoadWAV("sound/bang.wav");
-	    if (bang == NULL)
-		return;
-	    int onPlay;
-	    onPlay = Mix_PlayChannel(-1, bang, 0);
-	    if (onPlay == -1)
-		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-	    while(Mix_Playing(onPlay) == 0)
-	    	Mix_FreeChunk(bang);
+            if (!visible) {
+                return;
+            }
+//            Mix_Chunk *bang = Mix_LoadWAV("sound/bang.wav");
+            if (bang == NULL)
+                return;
+            int onPlay;
+            onPlay = Mix_PlayChannel(-1, bang, 0);
+            if (onPlay == -1)
+                fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
+            while(Mix_Playing(onPlay) == 0)
+                Mix_FreeChunk(bang);
             generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup, enemyGroup);
+//            Mix_FreeChunk(bang);
+
         }
         if (!isAwake && checkTimer(awakeInterval)){
             isAwake = true;
             awakeInterval = INT_MAX;
         }
+        
     }
     
     void generateExplosions(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup, vector<Enemy *> &enemyGroup) {
@@ -299,13 +306,13 @@ public:
     
     void inCollision(enum colType t){
         switch (t) {
-            //case HeroBomb:
+                //case HeroBomb:
             case BombEnemy:
                 //                setVisible(false);
                 explosionInterval = 0;
                 break;
             case BombExplosion:
-//                cout<<"i here"<<endl;
+                //                cout<<"i here"<<endl;
                 explosionInterval = 0;
                 //                awakeInterval = 0;
                 break;

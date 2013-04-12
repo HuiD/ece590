@@ -80,6 +80,7 @@ public:
     }
     ~Upgrade() {
         //        delete sprite;
+        Mix_FreeChunk(soundEffect);
     }
     
     void update() {
