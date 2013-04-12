@@ -65,7 +65,7 @@ public:
 	    case HeroSpeed:
 		Sprite::initSprite(NUM_SPEEDUP_FILES, speedup_file_names);
 		frame = 0;
-		soundEffect = Mix_LoadWAV("sound/2824.wav");
+		soundEffect = Mix_LoadWAV("sound/speedup.wav");
 		break;
 	    case HeroBomb:
 		Sprite::initSprite(NUM_BOMBUP_FILES, bombup_file_names);
@@ -79,7 +79,7 @@ public:
         oriTime = SDL_GetTicks();
     }
     ~Upgrade() {
-        //        delete sprite;
+        Mix_FreeChunk(soundEffect);
     }
     
     void update() {
@@ -96,23 +96,17 @@ public:
     void inCollision(enum colType t){
 	if (Mix_PlayChannel(-1, soundEffect, 0) == -1)
 	    fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-	    //while (Mix_Playing(Mix_PlayChannel(-1, soundEffect, 0)) == 0)
-	    //    Mix_FreeChunk(soundEffect);
         switch (t) {
             case HeroUpgrade:
-//      cout<<"hero upgraded!"<<endl;
                 setVisible(false);
                 break;
             case HeroLife:
-//      cout<<"hero upgraded!"<<endl;
                 setVisible(false);
                 break;
 	    case HeroSpeed:
-//	cout<<"hero upgraded!"<<endl;
 		setVisible(false);
 		break;
 	    case HeroBomb:
-//	cout<<"hero upgraded!"<<endl;
 		setVisible(false);		
 		break;
             default:

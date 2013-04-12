@@ -26,7 +26,7 @@ static const char * enemy_file_names[NUM_ENEMY_FILES + 1] = {
 
 class Enemy : public Sprite{
 private:
-//    enum move_state move;
+    //    enum move_state move;
     int frame;
     double speedX;
     double speedY;
@@ -37,7 +37,7 @@ private:
 public:
     Enemy(int x, int y){
         Sprite::setVisible(true);
-//        move = DONT_MOVE;
+        //        move = DONT_MOVE;
         Sprite::initSprite(NUM_ENEMY_FILES, enemy_file_names);
         Sprite::setCoords(x, y);
         frame = 0;
@@ -50,24 +50,25 @@ public:
     ~Enemy() {
         
     }
-
     
-#define SPEED  7
+    
+#define SPEED  5
     void update(vector<Block * > blocks, vector<CollisionPair * > &colList, map<int, Hero* > &heroGroup, vector<Bomb *> &bombGroup, vector<Explosion *> &explosionGroup) {
-//        cout<<SDL_GetTicks()<<endl;
+        //        cout<<SDL_GetTicks()<<endl;
         if (!visible) {
             return;
         }
         frame = frame++;
+
         if (frame > 5) {
-	   frame = 0;
-	}
+            frame = 0;
+        }
         //speedY = 0;
-        if (SDL_GetTicks() - ori_time > 400) {
+        if (SDL_GetTicks() - ori_time > 500) {
             ori_time = SDL_GetTicks();
             direction = rand()%5;
         }
-//        int n = rand()%5;
+        //        int n = rand()%5;
         switch(direction) {
             case 0:
                 speedX=0;
@@ -91,7 +92,7 @@ public:
                 break;
             default:
                 break;
-            
+                
         }
         int oriX = getX();
         int oriY = getY();
@@ -103,7 +104,7 @@ public:
 		
         for (int i = 0; i < blocks.size(); i++){
             Block * tmp = blocks.at(i);
-            if (getX()>=tmp->getX()-getW() && getX()<=tmp->getX()+tmp->getW() && getY()>=tmp->getY()-getH() && getY()<=tmp->getY()+tmp->getH()){
+            if (getX()>tmp->getX()-getW()+5 && getX()<tmp->getX()+tmp->getW()-5 && getY()>tmp->getY()-getH()+5 && getY()<tmp->getY()+tmp->getH()-5){
                 setCoords(oriX, oriY);
                 break;
             }
@@ -128,7 +129,7 @@ public:
     void inCollision(enum colType t){
         switch (t) {
             case HeroEnemy:
-//                cout<<"hero enemy collison!"<<endl;
+                //                cout<<"hero enemy collison!"<<endl;
                 break;
             case EnemyExplosion:
                 setVisible(false);

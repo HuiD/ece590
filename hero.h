@@ -13,7 +13,7 @@
 #define NUM_HERO_FILES 16
 
 using namespace std;
-static const char * hero_file_names[NUM_HERO_FILES + 1] = {
+static const char * hero1_file_names[NUM_HERO_FILES + 1] = {
     "img/person/player_1_1.bmp",
     "img/person/player_1_2.bmp",
     "img/person/player_1_3.bmp",
@@ -30,6 +30,46 @@ static const char * hero_file_names[NUM_HERO_FILES + 1] = {
     "img/person/player_1_die2.bmp",
     "img/person/player_1_die3.bmp",
     "img/person/player_1_die4.bmp",
+    NULL
+};
+
+static const char * hero2_file_names[NUM_HERO_FILES + 1] = {
+    "img/person/player_2_1.bmp",
+    "img/person/player_2_2.bmp",
+    "img/person/player_2_3.bmp",
+    "img/person/player_2_4.bmp",
+    "img/person/player_2_5.bmp",
+    "img/person/player_2_6.bmp",
+    "img/person/player_2_7.bmp",
+    "img/person/player_2_8.bmp",
+    "img/person/player_2_9.bmp",
+    "img/person/player_2_10.bmp",
+    "img/person/player_2_11.bmp",
+    "img/person/player_2_12.bmp",
+    "img/person/player_2_die1.bmp",
+    "img/person/player_2_die2.bmp",
+    "img/person/player_2_die3.bmp",
+    "img/person/player_2_die4.bmp",
+    NULL
+};
+
+static const char * hero3_file_names[NUM_HERO_FILES + 1] = {
+    "img/person/player_3_1.bmp",
+    "img/person/player_3_2.bmp",
+    "img/person/player_3_3.bmp",
+    "img/person/player_3_4.bmp",
+    "img/person/player_3_5.bmp",
+    "img/person/player_3_6.bmp",
+    "img/person/player_3_7.bmp",
+    "img/person/player_3_8.bmp",
+    "img/person/player_3_9.bmp",
+    "img/person/player_3_10.bmp",
+    "img/person/player_3_11.bmp",
+    "img/person/player_3_12.bmp",
+    "img/person/player_3_die1.bmp",
+    "img/person/player_3_die2.bmp",
+    "img/person/player_3_die3.bmp",
+    "img/person/player_3_die4.bmp",
     NULL
 };
 
@@ -75,12 +115,27 @@ private:
 public:
 	CClientSocket* tcpclient;
 	int* num;
-    Hero(){
+    Hero(int id){
+	playerId = id;
         Sprite::setVisible(true);
         move = DONT_MOVE;
-        Sprite::initSprite(NUM_HERO_FILES, hero_file_names);
+	switch(playerId) {
+	    case 0:
+        	Sprite::initSprite(NUM_HERO_FILES, hero1_file_names);
+		break;
+	    case 1:
+		Sprite::initSprite(NUM_HERO_FILES, hero2_file_names);
+		break;
+	    case 2:
+		Sprite::initSprite(NUM_HERO_FILES, hero3_file_names);
+		break;
+	    case 4:
+		Sprite::initSprite(NUM_HERO_FILES, hero3_file_names);
+		break;
+	    default:
+		break;
+	}
         setTransparent();
-        //        Sprite::setCoords(500,450);
         frame = 0;
 	deadframe = 11;
 	counter = 0;
@@ -101,7 +156,6 @@ public:
 	slowdownSFX = Mix_LoadWAV("sound/slowdown.wav");
     }
     ~Hero() {
-        //        delete sprite;
         Mix_FreeChunk(placeBombSFX);
         Mix_FreeChunk(deadSFX);
         Mix_FreeChunk(slowdownSFX);
@@ -113,10 +167,7 @@ public:
     void setFrame(int fr){
         frame = fr;
     }
-    void setPlayerId(int id)
-	{
-		playerId=id;
-	}
+    
     hero_pos getPos(){
         return heropos;
     }
@@ -176,7 +227,6 @@ public:
             		default:
                 	    break;
         	    }
-		    // Set to default status
 		    walk_accel = 10;
 		    maxBombNum = 1;
 		    bombLevel = 1;
@@ -261,7 +311,7 @@ public:
                 }
             }
         }
-        //limit inside boundary
+
         if (Sprite::getY() > WINDOW_HEIGHT-getH()) {
             Sprite::setCoords(Sprite::getX(), WINDOW_HEIGHT-getH());
         }
@@ -274,7 +324,6 @@ public:
         if (Sprite::getX() > WINDOW_WIDTH-getW()) {
             Sprite::setCoords(WINDOW_WIDTH-getW(), getY());
         }
-        //        Sprite::setAnimFrame(frame);
         
 	if (!exploTime.empty()) {
 	    if (SDL_GetTicks()-exploTime.front() > 4000) { 
@@ -323,10 +372,6 @@ public:
     
     void inCollision(enum colType t){
         switch (t) {
-            /*case HeroBomb:
-                life--;
-//                cout<<"hero bombed! life "<<life<<endl;
-                break;*/
             case HeroExplosion:
 		isDead = true;
 		
@@ -334,7 +379,6 @@ public:
 		    if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
 	    	    	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
                     life--;
-//                    cout<<"hero on fire1: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
                     protection = true;
                 }
@@ -342,7 +386,6 @@ public:
 		    if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
 	    	    	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
                     life--;
-//                    cout<<"hero on fire2: life "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
                 }
                 break;
@@ -358,11 +401,9 @@ public:
                     protection = true;
                 }
                 else if (protection && checkExplosionTime()){
-                    //	protection = false;
 		    if (Mix_PlayChannel(-1, deadSFX, 0) == -1)
 	    	    	fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
                     life--;
-//                    cout<<"enemy hero collison2! life: "<<life<<endl;
                     inExplosionTime = SDL_GetTicks();
                     
                 }
@@ -370,17 +411,14 @@ public:
             case HeroUpgrade:
                 if (bombLevel < TOTAL_BOMB_LEVEL)
                     bombLevel++;
-//                cout<<"hero bomb level: "<<bombLevel<<endl;
                 break;
             case HeroLife:
                 if (life < TOTAL_LIFE_NUM)
                     life++;
-//                cout<<"hero life: "<<life<<endl;
                 break;
 	    case HeroSpeed:
 		walk_accel = 25;
 		speedUpTime = SDL_GetTicks();  
-//		  cout<<"is hero speed up: "<<isSpeedup<<endl;
 	        break;
 	    case HeroBomb:
 		if (maxBombNum < TOTAL_BOMB_NUM)
@@ -399,5 +437,5 @@ public:
         return life;
     }
 };
-//extern Hero * hero;
+
 #endif

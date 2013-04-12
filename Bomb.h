@@ -120,7 +120,6 @@ public:
 
     }
     ~Bomb() {
-        //        delete sprite;
         Mix_FreeChunk(bang);
     }
     
@@ -138,7 +137,6 @@ public:
             if (!visible) {
                 return;
             }
-//            Mix_Chunk *bang = Mix_LoadWAV("sound/bang.wav");
             if (bang == NULL)
                 return;
             int onPlay;
@@ -147,8 +145,9 @@ public:
                 fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
             while(Mix_Playing(onPlay) == 0)
                 Mix_FreeChunk(bang);
+
             generateExplosions(blocks, colList, heroGroup, bombGroup, explosionGroup);
-//            Mix_FreeChunk(bang);
+
 
         }
         if (!isAwake && checkTimer(awakeInterval)){
@@ -163,7 +162,6 @@ public:
             return;
         }
         setVisible(false);
-        //        isAwake = false;
         Explosion * explosion1;
         Explosion * explosion2;
         switch(bombLevel) {
@@ -191,28 +189,21 @@ public:
         explosionGroup.push_back(explosion1);
         explosionGroup.push_back(explosion2);
         
-        // add HeroExplosion collison pairs
         for(map<int, Hero* >::iterator it=heroGroup.begin(); it!=heroGroup.end(); ++it) {
             CollisionPair * cp1 = new CollisionPair(it->second, explosion1, HeroExplosion);
             colList.push_back(cp1);
             CollisionPair * cp2 = new CollisionPair(it->second, explosion2, HeroExplosion);
             colList.push_back(cp2);
         }
-        // add BombExplosion collison pairs
+
         for (int i = 0; i < bombGroup.size(); i++) {
             CollisionPair * cp1 = new CollisionPair(bombGroup.at(i), explosion1, BombExplosion);
             colList.push_back(cp1);
             CollisionPair * cp2 = new CollisionPair(bombGroup.at(i), explosion2, BombExplosion);
             colList.push_back(cp2);
         }
-//        // add EnemyExplosion collison pairs
-//        for (int i = 0; i < enemyGroup.size(); i++) {
-//            CollisionPair * cp1 = new CollisionPair(enemyGroup.at(i), explosion1, EnemyExplosion);
-//            colList.push_back(cp1);
-//            CollisionPair * cp2 = new CollisionPair(enemyGroup.at(i), explosion2, EnemyExplosion);
-//            colList.push_back(cp2);
-//        }
-        // add BlockExplosion collison pairs
+
+
         for (int i = 0; i < blocks.size(); i++) {
             if (blocks.at(i)->getSolid())
                 continue;
@@ -251,13 +242,7 @@ public:
         int tmp = exp->getY()-exp->getH()/2+getH()/2;
         exp->setCoords(exp->getX(), hi);
         exp->setH(ht);
-        //        exp->rect.x=0;
-        //        exp->rect.y=hi-tmp;
-        //        exp->rect.w=exp->getW();
-        //        exp->rect.h=ht;
         exp->setShowPart(0, hi-tmp, exp->getW(), ht);
-        //        exp->setSurface(exp->getX(), hi, exp->getW(), ht);
-        //        exp->setCoords(exp->getX(), hi);
     }
     
     void setHoriExplosionBound(Explosion * exp, vector<Block *> blocks) {
@@ -297,7 +282,6 @@ public:
     }
     
     bool isCollided(Sprite * other) {
-        //        cout<<"im here"<<endl;
         if (isAwake)
             return Sprite::isCollided(other);
         return false;
@@ -305,15 +289,11 @@ public:
     
     void inCollision(enum colType t){
         switch (t) {
-                //case HeroBomb:
             case BombEnemy:
-                //                setVisible(false);
                 explosionInterval = 0;
                 break;
             case BombExplosion:
-                //                cout<<"i here"<<endl;
                 explosionInterval = 0;
-                //                awakeInterval = 0;
                 break;
             default:
                 break;

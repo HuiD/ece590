@@ -1,5 +1,5 @@
 #Compliler flags
-CPPFLAGS=-Wall -g `sdl-config --cflags`
+CPPFLAGS= -g `sdl-config --cflags`
 
 #Objects
 OBJECTS=server.o CNet.o heromessage.o
