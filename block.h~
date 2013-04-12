@@ -54,7 +54,7 @@ public:
 	    upgradeType=4;
         else
             upgradeType=0;
-        isExploded = false;
+        //isExploded = false;
     }
     ~Block() {
         //        delete sprite;

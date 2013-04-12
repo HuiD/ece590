@@ -48,7 +48,7 @@ class server
         }
         int net_thread_main();
 	public:
-		server();
+		server(int num);
 		void setMaxPlayer(int num)
 		{
 			max_players=num;

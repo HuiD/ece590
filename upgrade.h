@@ -79,7 +79,6 @@ public:
         oriTime = SDL_GetTicks();
     }
     ~Upgrade() {
-        //        delete sprite;
         Mix_FreeChunk(soundEffect);
     }
     
@@ -97,23 +96,17 @@ public:
     void inCollision(enum colType t){
 	if (Mix_PlayChannel(-1, soundEffect, 0) == -1)
 	    fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-	    //while (Mix_Playing(Mix_PlayChannel(-1, soundEffect, 0)) == 0)
-	    //    Mix_FreeChunk(soundEffect);
         switch (t) {
             case HeroUpgrade:
-//      cout<<"hero upgraded!"<<endl;
                 setVisible(false);
                 break;
             case HeroLife:
-//      cout<<"hero upgraded!"<<endl;
                 setVisible(false);
                 break;
 	    case HeroSpeed:
-//	cout<<"hero upgraded!"<<endl;
 		setVisible(false);
 		break;
 	    case HeroBomb:
-//	cout<<"hero upgraded!"<<endl;
 		setVisible(false);		
 		break;
             default:
