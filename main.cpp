@@ -741,7 +741,7 @@ int main(int argc, char* argv[]) {
     
     /* cleanup SDL- return to normal screen mode,
      etc */
-//    Mix_CloseAudio();
+    Mix_CloseAudio();
 //
 //    Mix_Quit();
 
