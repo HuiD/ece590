@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "SDL.h"
-#include "SDL_mixer.h"
+#include "SDL/SDL_mixer.h"
 #include "block.h"
 #include "hero.h"
 #include <vector>
@@ -331,8 +331,8 @@ void handleServer()
 			heroGroup.erase(id);
 			return;
 		}
-		Hero* newhero = new Hero();
-		newhero->setPlayerId(id);
+		Hero* newhero = new Hero(id);
+		//newhero->setPlayerId(id);
 		heroGroup[id]=newhero;
         switch (id) {
             case 0:

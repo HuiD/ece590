@@ -46,9 +46,9 @@ SDL_Rect textDest;
 TTF_Font *text_font;
 SDL_Color font_color;
 bool start=false;
-Mix_Chunk *menuMusic = NULL;
+Mix_Music *menuMusic = NULL;
 Mix_Chunk *menuSFX = NULL;
-Mix_Chunk *mainMusic = NULL;
+Mix_Music *mainMusic = NULL;
 
 void handleServer();
 void handleNetwork();
@@ -107,7 +107,7 @@ int handle_keyup(SDLKey k) {
             bombed = heroGroup[myId]->getIsBomb();
             break;
         case SDLK_ESCAPE:
-            Mix_HaltChannel(-1);
+            Mix_HaltMusic();
             return MENU;
             
     }
@@ -119,7 +119,7 @@ int handle_menu_key(SDLKey k, int & arrowPos) {
         case SDLK_ESCAPE:
             return EXIT;
         case SDLK_RETURN:
-            Mix_HaltChannel(-1);
+            Mix_HaltMusic();
             if (arrowPos==0)
                 return MULTIPLE;
             if (arrowPos==1)
@@ -146,7 +146,7 @@ int handle_menu_keyup(SDLKey k, int & arrowPos) {
                 arrowPos = 0;
             break;
         case SDLK_SPACE:
-            Mix_HaltChannel(-1);
+            Mix_HaltMusic();
             if (arrowPos==0)
                 return MULTIPLE;
             if (arrowPos==1)
@@ -272,7 +272,7 @@ void init(string ip)
     //initEnemy();
     background->setCoords(0,0);
     
-    mainMusic = Mix_LoadWAV("sound/mainbgm.wav");
+    mainMusic = Mix_LoadMUS("sound/mainbgm.wav");
     
     int totalScroll =0;
     
@@ -408,7 +408,6 @@ void handleClients()
 		{
 			int bx, by, lvl;
 			msg->UnLoadByte(bx, by, lvl);
-            //			cout<<"bomb msg received at:"<<bx<<" "<<by<<endl;
 			Bomb* newbomb=new Bomb(bx, by, 4000, SDL_GetTicks(), lvl);
 		    bombGroup.push_back(newbomb);
 		}
@@ -481,8 +480,8 @@ int eventLoop(SDL_Surface * screen) {
                         delete tcpclient;
                         delete udpclient;
                         delete remoteip;
-                        Mix_HaltChannel(-1);
-                        Mix_FreeChunk(mainMusic);
+                        Mix_HaltMusic();
+                        Mix_FreeMusic(mainMusic);
 
                         return MENU;
                     }
@@ -551,10 +550,10 @@ int eventLoop(SDL_Surface * screen) {
         //draw sprites
         background->blit(screen);
         
-        //if (Mix_PlayingMusic() == 0) {
-            if (Mix_PlayChannel(-1, mainMusic, -1) == -1)
+        if (Mix_PlayingMusic() == 0) {
+            if (Mix_PlayMusic(mainMusic, -1) == -1)
                 fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-        //}
+        }
         
         for (int j = 0; j < bombGroup.size(); j++) {
             bombGroup.at(j)->blit(screen);
@@ -601,7 +600,7 @@ int menu(SDL_Surface * screen) {
     Background * menuBackground = new Background("img/menu/menu.bmp");
     menuBackground->setCoords(0,0);
     Background * arrow = new Background("img/menu/arrow.bmp");
-    menuMusic = Mix_LoadWAV("sound/menubgm.wav");
+    menuMusic = Mix_LoadMUS("sound/menubgm.wav");
     menuSFX = Mix_LoadWAV("sound/arrow.wav");
     int arrowX = 250;
     int arrowY = 515;
@@ -625,20 +624,20 @@ int menu(SDL_Surface * screen) {
             if (stage == EXIT){
                 delete menuBackground;
                 delete arrow;
-		Mix_HaltChannel(-1);
-                Mix_FreeChunk(menuSFX);   
-                Mix_FreeChunk(menuMusic);
-                //menuMusic = NULL;
+                Mix_FreeChunk(menuSFX);
+                Mix_HaltMusic();
+                Mix_FreeMusic(menuMusic);
+                menuMusic = NULL;
                 return EXIT;
 
             }
             else if (stage == MULTIPLE){
                 delete menuBackground;
                 delete arrow;
-		Mix_HaltChannel(-1);
                 Mix_FreeChunk(menuSFX);
-                Mix_FreeChunk(menuMusic);
-                //menuMusic = NULL;
+                Mix_HaltMusic();
+                Mix_FreeMusic(menuMusic);
+                menuMusic = NULL;
                 return MULTIPLE;
                 
             }
@@ -654,10 +653,10 @@ int menu(SDL_Surface * screen) {
         menuBackground->blit(screen);
         arrow->blit(screen);
         
-        //if (Mix_PlayingMusic() == 0) {
-            if (Mix_PlayChannel(-1, menuMusic, -1) == -1)
+        if (Mix_PlayingMusic() == 0) {
+            if (Mix_PlayMusic(menuMusic, -1) == -1)
                 fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-        //}
+        }
         
         /* since its double buffered, make
          the changes show up*/
@@ -746,6 +745,7 @@ int main(int argc, char* argv[]) {
 //    Mix_Quit();
 
     SDL_Quit();
+
     
     
     return EXIT_SUCCESS;
