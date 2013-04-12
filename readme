@@ -1,2 +1,10 @@
-ece590 project
+Project: Multiplayer Bomberman
 group 07
+Group Member: Hui Dong, Ran Zhang, Tianxu Wang
+
+
+We used SDL as our game engine and the game can be run under Linux environment (we use Ubuntu 12.04 LTS as our development environment.).
+
+For the network part, we used SDL_Net to enable multiplay over the LAN. We also referenced the online sdl tutorials at http://www.sdltutorials.com/ and used and modified their libraries.
+
+We included SDL_TTF and SDL_Mixer in our game for Heads Up Display and audio of the game.
